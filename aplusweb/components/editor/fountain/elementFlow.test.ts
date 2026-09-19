@@ -153,10 +153,8 @@ describe("(CONT'D)", () => {
 /* ========================================================================== */
 
 describe('Tab', () => {
-  it('turns an empty line into a cue', () => {
+  it('does nothing on an empty line', () => {
     const next = tab(stateOf('INT. ROOM - DAY\n\n'));
-    // No text yet, so nothing visible changes — but the declaration is made,
-    // which is what the Enter test above depends on.
     expect(next.doc.toString()).toBe('INT. ROOM - DAY\n\n');
   });
 
@@ -165,14 +163,13 @@ describe('Tab', () => {
     expect(tab(stateOf('EXT')).doc.toString()).toBe('EXT. ');
   });
 
-  it('offers the time-of-day separator once there is a location', () => {
-    expect(tab(stateOf('INT. KITCHEN')).doc.toString()).toBe('INT. KITCHEN - ');
+  it('never inserts markup after a completed heading', () => {
+    expect(tab(stateOf('INT. KITCHEN')).doc.toString()).toBe('INT. KITCHEN');
   });
 
-  it('adds a parenthetical under a cue', () => {
-    // Caret at the end of a cue that already has dialogue under it.
+  it('never inserts a parenthetical under a cue', () => {
     const state = stateOf('INT. ROOM - DAY\n\nBRICK\nHi.', 22);
-    expect(tab(state).doc.toString()).toBe('INT. ROOM - DAY\n\nBRICK\n()\nHi.');
+    expect(tab(state).doc.toString()).toBe('INT. ROOM - DAY\n\nBRICK\nHi.');
   });
 
   /**
@@ -181,10 +178,10 @@ describe('Tab', () => {
    * which is correct rather than unfortunate: `HELLO` without one would be
    * read straight back as a cue.
    */
-  it('steps backwards with Shift+Tab', () => {
+  it('does not cycle element types with Shift+Tab', () => {
     const forward = apply(tabCommand(false), stateOf('hello'));
-    expect(forward.doc.toString()).toBe('HELLO');
-    expect(apply(tabCommand(true), forward).doc.toString()).toBe('!HELLO');
+    expect(forward.doc.toString()).toBe('hello');
+    expect(apply(tabCommand(true), forward).doc.toString()).toBe('hello');
   });
 });
 

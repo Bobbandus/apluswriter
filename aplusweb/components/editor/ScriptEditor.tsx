@@ -18,6 +18,7 @@ import {
 } from './fountain/settings';
 import type { SwitchableType } from '@aplus/fountain/rewrite';
 import type { DictionaryData } from '@aplus/fountain/autocomplete';
+import styles from './ScriptEditor.module.css';
 
 export interface ScriptEditorProps {
   /** The Fountain source. Only read on mount — this is an uncontrolled editor. */
@@ -72,22 +73,22 @@ export function ScriptEditor({
     locale: locale === 'en' ? 'en' : 'sv',
     ...settings,
   };
+  const elementLabels: Partial<Record<SwitchableType, string>> = {
+    sceneHeading: tElements('sceneHeading'), action: tElements('action'),
+    character: tElements('character'), dialogue: tElements('dialogue'),
+    parenthetical: tElements('parenthetical'), transition: tElements('transition'),
+    note: tElements('note'), lyrics: tElements('lyrics'), section: tElements('section'), synopsis: tElements('synopsis'),
+  };
+
+  const chooseElement = (type: SwitchableType) => {
+    const instance = view.current;
+    if (!instance) return;
+    switchElement(type)(instance);
+    instance.focus();
+  };
 
   useEffect(() => {
     if (!host.current || view.current) return;
-
-    const labels: Partial<Record<SwitchableType, string>> = {
-      sceneHeading: tElements('sceneHeading'),
-      action: tElements('action'),
-      character: tElements('character'),
-      dialogue: tElements('dialogue'),
-      parenthetical: tElements('parenthetical'),
-      transition: tElements('transition'),
-      note: tElements('note'),
-      lyrics: tElements('lyrics'),
-      section: tElements('section'),
-      synopsis: tElements('synopsis'),
-    };
 
     const extensions: Extension[] = [
       history(),
@@ -110,7 +111,7 @@ export function ScriptEditor({
       ),
       fountainTheme,
       fountainDecorations,
-      elementPicker(labels, tEditor('elementPickerHint'), switchElement),
+      elementPicker(elementLabels, tEditor('elementPickerHint'), switchElement),
       elementFlow(),
       keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
       EditorView.updateListener.of((update) => {
@@ -183,5 +184,23 @@ export function ScriptEditor({
     });
   }, [value]);
 
-  return <div ref={host} data-testid="script-editor" />;
+  const elementButtons: { type: SwitchableType; key: string }[] = [
+    { type: 'sceneHeading', key: '1' }, { type: 'action', key: '2' },
+    { type: 'character', key: '3' }, { type: 'dialogue', key: '4' },
+    { type: 'parenthetical', key: '5' }, { type: 'transition', key: '6' },
+    { type: 'section', key: '7' }, { type: 'synopsis', key: '8' },
+  ];
+
+  return (
+    <div className={styles.editorShell}>
+      <div className={styles.elementBar} role="toolbar" aria-label={tEditor('elementPicker')}>
+        {elementButtons.map(({ type, key }) => (
+          <button key={type} type="button" className={styles.elementButton} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseElement(type)}>
+            <kbd>{key}</kbd><span>{elementLabels[type]}</span>
+          </button>
+        ))}
+      </div>
+      <div ref={host} data-testid="script-editor" className={styles.surface} />
+    </div>
+  );
 }

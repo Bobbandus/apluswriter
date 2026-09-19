@@ -12,7 +12,7 @@ import { EditorView, keymap, type KeyBinding } from '@codemirror/view';
 import { isolateHistory } from '@codemirror/commands';
 import { classifyLine, isBlankLine, type LineType } from '@aplus/fountain/lineClassify';
 import { rewriteLine, type SwitchableType } from '@aplus/fountain/rewrite';
-import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE, TOD_SEPARATOR_RE } from '@aplus/fountain/vocab';
+import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE } from '@aplus/fountain/vocab';
 import { splitCharacter } from '@aplus/fountain/parse';
 import { openPicker } from './picker';
 import { editorSettings, type EditorSettings } from './settings';
@@ -128,7 +128,7 @@ export function enterCommand(): StateCommand {
   return ({ state, dispatch }) => {
     const range = state.selection.main;
     const line = state.doc.lineAt(range.head);
-    const type = effectiveType(state, line.number);
+    let type = effectiveType(state, line.number);
 
     // Enter on an already-empty line opens the element picker, which is the
     // one place the writer is told what their options are.
@@ -139,6 +139,11 @@ export function enterCommand(): StateCommand {
         return true;
       }
     }
+
+    // A single title-cased word on its own paragraph after action is almost
+    // always a cue. This is deliberately conservative: prose stays Action.
+    const inferredCue = type === 'action' && looksLikeCue(state, line.number);
+    if (inferredCue) type = 'character';
 
     let insert = '\n'.repeat(NEWLINES_AFTER[type] ?? 2);
     let head = range.from + insert.length;
@@ -153,6 +158,10 @@ export function enterCommand(): StateCommand {
       }
     }
 
+    if (inferredCue) {
+      const cue = line.text.trim().toLocaleUpperCase();
+      changes.push({ from: line.from, to: line.to, insert: cue });
+    }
     changes.push({ from: range.from, to: range.to, insert });
 
     dispatch(
@@ -165,6 +174,14 @@ export function enterCommand(): StateCommand {
     );
     return true;
   };
+}
+
+function looksLikeCue(state: EditorState, lineNumber: number): boolean {
+  const line = state.doc.line(lineNumber);
+  const text = line.text.trim();
+  if (!/^[\p{Lu}][\p{L}'’ -]{1,34}$/u.test(text)) return false;
+  if (lineNumber === 1) return true;
+  return isBlankLine(state.doc.line(lineNumber - 1).text);
 }
 
 /**
@@ -218,16 +235,6 @@ const softBreak: StateCommand = ({ state, dispatch }) => {
 /* Tab                                                                        */
 /* ========================================================================== */
 
-/** The cycle Tab walks when there is nothing more specific to do. */
-const TAB_CYCLE: SwitchableType[] = [
-  'action',
-  'character',
-  'parenthetical',
-  'dialogue',
-  'sceneHeading',
-  'transition',
-];
-
 function replaceLine(
   state: EditorState,
   lineNumber: number,
@@ -274,42 +281,11 @@ export function tabCommand(back: boolean): StateCommand {
         return true;
       }
 
-      // A location but no time of day: offer the separator.
-      if (prefix && ![...body.matchAll(TOD_SEPARATOR_RE)].length) {
-        dispatch(replaceLine(state, line.number, `${text.replace(/\s+$/, '')} - `));
-        return true;
-      }
     }
 
-    /* ---- a cue wants a parenthetical or an extension under it ---- */
-    if (!back && type === 'character' && trimmed.length > 0) {
-      if (settingsOf(state).tabOnCharacter === 'extension') {
-        dispatch(replaceLine(state, line.number, `${text.replace(/\s+$/, '')} ()`));
-        // Caret inside the parentheses.
-        dispatch(
-          state.update({ selection: EditorSelection.cursor(line.from + text.trimEnd().length + 2) }),
-        );
-        return true;
-      }
-
-      dispatch(
-        state.update({
-          changes: { from: line.to, insert: '\n()' },
-          selection: EditorSelection.cursor(line.to + 2),
-          scrollIntoView: true,
-          userEvent: 'input',
-        }),
-      );
-      return true;
-    }
-
-    /* ---- otherwise, step through the element types ---- */
-    const current = TAB_CYCLE.indexOf(type as SwitchableType);
-    const index = current < 0 ? 0 : current;
-    const next = TAB_CYCLE[(index + (back ? -1 : 1) + TAB_CYCLE.length) % TAB_CYCLE.length];
-    if (!next) return false;
-
-    dispatch(replaceLine(state, line.number, rewriteLine(text, next), next));
+    // Tab must never manufacture a parenthetical, a `>` or other Fountain
+    // markup. It only completes an unambiguous scene prefix; use the visible
+    // element bar or Ctrl/Cmd+number to choose a type explicitly.
     return true;
   };
 }
