@@ -9,11 +9,13 @@ import {
   type Transaction,
 } from '@codemirror/state';
 import { EditorView, keymap, type KeyBinding } from '@codemirror/view';
+import { isolateHistory } from '@codemirror/commands';
 import { classifyLine, isBlankLine, type LineType } from '@/lib/fountain/lineClassify';
 import { rewriteLine, type SwitchableType } from '@/lib/fountain/rewrite';
 import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE, TOD_SEPARATOR_RE } from '@/lib/fountain/vocab';
 import { splitCharacter } from '@/lib/fountain/parse';
 import { openPicker } from './picker';
+import { editorSettings, type EditorSettings } from './settings';
 
 /**
  * The element flow — what Enter and Tab do.
@@ -29,23 +31,16 @@ import { openPicker } from './picker';
  * stops having to think about the spacing.
  */
 
-export interface FlowSettings {
-  /** Insert `(CONT'D)` when the same character speaks again after action. */
-  autoContd: boolean;
-  /** Uppercase scene headings and cues as they are typed. */
-  autoUppercase: boolean;
-  /** Which "continued" marker to use. */
-  locale: 'sv' | 'en';
-  /** Tab on a cue: add a parenthetical, or a character extension. */
-  tabOnCharacter: 'parenthetical' | 'extension';
+/**
+ * Settings are read from the editor's own state rather than passed in.
+ *
+ * Every command already receives an `EditorState`, so this costs nothing to
+ * read — and it means toggling a setting reconfigures the running editor
+ * instead of rebuilding it, which would drop the caret and the undo history.
+ */
+function settingsOf(state: EditorState): EditorSettings {
+  return state.facet(editorSettings);
 }
-
-export const DEFAULT_FLOW: FlowSettings = {
-  autoContd: true,
-  autoUppercase: true,
-  locale: 'sv',
-  tabOnCharacter: 'parenthetical',
-};
 
 /* ========================================================================== */
 /* Declared intent                                                            */
@@ -76,6 +71,14 @@ export const intentField = StateField.define<{ line: number; type: SwitchableTyp
     }
 
     if (!value) return null;
+
+    /* Undo has to take the declaration with it.
+     *
+     * Otherwise undoing a switch to Character restores the lower-case text
+     * while the editor still believes the line is a cue — and the next
+     * keystroke uppercases it straight back. From the writer's side that is
+     * indistinguishable from undo being broken. */
+    if (transaction.isUserEvent('undo') || transaction.isUserEvent('redo')) return null;
 
     // The declaration belongs to one line. Leaving it drops the intent.
     if (transaction.docChanged || transaction.selection) {
@@ -121,7 +124,7 @@ const NEWLINES_AFTER: Record<string, number> = {
   blank: 1,
 };
 
-export function enterCommand(settings: () => FlowSettings): StateCommand {
+export function enterCommand(): StateCommand {
   return ({ state, dispatch }) => {
     const range = state.selection.main;
     const line = state.doc.lineAt(range.head);
@@ -142,8 +145,8 @@ export function enterCommand(settings: () => FlowSettings): StateCommand {
     const changes: { from: number; to?: number; insert: string }[] = [];
 
     // A cue that repeats after only action gets its continued marker.
-    if (type === 'character' && settings().autoContd) {
-      const contd = continuedMarkerFor(state, line.number, settings().locale);
+    if (type === 'character' && settingsOf(state).autoContd) {
+      const contd = continuedMarkerFor(state, line.number, settingsOf(state).locale);
       if (contd) {
         changes.push({ from: line.to, insert: ` ${contd}` });
         head += contd.length + 1;
@@ -240,10 +243,18 @@ function replaceLine(
     // Record what the writer just said this line is, so an empty cue line
     // still uppercases and still gets dialogue on Enter.
     effects: declare ? setIntent.of({ line: lineNumber, type: declare }) : undefined,
+    /* An element switch is its own undo step.
+     *
+     * CodeMirror's history merges adjacent edits that arrive close together,
+     * so typing "Noah" and immediately pressing Tab would fuse into one entry
+     * — and Ctrl+Z would throw away the word along with the switch. Isolating
+     * it means one undo returns "NOAH" to "Noah", which is what the writer
+     * asked for. */
+    annotations: declare ? isolateHistory.of('full') : undefined,
   });
 }
 
-export function tabCommand(settings: () => FlowSettings, back: boolean): StateCommand {
+export function tabCommand(back: boolean): StateCommand {
   return ({ state, dispatch }) => {
     const range = state.selection.main;
     const line = state.doc.lineAt(range.head);
@@ -272,7 +283,7 @@ export function tabCommand(settings: () => FlowSettings, back: boolean): StateCo
 
     /* ---- a cue wants a parenthetical or an extension under it ---- */
     if (!back && type === 'character' && trimmed.length > 0) {
-      if (settings().tabOnCharacter === 'extension') {
+      if (settingsOf(state).tabOnCharacter === 'extension') {
         dispatch(replaceLine(state, line.number, `${text.replace(/\s+$/, '')} ()`));
         // Caret inside the parentheses.
         dispatch(
@@ -332,7 +343,7 @@ const UPPERCASE_TYPES = new Set<LineType>(['sceneHeading', 'character', 'transit
  * the editor display `INT. HOUSE` while the file said `int. house`, and the
  * exported PDF would then disagree with the screen.
  */
-function makeInputHandler(settings: () => FlowSettings) {
+function makeInputHandler() {
   return EditorView.inputHandler.of((view, from, to, text) => {
     const { state } = view;
 
@@ -355,7 +366,7 @@ function makeInputHandler(settings: () => FlowSettings) {
       return true;
     }
 
-    if (!settings().autoUppercase) return false;
+    if (!settingsOf(state).autoUppercase) return false;
     // A multi-line paste is somebody's script arriving, not a slugline being
     // typed — leave it exactly as it came.
     if (text.includes('\n')) return false;
@@ -423,16 +434,16 @@ const SWITCH_KEYS: [string, SwitchableType][] = [
   ['Mod-8', 'synopsis'],
 ];
 
-export function elementFlow(getSettings: () => FlowSettings): Extension[] {
+export function elementFlow(): Extension[] {
   const keys: KeyBinding[] = [
-    { key: 'Enter', run: enterCommand(getSettings) },
+    { key: 'Enter', run: enterCommand() },
     { key: 'Shift-Enter', run: softBreak },
-    { key: 'Tab', run: tabCommand(getSettings, false) },
-    { key: 'Shift-Tab', run: tabCommand(getSettings, true) },
+    { key: 'Tab', run: tabCommand(false) },
+    { key: 'Shift-Tab', run: tabCommand(true) },
     ...SWITCH_KEYS.map(([key, type]) => ({ key, run: switchElement(type), preventDefault: true })),
   ];
 
   // Must outrank the default keymap, which owns Enter and Tab and would
   // otherwise win and insert a plain newline.
-  return [intentField, Prec.high(keymap.of(keys)), makeInputHandler(getSettings)];
+  return [intentField, Prec.high(keymap.of(keys)), makeInputHandler()];
 }

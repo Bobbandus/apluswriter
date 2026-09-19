@@ -11,6 +11,10 @@ import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { useScript } from '@/lib/hooks/useScript';
+import {
+  DEFAULT_EDITOR_SETTINGS,
+  type EditorSettings,
+} from '@/components/editor/fountain/settings';
 import type { PageSize } from '@/lib/paginator/geometry';
 
 export interface ProjectWorkspaceProps {
@@ -39,12 +43,21 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     '',
   );
 
+  const [editor, setEditor] = usePersistentState<EditorSettings>(
+    'aplus.ui.editor',
+    DEFAULT_EDITOR_SETTINGS,
+  );
+
+  const [caret, setCaret] = useState(0);
+
   const script = useScript(source);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
 
   useHotkeys({ 'mod+,': openSettings });
 
-  const scene = script.scenes[0];
+  // The scene the caret is in, so the navigator and inspector follow along.
+  const scene =
+    script.scenes.find((s) => caret >= s.from && caret < s.to) ?? script.scenes[0];
 
   return (
     <>
@@ -57,7 +70,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // genuinely being saved to a server, the titlebar says nothing rather
         // than claiming the work is safe.
         saveState={null}
-        sidebar={<Navigator scenes={script.scenes} />}
+        sidebar={<Navigator scenes={script.scenes} caret={caret} />}
         inspector={<Inspector onOpenSettings={openSettings} scene={scene} script={script} />}
       >
         <PageCanvas pageSize={pageSize}>
@@ -65,7 +78,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
               editor on an empty document and then overwrite the writer's
               work with it. */}
           {hydrated && (
-            <ScriptEditor initialValue={source} onChange={setSource} />
+            <ScriptEditor
+              initialValue={source}
+              onChange={setSource}
+              onCaretChange={setCaret}
+              settings={editor}
+            />
           )}
         </PageCanvas>
       </Workspace>
@@ -75,6 +93,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onClose={() => setSettingsOpen(false)}
         pageSize={pageSize}
         onPageSizeChange={setPageSize}
+        editor={editor}
+        onEditorChange={setEditor}
       />
     </>
   );

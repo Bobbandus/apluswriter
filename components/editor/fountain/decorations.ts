@@ -8,6 +8,7 @@ import {
 } from '@codemirror/view';
 import { classifyRange, type LineType } from '@/lib/fountain/lineClassify';
 import { scanInline } from '@/lib/fountain/inline';
+import { editorSettings } from './settings';
 
 /**
  * Live formatting.
@@ -42,6 +43,7 @@ function caretOnLine(view: EditorView, from: number, to: number): boolean {
 function buildDecorations(view: EditorView): DecorationSet {
   const builder = new RangeSetBuilder<Decoration>();
   const { doc } = view.state;
+  const { renderNotes } = view.state.facet(editorSettings);
 
   for (const { from, to } of view.visibleRanges) {
     const firstLine = doc.lineAt(from).number;
@@ -60,7 +62,7 @@ function buildDecorations(view: EditorView): DecorationSet {
       // actually in the file.
       if (caretOnLine(view, line.from, line.to)) continue;
 
-      addInlineDecorations(builder, line.text, line.from, type);
+      addInlineDecorations(builder, line.text, line.from, type, renderNotes);
     }
   }
 
@@ -81,6 +83,7 @@ function addInlineDecorations(
   text: string,
   lineFrom: number,
   type: LineType,
+  renderNotes: boolean,
 ): void {
   /* Collected first, then sorted — RangeSetBuilder requires ascending order,
      and the forcing marker, emphasis and notes are found independently. */
@@ -114,6 +117,12 @@ function addInlineDecorations(
     }
 
     if (span.type === 'note' || span.type === 'tag') {
+      /* With note rendering off the brackets stay visible and the text is
+         left alone. Some writers want to see exactly what is in the file,
+         and prettifying something you are about to hand to another app is a
+         liability rather than a feature. */
+      if (!renderNotes) continue;
+
       const cls = span.type === 'tag' ? 'cm-fx-tag' : 'cm-fx-note';
       // Hide the brackets, keep the content, pill the middle.
       ranges.push({ from: span.from, to: span.contentFrom, deco: HIDE, rank: 0 });

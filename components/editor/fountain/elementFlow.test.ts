@@ -1,6 +1,8 @@
 import { EditorSelection, EditorState, type StateCommand } from '@codemirror/state';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_FLOW, elementFlow, enterCommand, switchElement, tabCommand } from './elementFlow';
+import { elementFlow, enterCommand, intentField, switchElement, tabCommand } from './elementFlow';
+import { history, redo, undo } from '@codemirror/commands';
+import { DEFAULT_EDITOR_SETTINGS, editorSettings, type EditorSettings } from './settings';
 
 /**
  * The element flow, tested as commands rather than through a DOM.
@@ -11,13 +13,13 @@ import { DEFAULT_FLOW, elementFlow, enterCommand, switchElement, tabCommand } fr
  * exhaustively.
  */
 
-const settings = () => DEFAULT_FLOW;
+const settings = DEFAULT_EDITOR_SETTINGS;
 
 function stateOf(doc: string, cursor = doc.length): EditorState {
   return EditorState.create({
     doc,
     selection: EditorSelection.cursor(cursor),
-    extensions: [elementFlow(settings)],
+    extensions: [elementFlow(), editorSettings.of(settings)],
   });
 }
 
@@ -34,8 +36,8 @@ function apply(command: StateCommand, state: EditorState): EditorState {
   return next;
 }
 
-const enter = (state: EditorState) => apply(enterCommand(settings), state);
-const tab = (state: EditorState) => apply(tabCommand(settings, false), state);
+const enter = (state: EditorState) => apply(enterCommand(), state);
+const tab = (state: EditorState) => apply(tabCommand(false), state);
 
 /* ========================================================================== */
 
@@ -103,11 +105,11 @@ describe("(CONT'D)", () => {
    */
   function typeCueAndEnter(before: string, name: string, flow = settings): string {
     const declared = apply(
-      tabCommand(flow, false),
+      tabCommand(false),
       EditorState.create({
         doc: `${before}\n\n`,
         selection: EditorSelection.cursor(before.length + 2),
-        extensions: [elementFlow(flow)],
+        extensions: [elementFlow(), editorSettings.of(flow)],
       }),
     );
 
@@ -116,7 +118,7 @@ describe("(CONT'D)", () => {
       selection: EditorSelection.cursor(declared.doc.length + name.length),
     }).state;
 
-    return apply(enterCommand(flow), typed).doc.toString();
+    return apply(enterCommand(), typed).doc.toString();
   }
 
   it('marks a cue that repeats after only action', () => {
@@ -142,7 +144,7 @@ describe("(CONT'D)", () => {
   });
 
   it('uses the English marker in English', () => {
-    const english = () => ({ ...DEFAULT_FLOW, locale: 'en' as const });
+    const english: EditorSettings = { ...DEFAULT_EDITOR_SETTINGS, locale: 'en' };
     const before = ['INT. ROOM - DAY', '', 'BRICK', 'First.', '', 'He turns.'].join('\n');
     expect(typeCueAndEnter(before, 'BRICK', english)).toContain("BRICK (CONT'D)");
   });
@@ -180,9 +182,70 @@ describe('Tab', () => {
    * read straight back as a cue.
    */
   it('steps backwards with Shift+Tab', () => {
-    const forward = apply(tabCommand(settings, false), stateOf('hello'));
+    const forward = apply(tabCommand(false), stateOf('hello'));
     expect(forward.doc.toString()).toBe('HELLO');
-    expect(apply(tabCommand(settings, true), forward).doc.toString()).toBe('!HELLO');
+    expect(apply(tabCommand(true), forward).doc.toString()).toBe('!HELLO');
+  });
+});
+
+/* ========================================================================== */
+
+describe('undo', () => {
+  /**
+   * The reported bug: type `Noah`, press Tab to make it a cue, press Ctrl+Z —
+   * and it came back in capitals.
+   *
+   * Two causes, both fixed. CodeMirror's history merges edits that arrive
+   * close together, so the typing and the switch fused into one entry; and
+   * the declared intent survived the undo, so the editor still thought the
+   * line was a cue and re-uppercased it on the next keystroke.
+   */
+  function typeThenSwitch(word: string) {
+    const start = EditorState.create({
+      doc: '',
+      extensions: [elementFlow(), editorSettings.of(settings), history()],
+    });
+
+    const typed = start.update({
+      changes: { from: 0, insert: word },
+      selection: EditorSelection.cursor(word.length),
+      userEvent: 'input.type',
+    }).state;
+
+    return apply(switchElement('character'), typed);
+  }
+
+  it('restores the original casing in one step', () => {
+    const switched = typeThenSwitch('Noah');
+    expect(switched.doc.toString()).toBe('NOAH');
+
+    let undone = switched;
+    undo({ state: switched, dispatch: (tr) => (undone = tr.state) });
+
+    // Not '' — the word must survive; only the switch is undone.
+    expect(undone.doc.toString()).toBe('Noah');
+  });
+
+  it('drops the declared element, so typing does not re-capitalise', () => {
+    const switched = typeThenSwitch('Noah');
+    expect(switched.field(intentField)).not.toBeNull();
+
+    let undone = switched;
+    undo({ state: switched, dispatch: (tr) => (undone = tr.state) });
+
+    expect(undone.field(intentField)).toBeNull();
+  });
+
+  it('redoes the switch', () => {
+    const switched = typeThenSwitch('Noah');
+
+    let undone = switched;
+    undo({ state: switched, dispatch: (tr) => (undone = tr.state) });
+
+    let redone = undone;
+    redo({ state: undone, dispatch: (tr) => (redone = tr.state) });
+
+    expect(redone.doc.toString()).toBe('NOAH');
   });
 });
 
@@ -203,7 +266,7 @@ describe('direct element switching', () => {
     const state = EditorState.create({
       doc: 'First line.\nsecond line',
       selection: EditorSelection.cursor(23),
-      extensions: [elementFlow(settings)],
+      extensions: [elementFlow(), editorSettings.of(settings)],
     });
     expect(apply(switchElement('character'), state).doc.toString()).toBe(
       'First line.\nSECOND LINE',

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Sheet } from '@/components/ui/Sheet';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { Toggle } from '@/components/ui/Toggle';
+import type { EditorSettings } from '@/components/editor/fountain/settings';
 import { locales, type Locale } from '@/i18n/config';
 import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
 import { applyTheme, persistLocale } from '@/lib/preferences';
@@ -16,6 +18,8 @@ export interface SettingsSheetProps {
   onClose: () => void;
   pageSize: PageSize;
   onPageSizeChange: (size: PageSize) => void;
+  editor: EditorSettings;
+  onEditorChange: (next: EditorSettings) => void;
 }
 
 /** The colours each theme's miniature is painted in — read from the tokens. */
@@ -25,7 +29,14 @@ const THEME_SWATCHES: Record<Theme, { sidebar: string; canvas: string; page: str
   midnight: { sidebar: '#060607', canvas: '#000000', page: '#000000', edge: '#1a1a20' },
 };
 
-export function SettingsSheet({ open, onClose, pageSize, onPageSizeChange }: SettingsSheetProps) {
+export function SettingsSheet({
+  open,
+  onClose,
+  pageSize,
+  onPageSizeChange,
+  editor,
+  onEditorChange,
+}: SettingsSheetProps) {
   const t = useTranslations('settings');
   const router = useRouter();
   const locale = useLocale() as Locale;
@@ -128,6 +139,48 @@ export function SettingsSheet({ open, onClose, pageSize, onPageSizeChange }: Set
                 value: code,
                 label: code.toUpperCase(),
               }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <p className={styles.groupTitle}>{t('editing')}</p>
+
+        <Toggle
+          label={t('renderNotes')}
+          hint={t('renderNotesHint')}
+          checked={editor.renderNotes}
+          onChange={(renderNotes) => onEditorChange({ ...editor, renderNotes })}
+        />
+
+        <Toggle
+          label={t('autoUppercase')}
+          hint={t('autoUppercaseHint')}
+          checked={editor.autoUppercase}
+          onChange={(autoUppercase) => onEditorChange({ ...editor, autoUppercase })}
+        />
+
+        <Toggle
+          label={t('autoContd')}
+          hint={t('autoContdHint')}
+          checked={editor.autoContd}
+          onChange={(autoContd) => onEditorChange({ ...editor, autoContd })}
+        />
+
+        <div className={styles.field}>
+          <div className={styles.fieldText}>
+            <p className={styles.fieldLabel}>{t('tabOnCharacter')}</p>
+          </div>
+          <div className={styles.fieldControl}>
+            <SegmentedControl<'parenthetical' | 'extension'>
+              label={t('tabOnCharacter')}
+              value={editor.tabOnCharacter}
+              onChange={(tabOnCharacter) => onEditorChange({ ...editor, tabOnCharacter })}
+              options={[
+                { value: 'parenthetical', label: t('tabParenthetical') },
+                { value: 'extension', label: t('tabExtension') },
+              ]}
             />
           </div>
         </div>

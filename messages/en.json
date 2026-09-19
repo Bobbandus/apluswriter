@@ -293,7 +293,9 @@
     "autoUppercase": "Uppercase automatically",
     "autoUppercaseHint": "In scene headings and character names.",
     "spellcheck": "Spellcheck",
-    "spellcheckHint": "Characters and locations are whitelisted automatically."
+    "spellcheckHint": "Characters and locations are whitelisted automatically.",
+    "renderNotes": "Render notes",
+    "renderNotesHint": "Off shows raw Fountain: the brackets stay visible and nothing is hidden."
   },
   "auth": {
     "signIn": "Sign in",
