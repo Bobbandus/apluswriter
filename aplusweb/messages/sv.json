@@ -416,6 +416,9 @@
     "note": "Anteckning",
     "todo": "Att göra",
     "format": "Formatering",
-    "remove": "Ta bort"
+    "remove": "Ta bort",
+    "connectClaude": "Claude Desktop",
+    "connectClaudeHint": "Lägger till A+ Write bland Claudes verktyg. Frågar först, sparar en säkerhetskopia och rör inga andra servrar.",
+    "connectClaudeButton": "Koppla in …"
   }
 }

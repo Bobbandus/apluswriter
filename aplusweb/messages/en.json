@@ -416,6 +416,9 @@
     "note": "Note",
     "todo": "To do",
     "format": "Formatting",
-    "remove": "Remove"
+    "remove": "Remove",
+    "connectClaude": "Claude Desktop",
+    "connectClaudeHint": "Adds A+ Write to Claude's tools. Asks first, keeps a backup and leaves other servers alone.",
+    "connectClaudeButton": "Connect …"
   }
 }

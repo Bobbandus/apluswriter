@@ -146,3 +146,18 @@
     display: none;
   }
 }
+
+/* In the desktop app the real window controls are drawn by the OS. On macOS
+   they sit in the gutter the lights reserve; on Windows they overlay the right
+   edge, so the fake ones go and the right side makes room. */
+:global([data-desktop]) .light {
+  visibility: hidden;
+}
+
+:global([data-desktop='win']) .lights {
+  display: none;
+}
+
+:global([data-desktop='win']) .titlebar {
+  padding-right: 150px;
+}

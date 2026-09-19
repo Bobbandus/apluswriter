@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Sheet } from '@/components/ui/Sheet';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Toggle } from '@/components/ui/Toggle';
+import { Button } from '@/components/ui/Button';
 import type { EditorSettings } from '@/components/editor/fountain/settings';
 import { locales, type Locale } from '@/i18n/config';
 import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
@@ -43,6 +44,10 @@ export function SettingsSheet({
 }: SettingsSheetProps) {
   const t = useTranslations('settings');
   const tAssistant = useTranslations('assistant');
+  const desktopApi =
+    typeof window === 'undefined'
+      ? undefined
+      : (window as unknown as { aplusDesktop?: { setupClaude?: () => Promise<unknown> } }).aplusDesktop;
   const router = useRouter();
   const locale = useLocale() as Locale;
 
@@ -179,6 +184,20 @@ export function SettingsSheet({
           checked={cards}
           onChange={onCardsChange}
         />
+
+        {desktopApi?.setupClaude && (
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
+              <p className={styles.fieldLabel}>{tAssistant('connectClaude')}</p>
+              <p className={styles.fieldHint}>{tAssistant('connectClaudeHint')}</p>
+            </div>
+            <div className={styles.fieldControl}>
+              <Button variant="secondary" size="sm" icon="sparkle" onClick={() => void desktopApi.setupClaude?.()}>
+                {tAssistant('connectClaudeButton')}
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className={styles.field}>
           <div className={styles.fieldText}>

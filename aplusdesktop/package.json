@@ -1,0 +1,14 @@
+{
+  "name": "aplusdesktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A+ Write desktop shell (Electron).",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.2.1"
+  }
+}

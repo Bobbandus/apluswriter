@@ -155,6 +155,7 @@ so every file we write stays valid Fountain 1.1. Full spec in
       `(CONT'D)` splits, runtime estimates, golden tests vs. reference PDFs.
 - [x] **M6 — Backend.** Supabase SQL scripts, auth, dashboard, autosave,
       offline sync, optimistic concurrency + conflict UI.
+- [x] **M6.5 — Bridge + desktop shell + assistant tools** (cards, 31 MCP tools, Electron shell).
 - [ ] **M7 — Structure.** Navigator tree, index card board with drag-reorder,
       Characters/Locations panels, rename-everywhere.
 - [ ] **M8 — Revisions.** Named snapshots, production color sequence, element
