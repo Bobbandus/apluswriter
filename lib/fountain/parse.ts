@@ -275,7 +275,7 @@ const HAS_LETTER_RE = /\p{L}/u;
  * character" — so `R2D2` is a cue and `23` is not. Extensions are excluded
  * before the test, because `(on the radio)` is allowed to be lowercase.
  */
-function isCharacterLine(text: string): boolean {
+export function isCharacterLine(text: string): boolean {
   const trimmed = text.trim();
   if (trimmed.length === 0) return false;
   if (trimmed.startsWith('@')) return true; // Forced — case no longer matters.
@@ -287,12 +287,12 @@ function isCharacterLine(text: string): boolean {
   return name === name.toUpperCase();
 }
 
-function isParentheticalLine(text: string): boolean {
+export function isParentheticalLine(text: string): boolean {
   const trimmed = text.trim();
   return trimmed.startsWith('(') && trimmed.endsWith(')') && trimmed.length >= 2;
 }
 
-function isSceneHeadingLine(text: string): boolean {
+export function isSceneHeadingLine(text: string): boolean {
   const trimmed = text.trim();
   if (trimmed.length === 0) return false;
 
@@ -310,7 +310,7 @@ function isSceneHeadingLine(text: string): boolean {
  * but a space after the colon is the spec's own escape hatch: it is how a
  * writer says that `JACK TURNS TO: ` is a line of action, not a transition.
  */
-function isTransitionLine(text: string): boolean {
+export function isTransitionLine(text: string): boolean {
   const s = text.replace(/^\s+/, '');
   if (s.length === 0) return false;
   if (s.startsWith('>') && !s.trimEnd().endsWith('<')) return true;
@@ -318,13 +318,13 @@ function isTransitionLine(text: string): boolean {
   return TRANSITION_RE.test(s);
 }
 
-function isCenteredLine(text: string): boolean {
+export function isCenteredLine(text: string): boolean {
   const trimmed = text.trim();
   return trimmed.startsWith('>') && trimmed.endsWith('<') && trimmed.length >= 2;
 }
 
 /** Removes every `[[ … ]]` note, leaving the text around them. */
-function stripNotes(text: string): string {
+export function stripNotes(text: string): string {
   const notes = findNotes(text);
   let out = text;
   for (let i = notes.length - 1; i >= 0; i -= 1) {

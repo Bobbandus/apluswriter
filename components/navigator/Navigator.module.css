@@ -1,0 +1,87 @@
+.list {
+  padding: var(--s-1) var(--s-1) var(--s-4);
+}
+
+.scene {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  width: 100%;
+  padding: 5px var(--s-2);
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.scene:hover {
+  background: var(--bg-raised-hover);
+}
+
+.scene[aria-current='true'] {
+  background: var(--accent-soft);
+}
+
+/* The scene number column. Fixed width so the sluglines align down the list —
+   a ragged left edge here makes the outline much harder to scan. */
+.number {
+  flex: 0 0 26px;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+  text-align: right;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.heading {
+  display: block;
+  font-size: var(--t-small);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scene[aria-current='true'] .heading {
+  color: var(--accent-text);
+}
+
+.synopsis {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  align-self: center;
+  background: var(--dot, transparent);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.count {
+  padding: var(--s-2) var(--s-3);
+  border-top: var(--hairline) solid var(--line-faint);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
