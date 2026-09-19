@@ -145,9 +145,9 @@ so every file we write stays valid Fountain 1.1. Full spec in
 
 - [x] **M1 — Foundation.** Scaffold, design tokens, UI kit, custom icon set,
       titlebar + three-pane shell, i18n (sv default / en).
-- [~] **M2 — Parser.** Fountain 1.1 + A+ extensions, incremental, in a worker,
+- [x] **M2 — Parser.** Fountain 1.1 + A+ extensions, incremental, in a worker,
       with a full test suite against the spec examples and the official samples.
-- [ ] **M3 — Editor.** CodeMirror 6, live formatting decorations, Enter/Tab
+- [x] **M3 — Editor.** CodeMirror 6, live formatting decorations, Enter/Tab
       element state machine, ⌘1–⌘8 element switching, auto-uppercase, `(CONT'D)`.
 - [ ] **M4 — Autocomplete.** Popover + ghost text, speaker prediction, Script
       Dictionary panel, typo guard (edit distance ≤ 2).
@@ -164,6 +164,11 @@ so every file we write stays valid Fountain 1.1. Full spec in
 - [ ] **M10 — Polish.** Focus mode, sprints, ⌘K palette, find/replace, reports,
       share links, motion, dark mode, accessibility pass.
 - [ ] **M11 — Ship.** Vercel config, `.env.example`, README, `docs/electron.md`.
+- [x] **MCP server** (added outside the original brief). A stdio server in
+      `mcp/` that plugs a Claude Desktop session straight into a folder of
+      `.fountain` files, using this repository's own parser. Read tools are
+      unrestricted; write tools reach synopses, scene metadata, notes and
+      whitespace only — see `mcp/README.md` for why that boundary is fixed.
 
 Commit and push at the end of each milestone.
 
