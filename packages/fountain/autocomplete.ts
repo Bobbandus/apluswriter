@@ -7,6 +7,12 @@ export interface DictionaryData {
   characters: string[];
   locations: string[];
   tags: string[];
+  /**
+   * How many cues each character has. The typo guard needs this to tell the
+   * real name (many cues) from the slip (one cue) — without it, JONATAN and
+   * JONATHAN are just two equally valid strings.
+   */
+  characterCues?: Record<string, number>;
 }
 
 export interface Suggestion {
@@ -29,15 +35,22 @@ export function dictionaryFromScript(script: Pick<Script, 'characters' | 'locati
     characters: script.characters.map((entry) => entry.name),
     locations: script.locations.map((entry) => entry.name),
     tags: [...tags],
+    characterCues: Object.fromEntries(script.characters.map((entry) => [entry.name, entry.cues])),
   };
 }
 
 export function mergeDictionary(...dictionaries: DictionaryData[]): DictionaryData {
   const unique = (values: string[]) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+  // Cue counts describe the script as it is now, so the most recent
+  // dictionary that carries them wins outright. Taking the maximum instead
+  // would let a character who was renamed away keep looking established,
+  // and the typo guard would keep steering new cues back to a dead name.
+  const cues = [...dictionaries].reverse().find((dictionary) => dictionary.characterCues)?.characterCues ?? {};
   return {
     characters: unique(dictionaries.flatMap((dictionary) => dictionary.characters)),
     locations: unique(dictionaries.flatMap((dictionary) => dictionary.locations)),
     tags: unique(dictionaries.flatMap((dictionary) => dictionary.tags)),
+    characterCues: cues,
   };
 }
 
@@ -67,7 +80,8 @@ export function suggestionsFor(
       const starts = needle.length === 0 || haystack.startsWith(needle);
       const includes = needle.length > 0 && haystack.includes(needle);
       if (!starts && !includes) return null;
-      const frequency = kind === 'character' ? dictionary.characters.filter((name) => name === value).length : 0;
+      // The people who talk most are the ones most likely to be typed next.
+      const frequency = kind === 'character' ? Math.min(50, dictionary.characterCues?.[value] ?? 0) : 0;
       const recent = recency.indexOf(value);
       return {
         value,
@@ -119,4 +133,62 @@ export function editDistance(a: string, b: string): number {
     previous.splice(0, previous.length, ...current);
   }
   return previous[b.length] ?? 0;
+}
+
+
+/**
+ * The name a cue was probably meant to be, or null.
+ *
+ * Only flags a *rare* name that sits close to a *common* one: the cue has at
+ * most one appearance and the neighbour has at least two. Two established
+ * characters called ANNA and ANNE are left alone. That is a real cast, not a
+ * typo, and a guard that nags about it gets switched off.
+ */
+export function likelyTypo(name: string, dictionary: DictionaryData): string | null {
+  const needle = name.trim().toLocaleUpperCase();
+  if (needle.length < 3) return null;
+
+  const cues = dictionary.characterCues ?? {};
+  if ((cues[needle] ?? 0) > 1) return null;
+
+  const limit = needle.length >= 5 ? 2 : 1;
+  let best: string | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (const candidate of dictionary.characters) {
+    const upper = candidate.toLocaleUpperCase();
+    if (upper === needle) continue;
+    if ((cues[upper] ?? cues[candidate] ?? 0) < 2) continue;
+
+    const distance = editDistance(needle, upper);
+    if (distance > limit) continue;
+
+    // Prefer the closest name, then the most established one.
+    const score = distance * 1000 - (cues[upper] ?? 0);
+    if (score < bestScore) {
+      best = candidate;
+      bestScore = score;
+    }
+  }
+
+  return best;
+}
+
+/**
+ * Known characters whose name starts with what has been typed, ignoring case.
+ *
+ * A writer types "er", not "ER". Matching case-insensitively is what makes
+ * name completion usable at typing speed, before auto-uppercase has had a
+ * chance to recognise the line as a cue.
+ */
+export function characterPrefixMatches(query: string, dictionary: DictionaryData): string[] {
+  const needle = query.trim().toLocaleUpperCase();
+  if (!needle) return [];
+  const cues = dictionary.characterCues ?? {};
+  return dictionary.characters
+    .filter((name) => {
+      const upper = name.toLocaleUpperCase();
+      return upper.startsWith(needle) && upper !== needle;
+    })
+    .sort((a, b) => (cues[b] ?? 0) - (cues[a] ?? 0) || a.localeCompare(b));
 }

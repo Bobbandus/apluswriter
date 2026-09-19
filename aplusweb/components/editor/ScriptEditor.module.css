@@ -1,7 +1,7 @@
-.editorShell { min-height: 100%; }
-.elementBar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 4px; width: max-content; max-width: 100%; margin: 0 0 var(--s-4); padding: 5px; border: var(--hairline) solid var(--line-faint); border-radius: var(--r-lg); background: color-mix(in srgb, var(--bg-raised) 88%, transparent); box-shadow: var(--shadow-sm); backdrop-filter: blur(12px); font-family: var(--font-ui); }
-.elementButton { display: inline-flex; align-items: center; gap: 5px; min-height: 25px; padding: 0 7px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-muted); font: inherit; font-size: var(--t-micro); cursor: pointer; }
-.elementButton:hover, .elementButton:focus-visible { background: var(--accent-soft); color: var(--accent-text); outline: none; }
-.elementButton kbd { display: grid; place-items: center; min-width: 15px; height: 15px; border: var(--hairline) solid var(--line-strong); border-radius: 3px; color: var(--text-faint); font-family: var(--font-mono); font-size: 9px; }
-.surface { min-height: calc(100% - 42px); }
-@media (max-width: 720px) { .elementBar { width: 100%; overflow-x: auto; flex-wrap: nowrap; } .elementButton span { display: none; } }
+
+
+
+
+
+.surface { min-height: 100%; }
+

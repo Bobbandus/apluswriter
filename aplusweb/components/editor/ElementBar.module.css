@@ -1,0 +1,69 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-lg);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--shadow-sm), var(--glass-highlight);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bar::-webkit-scrollbar {
+  display: none;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  font-size: var(--t-small);
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.button:hover {
+  background: var(--bg-raised-hover);
+  color: var(--text);
+}
+
+/* The current element. Green, because it is the one thing on the bar that
+   is true right now rather than an option. */
+.button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.key {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+  min-width: 7px;
+}
+
+.button[aria-pressed='true'] .key {
+  color: var(--accent-text);
+}
+
+/* Narrow: icons only, but the current element keeps its name. */
+@media (max-width: 1180px) {
+  .label {
+    display: none;
+  }
+  .button[aria-pressed='true'] .label {
+    display: inline;
+  }
+}

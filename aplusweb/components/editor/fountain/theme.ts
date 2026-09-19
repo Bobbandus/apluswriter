@@ -236,5 +236,25 @@ export const fountainTheme = EditorView.theme({
   },
   '.cm-autofinish-row[aria-selected="true"], .cm-autofinish-row:hover': { background: 'var(--accent-soft)' },
   '.cm-autofinish-row small': { color: 'var(--text-muted)', fontSize: 'var(--t-micro)' },
+  /* A dotted underline, not a red squiggle: a probable slip, not an error. */
+  '.cm-typo': {
+    textDecoration: 'underline dotted',
+    textDecorationColor: 'var(--flare)',
+    textUnderlineOffset: '3px',
+  },
+  '.cm-typo-fix': {
+    marginLeft: '0.8em',
+    padding: '0 0.5em',
+    borderRadius: '999px',
+    border: '1px solid var(--flare-soft)',
+    background: 'var(--flare-soft)',
+    color: 'var(--flare)',
+    fontFamily: 'var(--font-ui)',
+    fontSize: '0.72em',
+    lineHeight: '1.6',
+    cursor: 'pointer',
+    verticalAlign: 'middle',
+  },
+  '.cm-typo-fix:hover': { background: 'var(--flare)', color: '#fff' },
   '.cm-autofinish-ghost': { color: 'var(--page-ink-muted)', opacity: '0.55', pointerEvents: 'none' },
 });

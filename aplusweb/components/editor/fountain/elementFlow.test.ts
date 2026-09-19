@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { elementFlow, enterCommand, intentField, switchElement, tabCommand } from './elementFlow';
 import { history, redo, undo } from '@codemirror/commands';
 import { DEFAULT_EDITOR_SETTINGS, editorSettings, type EditorSettings } from './settings';
+import { autocompleteConfig } from './dictionary';
 
 /**
  * The element flow, tested as commands rather than through a DOM.
@@ -268,5 +269,51 @@ describe('direct element switching', () => {
     expect(apply(switchElement('character'), state).doc.toString()).toBe(
       'First line.\nSECOND LINE',
     );
+  });
+});
+
+/* ========================================================================== */
+
+describe('Enter recognises a name', () => {
+  const afterAction = 'INT. KÖK - DAG\n\nHan kommer in.\n\n';
+
+  function enterOn(doc: string, extra: import('@codemirror/state').Extension[] = []) {
+    const state = EditorState.create({
+      doc,
+      selection: EditorSelection.cursor(doc.length),
+      extensions: [elementFlow(), editorSettings.of(settings), history(), ...extra],
+    });
+    return apply(enterCommand(), state);
+  }
+
+  it('turns a capitalised name on its own into a cue, ready for dialogue', () => {
+    expect(enterOn(`${afterAction}Erik`).doc.toString()).toBe(`${afterAction}ERIK\n`);
+  });
+
+  it('keeps an extension as written', () => {
+    expect(enterOn(`${afterAction}Erik (på radion)`).doc.toString()).toBe(
+      `${afterAction}ERIK (på radion)\n`,
+    );
+  });
+
+  // The false positive the old rule had: every short sentence became a cue.
+  it('leaves an ordinary sentence as action', () => {
+    expect(enterOn(`${afterAction}He runs`).doc.toString()).toBe(`${afterAction}He runs\n\n`);
+    expect(enterOn(`${afterAction}Tystnad.`).doc.toString()).toBe(`${afterAction}Tystnad.\n\n`);
+  });
+
+  it('knows a character the script already has, even in lower case', () => {
+    const known = autocompleteConfig.of({
+      dictionary: { characters: ['ERIK'], locations: [], tags: [], characterCues: { ERIK: 4 } },
+      labels: {},
+    });
+    expect(enterOn(`${afterAction}erik`, [known]).doc.toString()).toBe(`${afterAction}ERIK\n`);
+  });
+
+  it('comes off with a single undo', () => {
+    const guessed = enterOn(`${afterAction}Erik`);
+    let undone = guessed;
+    undo({ state: guessed, dispatch: (tr) => (undone = tr.state) });
+    expect(undone.doc.toString()).toBe(`${afterAction}Erik`);
   });
 });

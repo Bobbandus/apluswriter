@@ -100,7 +100,9 @@
     "zoomReset": "Återställ zoom",
     "elementPicker": "Välj element",
     "elementPickerHint": "Tryck på en bokstav",
-    "contdInserted": "(FORTS.) tillagt"
+    "contdInserted": "(FORTS.) tillagt",
+    "zoomFit": "Anpassa till bredd",
+    "zoomFitShort": "Anpassa"
   },
   "autocomplete": {
     "characters": "Rollfigurer",

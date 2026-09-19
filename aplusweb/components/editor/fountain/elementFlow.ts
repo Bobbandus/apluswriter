@@ -15,6 +15,8 @@ import { rewriteLine, type SwitchableType } from '@aplus/fountain/rewrite';
 import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE } from '@aplus/fountain/vocab';
 import { splitCharacter } from '@aplus/fountain/parse';
 import { openPicker } from './picker';
+import { effectiveType, intentField, setIntent } from './intent';
+import { autocompleteConfig } from './dictionary';
 import { editorSettings, type EditorSettings } from './settings';
 
 /**
@@ -42,60 +44,7 @@ function settingsOf(state: EditorState): EditorSettings {
   return state.facet(editorSettings);
 }
 
-/* ========================================================================== */
-/* Declared intent                                                            */
-/* ========================================================================== */
-
-/**
- * What the writer said this line is, when the text cannot say it yet.
- *
- * Fountain decides a cue by position: `BRICK` is a character only because a
- * line of dialogue follows it. So the instant a writer starts typing a name on
- * a fresh line, the document genuinely reads as Action — there is nothing
- * under it yet. Classification alone therefore cannot auto-uppercase a cue,
- * and cannot know that Enter should insert one newline rather than two.
- *
- * Pressing Tab, ⌘3, or picking from the element picker is the writer *saying*
- * what the line is. That declaration is held here until the caret leaves the
- * line, and it outranks classification while it lasts. It changes no text —
- * the document stays exactly what was typed.
- */
-export const setIntent = StateEffect.define<{ line: number; type: SwitchableType } | null>();
-
-export const intentField = StateField.define<{ line: number; type: SwitchableType } | null>({
-  create: () => null,
-
-  update(value, transaction) {
-    for (const effect of transaction.effects) {
-      if (effect.is(setIntent)) return effect.value;
-    }
-
-    if (!value) return null;
-
-    /* Undo has to take the declaration with it.
-     *
-     * Otherwise undoing a switch to Character restores the lower-case text
-     * while the editor still believes the line is a cue — and the next
-     * keystroke uppercases it straight back. From the writer's side that is
-     * indistinguishable from undo being broken. */
-    if (transaction.isUserEvent('undo') || transaction.isUserEvent('redo')) return null;
-
-    // The declaration belongs to one line. Leaving it drops the intent.
-    if (transaction.docChanged || transaction.selection) {
-      const head = transaction.state.selection.main.head;
-      if (transaction.state.doc.lineAt(head).number !== value.line) return null;
-    }
-
-    return value;
-  },
-});
-
-/** What this line is, preferring the writer's declaration over inference. */
-function effectiveType(state: EditorState, lineNumber: number): LineType {
-  const intent = state.field(intentField, false);
-  if (intent && intent.line === lineNumber) return intent.type as LineType;
-  return classifyLine(state.doc, lineNumber);
-}
+export { intentField, setIntent } from './intent';
 
 /* ========================================================================== */
 /* Enter                                                                      */
@@ -142,7 +91,13 @@ export function enterCommand(): StateCommand {
 
     // A single title-cased word on its own paragraph after action is almost
     // always a cue. This is deliberately conservative: prose stays Action.
-    const inferredCue = type === 'action' && looksLikeCue(state, line.number);
+    // Only when the caret ends the line: Enter in the middle of a line splits
+    // it, and turning half a sentence into a cue would be absurd.
+    const inferredCue =
+      type === 'action' &&
+      range.empty &&
+      range.head === line.to &&
+      looksLikeCue(state, line.number);
     if (inferredCue) type = 'character';
 
     let insert = '\n'.repeat(NEWLINES_AFTER[type] ?? 2);
@@ -159,8 +114,10 @@ export function enterCommand(): StateCommand {
     }
 
     if (inferredCue) {
-      const cue = line.text.trim().toLocaleUpperCase();
+      // Uppercase the name but leave an extension like `(on the radio)` alone.
+      const cue = uppercaseOutsideParens(line.text.trim());
       changes.push({ from: line.from, to: line.to, insert: cue });
+      head += cue.length - (line.to - line.from);
     }
     changes.push({ from: range.from, to: range.to, insert });
 
@@ -170,18 +127,47 @@ export function enterCommand(): StateCommand {
         selection: EditorSelection.cursor(head),
         scrollIntoView: true,
         userEvent: 'input',
+        // A guess the writer did not ask for must come off with one Ctrl+Z,
+        // leaving the line exactly as they typed it.
+        annotations: inferredCue ? isolateHistory.of('full') : undefined,
       }),
     );
     return true;
   };
 }
 
+/**
+ * Is this freshly typed paragraph a character name?
+ *
+ * Called when Enter is pressed on something that currently reads as Action.
+ * Two ways to say yes:
+ *
+ * 1. It is a character the script already knows, in any case: `erik`, `Erik`
+ *    and `ERIK` are all ERIK once ERIK has spoken.
+ * 2. It is a new name: one to three words, each capitalised, no sentence
+ *    punctuation. "Erik", "Anna Berg", "Kapten Holm" pass. "He runs" fails on
+ *    the lower-case second word, and "Silence." fails on the full stop.
+ *
+ * Extensions come along for the ride: `Erik (V.O.)` is still a cue.
+ *
+ * Being wrong is cheap, because the conversion is its own undo step. One
+ * Ctrl+Z puts the line back exactly as it was typed.
+ */
 function looksLikeCue(state: EditorState, lineNumber: number): boolean {
-  const line = state.doc.line(lineNumber);
-  const text = line.text.trim();
-  if (!/^[\p{Lu}][\p{L}'’ -]{1,34}$/u.test(text)) return false;
-  if (lineNumber === 1) return true;
-  return isBlankLine(state.doc.line(lineNumber - 1).text);
+  if (lineNumber > 1 && !isBlankLine(state.doc.line(lineNumber - 1).text)) return false;
+
+  const text = state.doc.line(lineNumber).text.trim();
+  if (!text || text.length > 40) return false;
+
+  const { name } = splitCharacter(text);
+  if (!name) return false;
+
+  const upper = name.toLocaleUpperCase();
+  if (state.facet(autocompleteConfig).dictionary.characters.some((known) => known.toLocaleUpperCase() === upper)) {
+    return true;
+  }
+
+  return /^\p{Lu}[\p{L}'’-]*(?: \p{Lu}[\p{L}'’-]*){0,2}$/u.test(name);
 }
 
 /**

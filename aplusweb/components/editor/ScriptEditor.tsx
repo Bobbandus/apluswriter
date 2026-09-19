@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Compartment, EditorState, type Extension } from '@codemirror/state';
 import { EditorView, drawSelection, keymap, rectangularSelection } from '@codemirror/view';
@@ -11,6 +11,9 @@ import { fountainDecorations } from './fountain/decorations';
 import { elementFlow, switchElement } from './fountain/elementFlow';
 import { elementPicker } from './fountain/picker';
 import { fountainAutocomplete } from './fountain/autocomplete';
+import { typoGuard } from './fountain/typoGuard';
+import { effectiveType } from './fountain/intent';
+import type { LineType } from '@aplus/fountain/lineClassify';
 import {
   DEFAULT_EDITOR_SETTINGS,
   editorSettings,
@@ -31,6 +34,24 @@ export interface ScriptEditorProps {
   /** Reports the caret offset, so the navigator can mark the current scene. */
   onCaretChange?: (offset: number) => void;
   autoFocus?: boolean;
+  /** Reports the element the caret is in, so the element bar can show it. */
+  onElementChange?: (type: LineType) => void;
+}
+
+/**
+ * What the rest of the app may ask of the editor.
+ *
+ * Edits go through `applyChanges` rather than by replacing the document, so
+ * they land as ordinary transactions: undoable, and without throwing away the
+ * caret. That matters for anything outside the editor that changes the text —
+ * the element bar, a rename, a suggestion card the writer accepts.
+ */
+export interface ScriptEditorHandle {
+  switchElement(type: SwitchableType): void;
+  applyChanges(changes: { from: number; to: number; insert: string }[]): void;
+  getSelection(): { from: number; to: number; text: string };
+  revealOffset(offset: number): void;
+  focus(): void;
 }
 
 /**
@@ -42,7 +63,7 @@ export interface ScriptEditorProps {
  * budget too. CodeMirror owns the text; `onChange` reports it outward for
  * saving and indexing.
  */
-export function ScriptEditor({
+export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(function ScriptEditor({
   initialValue,
   value,
   onChange,
@@ -50,7 +71,8 @@ export function ScriptEditor({
   dictionary,
   onCaretChange,
   autoFocus = true,
-}: ScriptEditorProps) {
+  onElementChange,
+}, ref) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const settingsCompartment = useRef(new Compartment());
@@ -67,6 +89,8 @@ export function ScriptEditor({
   onChangeRef.current = onChange;
   const onCaretRef = useRef(onCaretChange);
   onCaretRef.current = onCaretChange;
+  const onElementRef = useRef(onElementChange);
+  onElementRef.current = onElementChange;
 
   const resolved: EditorSettings = {
     ...DEFAULT_EDITOR_SETTINGS,
@@ -106,11 +130,13 @@ export function ScriptEditor({
             transition: tAutocomplete('transitions'),
             extension: tAutocomplete('extensions'),
             tag: tAutocomplete('tags'),
+            typoFix: tAutocomplete('typoFix', { name: '{name}' }),
           },
         }),
       ),
       fountainTheme,
       fountainDecorations,
+      typoGuard,
       elementPicker(elementLabels, tEditor('elementPickerHint'), switchElement),
       elementFlow(),
       keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
@@ -118,6 +144,8 @@ export function ScriptEditor({
         if (update.docChanged) onChangeRef.current(update.state.doc.toString());
         if (update.selectionSet || update.docChanged) {
           onCaretRef.current?.(update.state.selection.main.head);
+          const caretLine = update.state.doc.lineAt(update.state.selection.main.head).number;
+          onElementRef.current?.(effectiveType(update.state, caretLine));
         }
       }),
       EditorView.contentAttributes.of({
@@ -165,6 +193,7 @@ export function ScriptEditor({
             transition: tAutocomplete('transitions'),
             extension: tAutocomplete('extensions'),
             tag: tAutocomplete('tags'),
+            typoFix: tAutocomplete('typoFix', { name: '{name}' }),
           },
         }),
       ),
@@ -184,23 +213,37 @@ export function ScriptEditor({
     });
   }, [value]);
 
-  const elementButtons: { type: SwitchableType; key: string }[] = [
-    { type: 'sceneHeading', key: '1' }, { type: 'action', key: '2' },
-    { type: 'character', key: '3' }, { type: 'dialogue', key: '4' },
-    { type: 'parenthetical', key: '5' }, { type: 'transition', key: '6' },
-    { type: 'section', key: '7' }, { type: 'synopsis', key: '8' },
-  ];
-
-  return (
-    <div className={styles.editorShell}>
-      <div className={styles.elementBar} role="toolbar" aria-label={tEditor('elementPicker')}>
-        {elementButtons.map(({ type, key }) => (
-          <button key={type} type="button" className={styles.elementButton} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseElement(type)}>
-            <kbd>{key}</kbd><span>{elementLabels[type]}</span>
-          </button>
-        ))}
-      </div>
-      <div ref={host} data-testid="script-editor" className={styles.surface} />
-    </div>
+  useImperativeHandle(
+    ref,
+    () => ({
+      switchElement: (type) => chooseElement(type),
+      applyChanges: (changes) => {
+        const instance = view.current;
+        if (!instance || changes.length === 0) return;
+        instance.dispatch({ changes, userEvent: 'input.external', scrollIntoView: true });
+      },
+      getSelection: () => {
+        const instance = view.current;
+        if (!instance) return { from: 0, to: 0, text: '' };
+        const { from, to } = instance.state.selection.main;
+        return { from, to, text: instance.state.sliceDoc(from, to) };
+      },
+      revealOffset: (offset) => {
+        const instance = view.current;
+        if (!instance) return;
+        const anchor = Math.max(0, Math.min(offset, instance.state.doc.length));
+        instance.dispatch({
+          selection: { anchor },
+          effects: EditorView.scrollIntoView(anchor, { y: 'start', yMargin: 80 }),
+        });
+        instance.focus();
+      },
+      focus: () => view.current?.focus(),
+    }),
+    // chooseElement only reads refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
-}
+
+  return <div ref={host} data-testid="script-editor" className={styles.surface} />;
+});

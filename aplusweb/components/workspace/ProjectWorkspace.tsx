@@ -1,12 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Workspace } from '@/components/shell/Workspace';
 import { Navigator } from '@/components/navigator/Navigator';
 import { Inspector } from '@/components/inspector/Inspector';
 import { PageCanvas } from '@/components/editor/PageCanvas';
-import { ScriptEditor } from '@/components/editor/ScriptEditor';
+import { ScriptEditor, type ScriptEditorHandle } from '@/components/editor/ScriptEditor';
+import { ElementBar } from '@/components/editor/ElementBar';
+import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
@@ -52,6 +54,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   );
 
   const [caret, setCaret] = useState(0);
+  const [element, setElement] = useState<LineType | null>(null);
+  const editorRef = useRef<ScriptEditorHandle>(null);
   const [dictionary, setDictionary] = usePersistentState<DictionaryData>(
     `aplus.dictionary.${projectId}`,
     { characters: [], locations: [], tags: [] },
@@ -80,14 +84,14 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     }
     setDictionary((current) => ({
       ...current,
-      [`${kind}s`]: current[`${kind}s` as keyof DictionaryData].map((value) => value === from ? to : value),
+      [`${kind}s`]: current[`${kind}s` as "characters" | "locations" | "tags"].map((value) => value === from ? to : value),
     }) as DictionaryData);
   }, [setDictionary, setSource]);
 
   const removeDictionaryValue = useCallback((kind: DictionaryKind, value: string) => {
     setDictionary((current) => ({
       ...current,
-      [`${kind}s`]: current[`${kind}s` as keyof DictionaryData].filter((item) => item !== value),
+      [`${kind}s`]: current[`${kind}s` as "characters" | "locations" | "tags"].filter((item) => item !== value),
     }) as DictionaryData);
   }, [setDictionary]);
 
@@ -116,15 +120,33 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // genuinely being saved to a server, the titlebar says nothing rather
         // than claiming the work is safe.
         saveState={null}
-        sidebar={<Navigator scenes={script.scenes} caret={caret} />}
+        sidebar={
+          <Navigator
+            scenes={script.scenes}
+            caret={caret}
+            onSelectScene={(selected) => editorRef.current?.revealOffset(selected.from)}
+          />
+        }
         inspector={<Inspector onOpenSettings={openSettings} onOpenDictionary={openDictionary} scene={scene} script={script} />}
       >
-        <PageCanvas pageSize={pageSize}>
+        <PageCanvas
+          pageSize={pageSize}
+          toolbar={
+            hydrated ? (
+              <ElementBar
+                current={element}
+                onChoose={(type) => editorRef.current?.switchElement(type)}
+              />
+            ) : null
+          }
+        >
           {/* Mounting before the stored draft has been read would start the
               editor on an empty document and then overwrite the writer's
               work with it. */}
           {hydrated && (
             <ScriptEditor
+              ref={editorRef}
+              onElementChange={setElement}
               initialValue={source}
               value={source}
               onChange={setSource}

@@ -1,0 +1,48 @@
+A+ WRITE — IDÉER FÖR SENARE
+============================
+Saker som är beslutade att vänta. Läs den här filen i början av en ny chatt
+innan du föreslår nya funktioner, så att vi inte föreslår samma sak igen.
+
+Grundregel för all AI i A+ Write:
+  AI:n är ett verktyg som hjälper till när användaren frågar. Den skriver
+  aldrig manuset åt någon. Den rör aldrig dialog eller beskrivning utan att
+  användaren själv klickar "Använd" på ett förslag.
+
+------------------------------------------------------------------------
+KOMMER SENARE
+------------------------------------------------------------------------
+
+1. Knappar i appen som anropar AI direkt ("Generera shotlist"-knapp)
+   Kräver Claude API med egen API-nyckel och kostar per anrop, separat från
+   ett Claude Desktop-abonnemang. Beslut (2026-10): inte nu. Tills dess sker
+   allt via Claude Desktop + MCP-servern. Bygg knapparna mot samma
+   actions/-gränssnitt som MCP-förslagen använder, så att inget behöver göras om.
+
+2. Callsheet för en inspelningsdag
+   Välj dag, få scener, roller, platser, tider och rekvisita. PDF-export.
+   Bygger på inspelningsschemat, som redan finns.
+
+3. Samlad rekvisita- och kostymlista för hela filmen
+   Per kategori och roll, med vilka scener varje sak behövs i.
+   (Brännvidd per bild finns redan i shotlistan. Här handlar det om en
+   samlad lista över objektiv och utrustning per inspelningsdag.)
+
+4. Platsscouting med bilder
+   Användaren laddar upp foton på möjliga platser. Claude föreslår vilken
+   plats som passar vilken scen och varför (ljus, storlek, stämning, ljud,
+   tillgänglighet). Förslagen visas som kort, användaren bestämmer.
+
+5. Faktakoll i chatten
+   "Skulle svensk polis 1995 ha en sån radio?" Svaret kommer bara i
+   chatten och skrivs aldrig in i manuset.
+
+------------------------------------------------------------------------
+AVFÄRDAT (föreslå inte igen utan anledning)
+------------------------------------------------------------------------
+
+- Table read med talsyntes. Motivering: man läser högt själv eller gör en
+  riktig läsning. AI-uppläsning passar inte tanken att AI är ett verktyg.
+- Flytande elementväljare vid markören. Knappraden + Ctrl/Cmd+1–8 räcker.
+- Tab som bläddrar mellan elementtyper. Den gjorde oväntade saker, som att
+  lägga in < och (). Tab gör nu bara säkra saker (fyller i förslag och
+  scenprefix).

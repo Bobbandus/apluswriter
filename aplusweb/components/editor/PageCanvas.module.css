@@ -112,3 +112,28 @@
   color: var(--text-muted);
   user-select: none;
 }
+
+/* ------------------------------------------------------------- toolbar */
+
+/* Sticks to the top of the scrolling canvas, above the page rather than on
+   it. The negative bottom margin lets the page slide up underneath it. */
+.toolbar {
+  position: sticky;
+  top: calc(var(--s-3) * -1);
+  z-index: var(--z-sticky);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--page-w);
+  margin: calc(var(--s-5) * -1) 0 calc(var(--s-2) * -1);
+  padding: var(--s-2) 0;
+  pointer-events: none;
+}
+
+.toolbar > * {
+  pointer-events: auto;
+}
+
+.zoomValue[data-fit='true'] {
+  color: var(--accent-text);
+}

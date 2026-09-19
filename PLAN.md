@@ -174,6 +174,38 @@ Commit and push at the end of each milestone.
 
 ---
 
+## 5b. Roadmap v2 (decided 2026-10, after M4 landed)
+
+Decided with the user through two yes/no rounds. Deferred ideas and rejected
+features are listed in `ideas.txt` — read it before proposing anything new.
+
+**The AI rule.** Claude assists when asked. It never writes the script.
+Everything it produces arrives as a *suggestion* (a card with Use / Discard, or
+a +/- diff) or as an answer in the chat. It never edits action or dialogue on
+its own.
+
+**How Claude and the app talk.** Claude Desktop starts the MCP server. The MCP
+server also listens on a local bridge (127.0.0.1, with an origin allowlist
+and a token). The app, whether desktop or web on localhost, connects to that
+bridge as a client. So Claude can see what is open (script, scene, selection)
+and send suggestion cards that appear live in the app. The app cannot start a
+Claude conversation by itself; MCP only works in the other direction. Direct
+"Generate" buttons need the Claude API and are deferred (ideas.txt #1).
+
+| # | Milestone | Scope |
+|---|---|---|
+| M4.1 | Writing-flow polish | Enter never hijacked by the popover; name suggestions only at cue position, case-insensitive; speaker prediction as ghost text; name typo guard with one-click fix; smarter Enter auto-detect |
+| M5 | Pages + PDF | Paginator with break rules, (MORE)/(FORTS.); page view with real sheet gaps and page numbers; runtime per scene; PDF export (title page, scene numbers, watermark); golden tests vs reference PDFs |
+| M6 | Storage + account | StorageAdapter: local (IndexedDB / desktop files) + Supabase. Cloud sync is the **main path**, but local file saving stays first-class, because nobody should be locked in. SQL scripts, magic link + Google auth, autosave with status, offline queue, conflict sheet |
+| M6.5 | Desktop + bridge | `aplusdesktop/` Electron shell (file system, native window). Live bridge between the MCP server and the app. "Claude connected" indicator |
+| MCP v2 | Assistant tools | Shotlists (incl. focal length), breakdown/tagging, shooting schedule, continuity check, "What happens next?", structure and pacing, "does this line sound like the character?", logline/synopsis, format check with +/- diffs, basic scene difficulty, character bible + casting call. Suggestion cards in the app (can be turned off), "what I have selected", ready-made prompts in Claude Desktop |
+| M7 | Structure | Index-card board as a **separate view**, not in the main script. Drag to reorder scenes in the text. Acts and sequences in the navigator. Characters and locations panels |
+| M8 | Revisions | Colour snapshots in a **submenu** under the version pill, not permanently on screen. Element-level compare, revision asterisks in PDF, restore |
+| M8.5 | Storyboard | One image slot per shot in the shotlist. Behind a "Show storyboard" toggle. An empty slot is a thin row, not a big box |
+| M9–M11 | Unchanged | Import/export, polish, ship |
+
+---
+
 ## 6. Testing strategy
 
 | Layer | Tool | Gate |

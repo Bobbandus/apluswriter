@@ -100,7 +100,9 @@
     "zoomReset": "Reset zoom",
     "elementPicker": "Choose element",
     "elementPickerHint": "Press a letter",
-    "contdInserted": "(CONT'D) added"
+    "contdInserted": "(CONT'D) added",
+    "zoomFit": "Fit to width",
+    "zoomFitShort": "Fit"
   },
   "autocomplete": {
     "characters": "Characters",
