@@ -58,8 +58,9 @@ export const fountainTheme = EditorView.theme({
 
   /* ------------------------------------------------------------ elements */
 
+  // No extra margin: the blank line before a heading is in the document,
+  // and any CSS spacing here would make the screen longer than the page.
   '.cm-el-sceneHeading': {
-    marginTop: 'calc(0.1666in * var(--zoom, 1))',
     fontWeight: '700',
   },
 
@@ -162,6 +163,55 @@ export const fountainTheme = EditorView.theme({
     color: 'var(--accent-text)',
     borderRadius: '999px',
     padding: '0.1em 0.5em',
+  },
+
+  /* ----------------------------------------------------------- page view */
+
+  // Spans the whole sheet, margins included, so it can end one page and
+  // start the next.
+  '.cm-pageGap': {
+    margin: '0 calc(-1 * var(--page-mr)) 0 calc(-1 * var(--page-ml))',
+    fontFamily: 'var(--font-script)',
+    lineHeight: 'var(--script-leading)',
+    userSelect: 'none',
+  },
+  // The sheet edges carry the shadow and the hairline, so both stay exactly
+  // as wide as the paper. They sit above the gap so it cannot cover them.
+  '.cm-pageGap-tail': {
+    position: 'relative',
+    zIndex: '1',
+    boxSizing: 'content-box',
+    paddingBottom: 'var(--page-mb)',
+    background: 'var(--page-bg)',
+    borderBottom: '1px solid var(--page-edge)',
+    boxShadow: '0 6px 10px -6px rgba(0,0,0,0.28)',
+  },
+  // Wider than the sheet on purpose: it has to hide the sheet's own side
+  // shadow and border, or a line runs straight down through the gap.
+  '.cm-pageGap-gap': {
+    height: 'calc(28px * var(--zoom, 1))',
+    margin: '0 -28px',
+    background: 'var(--bg-canvas)',
+  },
+  '.cm-pageGap-head': {
+    position: 'relative',
+    zIndex: '1',
+    height: 'var(--page-mt)',
+    background: 'var(--page-bg)',
+    borderTop: '1px solid var(--page-edge)',
+    boxShadow: '0 -6px 10px -6px rgba(0,0,0,0.28)',
+  },
+  '.cm-pageGap-folio': {
+    position: 'absolute',
+    right: 'var(--page-mr)',
+    top: 'calc(0.5in * var(--zoom, 1))',
+    lineHeight: '1',
+    color: 'var(--page-ink-muted)',
+  },
+  '.cm-pageGap-more, .cm-pageGap-contd': {
+    marginLeft: 'var(--page-ml)',
+    color: 'var(--page-ink-muted)',
+    whiteSpace: 'pre',
   },
 
   /* ------------------------------------------------------ element picker */

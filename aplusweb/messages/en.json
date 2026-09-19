@@ -39,7 +39,8 @@
     "toggleSidebar": "Show or hide the navigator",
     "toggleInspector": "Show or hide the inspector",
     "focusMode": "Focus mode",
-    "commandPalette": "Command palette"
+    "commandPalette": "Command palette",
+    "export": "Export"
   },
   "status": {
     "saved": "Saved",
@@ -215,7 +216,10 @@
     "preview": "Preview",
     "previewHint": "Check how each line is read before importing.",
     "todosRemain": "{count, plural, =1 {# to-do note} other {# to-do notes}} still in the script.",
-    "todosRemainHint": "Export anyway?"
+    "todosRemainHint": "Export anyway?",
+    "titlePage": "Title page",
+    "pageCount": "{count, plural, =1 {# page} other {# pages}}",
+    "exportFailed": "The export failed."
   },
   "share": {
     "title": "Share",

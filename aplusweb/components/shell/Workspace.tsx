@@ -19,6 +19,7 @@ export interface WorkspaceProps {
   inspector: ReactNode;
   children: ReactNode;
   onOpenCommandPalette?: () => void;
+  onExport?: () => void;
 }
 
 /**
@@ -36,6 +37,7 @@ export function Workspace({
   inspector,
   children,
   onOpenCommandPalette,
+  onExport,
 }: WorkspaceProps) {
   const t = useTranslations('a11y');
   const tNav = useTranslations('navigator');
@@ -146,6 +148,7 @@ export function Workspace({
         onToggleInspector={toggleInspector}
         onToggleFocus={toggleFocus}
         onOpenCommandPalette={() => onOpenCommandPalette?.()}
+        {...(onExport ? { onExport } : {})}
       />
 
       <nav

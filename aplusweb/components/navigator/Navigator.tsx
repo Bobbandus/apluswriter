@@ -5,12 +5,15 @@ import { useTranslations } from 'next-intl';
 import { EmptyState, Panel } from '@/components/ui/Panel';
 import { SearchField } from '@/components/ui/SearchField';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
+import { formatEighths } from '@aplus/paginator/paginate';
 import styles from './Navigator.module.css';
 
 export interface NavigatorProps {
   scenes: SceneIndexEntry[];
   /** Offset of the caret, used to mark the scene being written. */
   caret?: number;
+  /** Scene lengths in eighths of a page, indexed like `scenes`. */
+  eighths?: number[];
   onSelectScene?: (scene: SceneIndexEntry) => void;
 }
 
@@ -21,7 +24,7 @@ export interface NavigatorProps {
  * heading was typed, not because anything was added to an outline. There is no
  * second document that can fall out of sync with the text.
  */
-export function Navigator({ scenes, caret, onSelectScene }: NavigatorProps) {
+export function Navigator({ scenes, caret, eighths, onSelectScene }: NavigatorProps) {
   const t = useTranslations('navigator');
   const [filter, setFilter] = useState('');
 
@@ -64,6 +67,9 @@ export function Navigator({ scenes, caret, onSelectScene }: NavigatorProps) {
                     <span className={styles.heading}>{scene.heading}</span>
                     {scene.synopsis && <span className={styles.synopsis}>{scene.synopsis}</span>}
                   </span>
+                  {eighths?.[scenes.indexOf(scene)] ? (
+                    <span className={styles.length}>{formatEighths(eighths[scenes.indexOf(scene)] ?? 0)}</span>
+                  ) : null}
                   {scene.meta.color && scene.meta.color !== 'none' && (
                     <span
                       className={styles.dot}

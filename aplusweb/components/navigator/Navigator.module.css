@@ -85,3 +85,12 @@
   text-transform: uppercase;
   color: var(--text-faint);
 }
+
+/* Scene length in eighths of a page — what a schedule plans in. */
+.length {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+  align-self: center;
+}

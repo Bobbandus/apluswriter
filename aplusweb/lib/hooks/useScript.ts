@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ParseRequest, ParseResponse, ScriptSummary } from '@aplus/fountain/worker';
+import type { LayoutOptions, ParseRequest, ParseResponse, ScriptSummary } from '@aplus/fountain/worker';
 
 const EMPTY: ScriptSummary = {
   titlePage: null,
@@ -11,6 +11,7 @@ const EMPTY: ScriptSummary = {
   todos: [],
   elementCount: 0,
   parseMs: 0,
+  layout: null,
 };
 
 /**
@@ -25,7 +26,7 @@ const EMPTY: ScriptSummary = {
  * is slower on a long script, but a stale navigator is a worse failure than a
  * slow one.
  */
-export function useScript(source: string, debounceMs = 140): ScriptSummary {
+export function useScript(source: string, layout?: LayoutOptions, debounceMs = 140): ScriptSummary {
   const [summary, setSummary] = useState<ScriptSummary>(EMPTY);
   const worker = useRef<Worker | null>(null);
   const nextId = useRef(0);
@@ -63,7 +64,7 @@ export function useScript(source: string, debounceMs = 140): ScriptSummary {
 
       const active = worker.current;
       if (active) {
-        const request: ParseRequest = { type: 'parse', id: nextId.current, source };
+        const request: ParseRequest = { type: 'parse', id: nextId.current, source, ...(layout ? { layout } : {}) };
         active.postMessage(request);
         return;
       }
@@ -71,12 +72,15 @@ export function useScript(source: string, debounceMs = 140): ScriptSummary {
       // Main-thread fallback. Imported lazily so the parser is not pulled into
       // the initial bundle when the worker path is available.
       void import('@aplus/fountain/worker').then(({ summarize }) => {
-        setSummary(summarize(source));
+        setSummary(summarize(source, layout));
       });
     }, debounceMs);
 
     return () => window.clearTimeout(timer);
-  }, [source, debounceMs]);
+    // The layout options are compared by value: a new object with the same
+    // settings must not trigger a re-parse on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [source, debounceMs, layout?.pageSize, layout?.moreLabel, layout?.contdLabel]);
 
   return summary;
 }

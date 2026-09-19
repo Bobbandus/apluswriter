@@ -149,9 +149,9 @@ so every file we write stays valid Fountain 1.1. Full spec in
       with a full test suite against the spec examples and the official samples.
 - [x] **M3 — Editor.** CodeMirror 6, live formatting decorations, Enter/Tab
       element state machine, ⌘1–⌘8 element switching, auto-uppercase, `(CONT'D)`.
-- [~] **M4 — Autocomplete.** Popover + ghost text, speaker prediction, Script
+- [x] **M4 — Autocomplete.** Popover + ghost text, speaker prediction, Script
       Dictionary panel, typo guard (edit distance ≤ 2).
-- [ ] **M5 — Pagination.** Deterministic paginator, page view, `(MORE)` /
+- [x] **M5 — Pagination.** Deterministic paginator, page view, `(MORE)` /
       `(CONT'D)` splits, runtime estimates, golden tests vs. reference PDFs.
 - [ ] **M6 — Backend.** Supabase SQL scripts, auth, dashboard, autosave,
       offline sync, optimistic concurrency + conflict UI.

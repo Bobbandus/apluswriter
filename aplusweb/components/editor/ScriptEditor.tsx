@@ -12,6 +12,8 @@ import { elementFlow, switchElement } from './fountain/elementFlow';
 import { elementPicker } from './fountain/picker';
 import { fountainAutocomplete } from './fountain/autocomplete';
 import { typoGuard } from './fountain/typoGuard';
+import { pageView, setPageLayout } from './fountain/pages';
+import type { PageLayout } from '@aplus/paginator/layout';
 import { effectiveType } from './fountain/intent';
 import type { LineType } from '@aplus/fountain/lineClassify';
 import {
@@ -36,6 +38,8 @@ export interface ScriptEditorProps {
   autoFocus?: boolean;
   /** Reports the element the caret is in, so the element bar can show it. */
   onElementChange?: (type: LineType) => void;
+  /** Where the pages break, from the paginator. Null hides the page view. */
+  pageLayout?: PageLayout | null;
 }
 
 /**
@@ -72,6 +76,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
   onCaretChange,
   autoFocus = true,
   onElementChange,
+  pageLayout = null,
 }, ref) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
@@ -137,6 +142,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
       fountainTheme,
       fountainDecorations,
       typoGuard,
+      pageView(),
       elementPicker(elementLabels, tEditor('elementPickerHint'), switchElement),
       elementFlow(),
       keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
@@ -212,6 +218,10 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
       userEvent: 'input.external',
     });
   }, [value]);
+
+  useEffect(() => {
+    view.current?.dispatch({ effects: setPageLayout.of(pageLayout) });
+  }, [pageLayout]);
 
   useImperativeHandle(
     ref,

@@ -21,6 +21,7 @@ export interface TitlebarProps {
   onToggleInspector: () => void;
   onToggleFocus: () => void;
   onOpenCommandPalette: () => void;
+  onExport?: () => void;
   onOpenProjectMenu?: () => void;
   onOpenVersionMenu?: () => void;
 }
@@ -44,6 +45,7 @@ export function Titlebar({
   onToggleInspector,
   onToggleFocus,
   onOpenCommandPalette,
+  onExport,
   onOpenProjectMenu,
   onOpenVersionMenu,
 }: TitlebarProps) {
@@ -94,6 +96,12 @@ export function Titlebar({
       </div>
 
       <div className={styles.side + ' ' + styles.right}>
+        {onExport && (
+          <Tooltip label={t('export')} shortcut="mod+e">
+            <Button variant="ghost" size="sm" icon="export" aria-label={t('export')} onClick={onExport} />
+          </Tooltip>
+        )}
+
         <Tooltip label={t('focusMode')} shortcut="mod+shift+f">
           <Button
             variant="ghost"

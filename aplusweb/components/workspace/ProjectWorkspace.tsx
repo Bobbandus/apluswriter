@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Workspace } from '@/components/shell/Workspace';
 import { Navigator } from '@/components/navigator/Navigator';
 import { Inspector } from '@/components/inspector/Inspector';
@@ -11,6 +11,7 @@ import { ElementBar } from '@/components/editor/ElementBar';
 import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
+import { ExportSheet } from '@/components/export/ExportSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { useScript } from '@/lib/hooks/useScript';
@@ -38,6 +39,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [pageSize, setPageSize] = usePersistentState<PageSize>('aplus.ui.pageSize', 'a4');
 
   /* The document lives here until the storage layer lands in M6. It is held
@@ -61,7 +63,18 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     { characters: [], locations: [], tags: [] },
   );
 
-  const script = useScript(source);
+  const locale = useLocale();
+  // The page view and the PDF must break pages identically, so the worker
+  // paginates with exactly the options the exporter will use.
+  const layoutOptions = useMemo(
+    () => ({
+      pageSize,
+      moreLabel: locale === 'en' ? '(MORE)' : '(MER)',
+      contdLabel: locale === 'en' ? "(CONT'D)" : '(FORTS.)',
+    }),
+    [pageSize, locale],
+  );
+  const script = useScript(source, layoutOptions);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
 
@@ -103,7 +116,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const rebuildDictionary = useCallback(() => setDictionary(dictionaryFromScript(script)), [script, setDictionary]);
   const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
-  useHotkeys({ 'mod+,': openSettings });
+  useHotkeys({ 'mod+,': openSettings, 'mod+e': () => setExportOpen(true) });
 
   // The scene the caret is in, so the navigator and inspector follow along.
   const scene =
@@ -120,10 +133,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // genuinely being saved to a server, the titlebar says nothing rather
         // than claiming the work is safe.
         saveState={null}
+        onExport={() => setExportOpen(true)}
         sidebar={
           <Navigator
             scenes={script.scenes}
             caret={caret}
+            eighths={script.layout?.sceneEighths}
             onSelectScene={(selected) => editorRef.current?.revealOffset(selected.from)}
           />
         }
@@ -147,6 +162,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             <ScriptEditor
               ref={editorRef}
               onElementChange={setElement}
+              pageLayout={script.layout}
               initialValue={source}
               value={source}
               onChange={setSource}
@@ -157,6 +173,15 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
           )}
         </PageCanvas>
       </Workspace>
+
+      <ExportSheet
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        source={source}
+        pageSize={pageSize}
+        pageCount={script.layout?.pageCount ?? null}
+        todoCount={script.todos.length}
+      />
 
       <SettingsSheet
         open={settingsOpen}

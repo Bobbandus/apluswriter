@@ -9,6 +9,7 @@ export default defineConfig({
       // Match the tsconfig paths so tests import exactly what ships.
       '@aplus/fountain': at('./packages/fountain'),
       '@aplus/paginator': at('./packages/paginator'),
+      '@aplus/export': at('./packages/export'),
       '@': at('./aplusweb'),
     },
   },

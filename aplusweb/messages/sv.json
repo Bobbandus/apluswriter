@@ -39,7 +39,8 @@
     "toggleSidebar": "Visa eller dölj navigatorn",
     "toggleInspector": "Visa eller dölj inspektorn",
     "focusMode": "Fokusläge",
-    "commandPalette": "Kommandopalett"
+    "commandPalette": "Kommandopalett",
+    "export": "Exportera"
   },
   "status": {
     "saved": "Sparat",
@@ -215,7 +216,10 @@
     "preview": "Förhandsgranska",
     "previewHint": "Kontrollera hur varje rad tolkas innan du importerar.",
     "todosRemain": "{count, plural, =1 {# Att göra-anteckning} other {# Att göra-anteckningar}} finns kvar i manuset.",
-    "todosRemainHint": "Vill du exportera ändå?"
+    "todosRemainHint": "Vill du exportera ändå?",
+    "titlePage": "Titelsida",
+    "pageCount": "{count, plural, =1 {# sida} other {# sidor}}",
+    "exportFailed": "Exporten misslyckades."
   },
   "share": {
     "title": "Dela",

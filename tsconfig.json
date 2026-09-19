@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./aplusweb/*"],
       "@aplus/fountain/*": ["./packages/fountain/*"],
-      "@aplus/paginator/*": ["./packages/paginator/*"]
+      "@aplus/paginator/*": ["./packages/paginator/*"],
+      "@aplus/export/*": ["./packages/export/*"]
     }
   },
   "include": [

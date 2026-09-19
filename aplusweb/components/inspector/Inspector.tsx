@@ -76,8 +76,13 @@ export function Inspector({ onOpenSettings, onOpenDictionary, scene, script }: I
           <div className={styles.fact}>
             <dt>{tNav('runtime', { minutes: '' }).trim()}</dt>
             {/* One page ≈ one minute is a rule of thumb, so it is shown as an
-                estimate rather than as a number the schedule can lean on. */}
-            <dd>≈ {estimateMinutes(Math.max(1, Math.round(script.scenes.length / 2)))} min</dd>
+                estimate — but from the real page count, which comes from the
+                same paginator as the PDF. */}
+            <dd>
+              {script.layout
+                ? `${script.layout.pageCount} s · ≈ ${estimateMinutes(script.layout.pageCount)} min`
+                : '—'}
+            </dd>
           </div>
         </dl>
 

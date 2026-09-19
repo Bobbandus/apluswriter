@@ -2,6 +2,16 @@
 
 import { parse } from './parse';
 import type { Script } from './types';
+import { paginate } from '../paginator/paginate';
+import { pageLayout, type PageLayout } from '../paginator/layout';
+import type { PageSize } from '../paginator/geometry';
+
+/** What the page view needs to know that the source alone does not say. */
+export interface LayoutOptions {
+  pageSize: PageSize;
+  moreLabel: string;
+  contdLabel: string;
+}
 
 /**
  * The parse worker.
@@ -32,16 +42,23 @@ export interface ScriptSummary {
   elementCount: number;
   /** Milliseconds the parse took, for the performance budget. */
   parseMs: number;
+  /**
+   * Where the pages break. Computed here, off the main thread, by the same
+   * paginator the PDF exporter uses — so page 47 on screen is page 47 on paper.
+   */
+  layout: PageLayout | null;
 }
 
-export type ParseRequest = { type: 'parse'; id: number; source: string };
+export type ParseRequest = { type: 'parse'; id: number; source: string; layout?: LayoutOptions };
 export type ParseResponse =
   | { type: 'parsed'; id: number; summary: ScriptSummary }
   | { type: 'error'; id: number; message: string };
 
-export function summarize(source: string): ScriptSummary {
+export function summarize(source: string, layout?: LayoutOptions): ScriptSummary {
   const started = performance.now();
   const script = parse(source);
+  const bodyFrom = script.titlePage ? (script.elements[0]?.from ?? null) : null;
+  const pages = layout ? pageLayout(paginate(script, layout), bodyFrom) : null;
 
   return {
     titlePage: script.titlePage,
@@ -51,6 +68,7 @@ export function summarize(source: string): ScriptSummary {
     todos: script.todos,
     elementCount: script.elements.length,
     parseMs: performance.now() - started,
+    layout: pages,
   };
 }
 
@@ -65,7 +83,7 @@ if (typeof self !== 'undefined' && typeof (self as unknown as Worker).postMessag
       const response: ParseResponse = {
         type: 'parsed',
         id: request.id,
-        summary: summarize(request.source),
+        summary: summarize(request.source, request.layout),
       };
       self.postMessage(response);
     } catch (error) {
