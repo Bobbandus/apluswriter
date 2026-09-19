@@ -22,6 +22,8 @@ export interface TitlebarProps {
   onToggleFocus: () => void;
   onOpenCommandPalette: () => void;
   onExport?: () => void;
+  /** Back to all projects. */
+  onHome?: () => void;
   onOpenProjectMenu?: () => void;
   onOpenVersionMenu?: () => void;
 }
@@ -46,6 +48,7 @@ export function Titlebar({
   onToggleFocus,
   onOpenCommandPalette,
   onExport,
+  onHome,
   onOpenProjectMenu,
   onOpenVersionMenu,
 }: TitlebarProps) {
@@ -66,6 +69,12 @@ export function Titlebar({
           <span className={`${styles.light} ${styles.minimize}`} />
           <span className={`${styles.light} ${styles.zoom}`} />
         </div>
+
+        {onHome && (
+          <Tooltip label={t('projects')}>
+            <Button variant="ghost" size="sm" icon="folder" aria-label={t('projects')} onClick={onHome} />
+          </Tooltip>
+        )}
 
         <Tooltip label={t('toggleSidebar')} shortcut="mod+1">
           <Button

@@ -1,0 +1,119 @@
+.page {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: var(--s-6) var(--s-4);
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 20% 10%, var(--accent-soft), transparent 45%),
+    var(--bg-app);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: 380px;
+  padding: var(--s-8);
+  border-radius: var(--r-xl);
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line);
+  box-shadow: var(--shadow-lg);
+}
+
+.brand {
+  font-family: var(--font-black);
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+.plus {
+  color: var(--accent);
+}
+
+.title {
+  font-size: var(--t-xl);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  font-size: var(--t-body);
+  color: var(--text-muted);
+}
+
+.input {
+  height: 38px;
+  padding: 0 var(--s-3);
+  border-radius: var(--r-md);
+  border: var(--hairline) solid var(--line-strong);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-size: var(--t-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-app);
+}
+
+.hint {
+  font-size: var(--t-small);
+  color: var(--text-faint);
+}
+
+.or {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+.or::before,
+.or::after {
+  content: '';
+  flex: 1;
+  height: var(--hairline);
+  background: var(--line);
+}
+
+.note,
+.sent {
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.sent {
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.error {
+  font-size: var(--t-small);
+  color: var(--flare);
+}
+
+.local {
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}
+
+.local:hover {
+  color: var(--text);
+}

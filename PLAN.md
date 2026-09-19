@@ -153,7 +153,7 @@ so every file we write stays valid Fountain 1.1. Full spec in
       Dictionary panel, typo guard (edit distance ≤ 2).
 - [x] **M5 — Pagination.** Deterministic paginator, page view, `(MORE)` /
       `(CONT'D)` splits, runtime estimates, golden tests vs. reference PDFs.
-- [ ] **M6 — Backend.** Supabase SQL scripts, auth, dashboard, autosave,
+- [x] **M6 — Backend.** Supabase SQL scripts, auth, dashboard, autosave,
       offline sync, optimistic concurrency + conflict UI.
 - [ ] **M7 — Structure.** Navigator tree, index card board with drag-reorder,
       Characters/Locations panels, rename-everywhere.

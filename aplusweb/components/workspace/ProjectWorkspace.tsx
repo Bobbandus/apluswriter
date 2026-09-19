@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { Workspace } from '@/components/shell/Workspace';
 import { Navigator } from '@/components/navigator/Navigator';
 import { Inspector } from '@/components/inspector/Inspector';
@@ -15,6 +16,8 @@ import { ExportSheet } from '@/components/export/ExportSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { useScript } from '@/lib/hooks/useScript';
+import { useProjectDocument } from '@/lib/storage/hooks';
+import { ConflictSheet } from '@/components/sync/ConflictSheet';
 import {
   DEFAULT_EDITOR_SETTINGS,
   type EditorSettings,
@@ -36,18 +39,45 @@ export interface ProjectWorkspaceProps {
  */
 export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const t = useTranslations('common');
+  const router = useRouter();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const [pageSize, setPageSize] = usePersistentState<PageSize>('aplus.ui.pageSize', 'a4');
+  /* The document, kept safe by the sync engine: IndexedDB first, then the
+     cloud if the project lives there. See lib/storage/sync.ts. */
+  const doc = useProjectDocument(projectId, t('untitled'));
+  const pageSize: PageSize = doc.meta?.pageSize ?? 'a4';
+  const setPageSize = (size: PageSize) => void doc.setPageSize(size);
 
-  /* The document lives here until the storage layer lands in M6. It is held
-     in local storage so a reload does not lose work — a stopgap, but a
-     crash-safe one, and better than holding it only in memory. */
-  const [source, setSource, { hydrated }] = usePersistentState(
-    `aplus.draft.${projectId}`,
-    '',
+  /* A plain copy of the text for parsing and for structural edits (renames).
+     The editor itself owns the live document. */
+  const [source, setSourceState] = useState('');
+  const sourceRef = useRef('');
+  const [syncedRevision, setSyncedRevision] = useState(-1);
+
+  /* Synced during render, not in an effect. With an effect there is one
+     render where the editor could mount holding the loaded text while this
+     copy is still '' — and the editor's external-value sync would then
+     replace the script with nothing and save it. */
+  if (doc.ready && syncedRevision !== doc.revision) {
+    sourceRef.current = doc.content;
+    setSourceState(doc.content);
+    setSyncedRevision(doc.revision);
+  }
+  const hydrated = doc.ready && syncedRevision === doc.revision;
+
+  const setSource = useCallback(
+    (next: string | ((previous: string) => string)) => {
+      const value = typeof next === 'function' ? next(sourceRef.current) : next;
+      if (value === sourceRef.current) return;
+      sourceRef.current = value;
+      setSourceState(value);
+      doc.update(value);
+    },
+    // doc.update is stable; the rest of doc changes on every save.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [doc.update],
   );
 
   const [editor, setEditor] = usePersistentState<EditorSettings>(
@@ -116,6 +146,15 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const rebuildDictionary = useCallback(() => setDictionary(dictionaryFromScript(script)), [script, setDictionary]);
   const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
+  // Page and scene counts for the dashboard, from the same pagination as the PDF.
+  const pageCount = script.layout?.pageCount;
+  const sceneCount = script.scenes.length;
+  useEffect(() => {
+    if (!hydrated || pageCount === undefined) return;
+    doc.recordStats({ pages: pageCount, scenes: sceneCount });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, pageCount, sceneCount]);
+
   useHotkeys({ 'mod+,': openSettings, 'mod+e': () => setExportOpen(true) });
 
   // The scene the caret is in, so the navigator and inspector follow along.
@@ -126,14 +165,19 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     <>
       <Workspace
         projectTitle={
-          script.titlePage?.fields.find((f) => f.key === 'title' || f.key === 'titel')?.values[0] ??
+          // The project's own name, unless it is still the default and the
+          // script has since been given a title page.
+          (doc.meta && doc.meta.title !== t('untitled') ? doc.meta.title : null) ??
+          script.titlePage?.fields.find((f) => f.key === 'title' || f.key === 'titel')?.values[0]?.replace(/[*_]/g, '') ??
+          doc.meta?.title ??
           t('untitled')
         }
         // Save status arrives with the storage layer in M6. Until something is
         // genuinely being saved to a server, the titlebar says nothing rather
         // than claiming the work is safe.
-        saveState={null}
+        saveState={hydrated ? doc.state : null}
         onExport={() => setExportOpen(true)}
+        onHome={() => router.push('/')}
         sidebar={
           <Navigator
             scenes={script.scenes}
@@ -160,10 +204,11 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
               work with it. */}
           {hydrated && (
             <ScriptEditor
+              key={projectId}
               ref={editorRef}
               onElementChange={setElement}
               pageLayout={script.layout}
-              initialValue={source}
+              initialValue={doc.content}
               value={source}
               onChange={setSource}
               onCaretChange={setCaret}
@@ -173,6 +218,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
           )}
         </PageCanvas>
       </Workspace>
+
+      <ConflictSheet conflict={doc.conflict} mine={source} onResolve={doc.resolve} />
 
       <ExportSheet
         open={exportOpen}

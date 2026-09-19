@@ -55,3 +55,8 @@
     opacity: 1;
   }
 }
+
+/* Safe on this computer, by the writer's choice rather than by circumstance. */
+.local {
+  color: var(--text-faint);
+}

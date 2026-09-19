@@ -159,6 +159,50 @@ const paths = {
     </>
   ),
 
+  /** A cloud. Projects that sync. */
+  cloud: (
+    <path d="M6.2 15.5h8a3.3 3.3 0 0 0 .5-6.6 4.6 4.6 0 0 0-8.9 1.2 2.7 2.7 0 0 0 .4 5.4z" />
+  ),
+
+  /** A laptop. Projects that live on this computer only. */
+  device: (
+    <>
+      <rect x="4" y="4.5" width="12" height="8.5" rx="1.4" />
+      <path d="M2.8 15.5h14.4" />
+    </>
+  ),
+
+  trash: (
+    <>
+      <path d="M4 6h12" />
+      <path d="M8 6V4.6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V6" />
+      <path d="M5.5 6l.8 9.4a1.4 1.4 0 0 0 1.4 1.3h4.6a1.4 1.4 0 0 0 1.4-1.3l.8-9.4" />
+    </>
+  ),
+
+  copy: (
+    <>
+      <rect x="7" y="7" width="9.5" height="9.5" rx="1.6" />
+      <path d="M13 7V5a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 4 5v6a1.5 1.5 0 0 0 1.5 1.5H7" />
+    </>
+  ),
+
+  user: (
+    <>
+      <circle cx="10" cy="7.2" r="3" />
+      <path d="M4.4 16.6c0-3 2.5-5.3 5.6-5.3s5.6 2.3 5.6 5.3" />
+    </>
+  ),
+
+  /** An arrow into a cloud: move this project to the cloud. */
+  upload: (
+    <>
+      <path d="M10 15V8.4" />
+      <path d="M7.4 10.8L10 8.2l2.6 2.6" />
+      <path d="M6 15.5h-.2a2.7 2.7 0 0 1-.3-5.4 4.6 4.6 0 0 1 8.9-1.2 3.3 3.3 0 0 1-.4 6.6h-.1" />
+    </>
+  ),
+
   lock: (
     <>
       <rect x="4.2" y="8.8" width="11.6" height="7.8" rx="1.8" />

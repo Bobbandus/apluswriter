@@ -40,7 +40,8 @@
     "toggleInspector": "Visa eller dölj inspektorn",
     "focusMode": "Fokusläge",
     "commandPalette": "Kommandopalett",
-    "export": "Exportera"
+    "export": "Exportera",
+    "projects": "Alla projekt"
   },
   "status": {
     "saved": "Sparat",
@@ -49,7 +50,8 @@
     "syncing": "Synkar …",
     "conflict": "Konflikt — välj version",
     "error": "Kunde inte spara",
-    "lastSaved": "Sparat {time}"
+    "lastSaved": "Sparat {time}",
+    "local": "Sparat på den här datorn"
   },
   "nav": {
     "write": "Skriv",
@@ -310,7 +312,15 @@
     "signInWithGoogle": "Fortsätt med Google",
     "email": "E-post",
     "magicLinkSent": "Kolla mejlen. Vi har skickat en inloggningslänk.",
-    "signInHint": "Ingen lösenord behövs."
+    "signInHint": "Inget lösenord behövs.",
+    "signInTitle": "Logga in på A+ Write",
+    "notConfigured": "Molnsynk är inte uppsatt än. Följ supabase/README.md för att koppla in ett Supabase-projekt. Allt fungerar lokalt under tiden.",
+    "continueLocal": "Fortsätt utan konto",
+    "sending": "Skickar …",
+    "signedInAs": "Inloggad som {email}",
+    "callbackWorking": "Loggar in …",
+    "callbackFailed": "Inloggningen misslyckades. Försök igen.",
+    "or": "eller"
   },
   "projects": {
     "title": "Projekt",
@@ -319,14 +329,47 @@
     "empty": "Inga projekt än",
     "emptyHint": "Skapa ett projekt så kommer du igång.",
     "lastEdited": "Ändrad {time}",
-    "openProject": "Öppna {title}"
+    "openProject": "Öppna {title}",
+    "import": "Importera fil",
+    "search": "Sök projekt",
+    "filterAll": "Alla",
+    "filterCloud": "I molnet",
+    "filterLocal": "På den här datorn",
+    "sortRecent": "Senast ändrad",
+    "sortName": "Namn",
+    "locationCloud": "Moln",
+    "locationLocal": "Den här datorn",
+    "stats": "{pages, plural, =0 {Tomt} =1 {# sida} other {# sidor}} · {scenes, plural, =0 {inga scener} =1 {# scen} other {# scener}}",
+    "open": "Öppna",
+    "rename": "Byt namn",
+    "duplicate": "Duplicera",
+    "delete": "Ta bort",
+    "moveToCloud": "Flytta till molnet",
+    "actions": "Åtgärder för {title}",
+    "deleteTitle": "Ta bort {title}?",
+    "deleteBodyLocal": "Manuset tas bort från den här datorn. Det går inte att ångra.",
+    "deleteBodyCloud": "Projektet läggs i papperskorgen i molnet och tas bort från den här datorn.",
+    "copySuffix": "(kopia)",
+    "whereTitle": "Var ska det sparas?",
+    "whereCloud": "I molnet",
+    "whereCloudHint": "På alla dina datorer",
+    "whereLocal": "Den här datorn",
+    "whereLocalHint": "Bara här, inget konto",
+    "cloudBanner": "Logga in för att spara i molnet och skriva vidare på vilken dator som helst.",
+    "dropHint": "Släpp en .fountain-fil för att importera den",
+    "importFailed": "Filen kunde inte läsas.",
+    "movedToCloud": "Flyttat till molnet.",
+    "nothingFound": "Inga projekt matchar.",
+    "recent": "Senaste"
   },
   "conflict": {
     "title": "Manuset har ändrats på ett annat ställe",
     "body": "Din version och den sparade versionen skiljer sig åt. Ingenting skrivs över förrän du väljer.",
     "keepMine": "Behåll min version",
     "keepTheirs": "Använd den sparade",
-    "showDiff": "Visa skillnaderna"
+    "showDiff": "Visa skillnaderna",
+    "theirsLabel": "i molnet",
+    "mineLabel": "din version"
   },
   "a11y": {
     "skipToEditor": "Hoppa till manuset",

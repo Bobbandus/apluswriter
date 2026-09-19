@@ -40,7 +40,8 @@
     "toggleInspector": "Show or hide the inspector",
     "focusMode": "Focus mode",
     "commandPalette": "Command palette",
-    "export": "Export"
+    "export": "Export",
+    "projects": "All projects"
   },
   "status": {
     "saved": "Saved",
@@ -49,7 +50,8 @@
     "syncing": "Syncing …",
     "conflict": "Conflict — choose a version",
     "error": "Couldn't save",
-    "lastSaved": "Saved {time}"
+    "lastSaved": "Saved {time}",
+    "local": "Saved on this computer"
   },
   "nav": {
     "write": "Write",
@@ -310,7 +312,15 @@
     "signInWithGoogle": "Continue with Google",
     "email": "Email",
     "magicLinkSent": "Check your email. We sent a sign-in link.",
-    "signInHint": "No password needed."
+    "signInHint": "No password needed.",
+    "signInTitle": "Sign in to A+ Write",
+    "notConfigured": "Cloud sync is not set up yet. Follow supabase/README.md to connect a Supabase project. Everything works locally in the meantime.",
+    "continueLocal": "Continue without an account",
+    "sending": "Sending …",
+    "signedInAs": "Signed in as {email}",
+    "callbackWorking": "Signing in …",
+    "callbackFailed": "Sign-in failed. Please try again.",
+    "or": "or"
   },
   "projects": {
     "title": "Projects",
@@ -319,14 +329,47 @@
     "empty": "No projects yet",
     "emptyHint": "Create a project to get started.",
     "lastEdited": "Edited {time}",
-    "openProject": "Open {title}"
+    "openProject": "Open {title}",
+    "import": "Import file",
+    "search": "Search projects",
+    "filterAll": "All",
+    "filterCloud": "In the cloud",
+    "filterLocal": "On this computer",
+    "sortRecent": "Last edited",
+    "sortName": "Name",
+    "locationCloud": "Cloud",
+    "locationLocal": "This computer",
+    "stats": "{pages, plural, =0 {Empty} =1 {# page} other {# pages}} · {scenes, plural, =0 {no scenes} =1 {# scene} other {# scenes}}",
+    "open": "Open",
+    "rename": "Rename",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "moveToCloud": "Move to the cloud",
+    "actions": "Actions for {title}",
+    "deleteTitle": "Delete {title}?",
+    "deleteBodyLocal": "The script is removed from this computer. This cannot be undone.",
+    "deleteBodyCloud": "The project goes to the cloud trash and is removed from this computer.",
+    "copySuffix": "(copy)",
+    "whereTitle": "Where should it live?",
+    "whereCloud": "In the cloud",
+    "whereCloudHint": "On all your computers",
+    "whereLocal": "This computer",
+    "whereLocalHint": "Only here, no account",
+    "cloudBanner": "Sign in to save to the cloud and keep writing on any computer.",
+    "dropHint": "Drop a .fountain file to import it",
+    "importFailed": "The file could not be read.",
+    "movedToCloud": "Moved to the cloud.",
+    "nothingFound": "No projects match.",
+    "recent": "Recent"
   },
   "conflict": {
     "title": "The script changed somewhere else",
     "body": "Your version and the saved version differ. Nothing is overwritten until you choose.",
     "keepMine": "Keep my version",
     "keepTheirs": "Use the saved one",
-    "showDiff": "Show the differences"
+    "showDiff": "Show the differences",
+    "theirsLabel": "in the cloud",
+    "mineLabel": "your version"
   },
   "a11y": {
     "skipToEditor": "Skip to the script",

@@ -3,11 +3,9 @@
 import { useTranslations } from 'next-intl';
 import styles from './SaveStatus.module.css';
 
-/**
- * Every state the writer's work can be in. There is no "unknown" — if the app
- * cannot say where the text is, that is a bug, not a state.
- */
-export type SaveState = 'saved' | 'saving' | 'syncing' | 'offline' | 'conflict' | 'error';
+import type { SaveState } from '@/lib/storage/types';
+
+export type { SaveState };
 
 export interface SaveStatusProps {
   /** `null` renders nothing — used before a document is open. */
