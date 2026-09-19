@@ -143,9 +143,9 @@ so every file we write stays valid Fountain 1.1. Full spec in
 
 ## 5. Milestones
 
-- [~] **M1 — Foundation.** Scaffold, design tokens, UI kit, custom icon set,
+- [x] **M1 — Foundation.** Scaffold, design tokens, UI kit, custom icon set,
       titlebar + three-pane shell, i18n (sv default / en).
-- [ ] **M2 — Parser.** Fountain 1.1 + A+ extensions, incremental, in a worker,
+- [~] **M2 — Parser.** Fountain 1.1 + A+ extensions, incremental, in a worker,
       with a full test suite against the spec examples and the official samples.
 - [ ] **M3 — Editor.** CodeMirror 6, live formatting decorations, Enter/Tab
       element state machine, ⌘1–⌘8 element switching, auto-uppercase, `(CONT'D)`.
