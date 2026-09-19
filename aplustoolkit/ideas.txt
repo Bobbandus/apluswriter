@@ -1,0 +1,111 @@
+A+ WRITE — IDÉER FÖR SENARE
+============================
+Saker som är beslutade att vänta. Läs den här filen i början av en ny chatt
+innan du föreslår nya funktioner, så att vi inte föreslår samma sak igen.
+
+Grundregel för all AI i A+ Write:
+  AI:n är ett verktyg som hjälper till när användaren frågar. Den skriver
+  aldrig manuset åt någon. Den rör aldrig dialog eller beskrivning utan att
+  användaren själv klickar "Använd" på ett förslag.
+
+------------------------------------------------------------------------
+KOMMER SENARE
+------------------------------------------------------------------------
+
+1. Knappar i appen som anropar AI direkt ("Generera shotlist"-knapp)
+   Kräver Claude API med egen API-nyckel och kostar per anrop, separat från
+   ett Claude Desktop-abonnemang. Beslut (2026-10): inte nu. Tills dess sker
+   allt via Claude Desktop + MCP-servern. Bygg knapparna mot samma
+   actions/-gränssnitt som MCP-förslagen använder, så att inget behöver göras om.
+
+2. Callsheet för en inspelningsdag
+   Välj dag, få scener, roller, platser, tider och rekvisita. PDF-export.
+   Bygger på inspelningsschemat, som redan finns.
+
+3. Samlad rekvisita- och kostymlista för hela filmen
+   Per kategori och roll, med vilka scener varje sak behövs i.
+   (Brännvidd per bild finns redan i shotlistan. Här handlar det om en
+   samlad lista över objektiv och utrustning per inspelningsdag.)
+
+4. Platsscouting med bilder
+   Användaren laddar upp foton på möjliga platser. Claude föreslår vilken
+   plats som passar vilken scen och varför (ljus, storlek, stämning, ljud,
+   tillgänglighet). Förslagen visas som kort, användaren bestämmer.
+
+5. Faktakoll i chatten
+   "Skulle svensk polis 1995 ha en sån radio?" Svaret kommer bara i
+   chatten och skrivs aldrig in i manuset.
+
+------------------------------------------------------------------------
+AVFÄRDAT (föreslå inte igen utan anledning)
+------------------------------------------------------------------------
+
+- Table read med talsyntes. Motivering: man läser högt själv eller gör en
+  riktig läsning. AI-uppläsning passar inte tanken att AI är ett verktyg.
+- Flytande elementväljare vid markören. Knappraden + Ctrl/Cmd+1–8 räcker.
+- Tab som bläddrar mellan elementtyper. Den gjorde oväntade saker, som att
+  lägga in < och (). Tab gör nu bara säkra saker (fyller i förslag och
+  scenprefix).
+
+
+========================================================================
+A+ TOOLKIT — EKOSYSTEMET (beslutat, byggs senare)
+========================================================================
+
+Sajten heter A+ Toolkit. Tre delar, alla nås från startsidan:
+
+  A+ Plan   = A+ Write, omdöpt. Undersidor: Write (manus, finns), Shotlist,
+              Casting (båda bara "kommer"-sidor än).
+  A+ Shoot  = verktyg för inspelningsdagen. Inget byggt.
+  A+ Live   = overlays och grafik för livesändning. Inget byggt.
+
+Endast för eget bruk (A+ Studios). Inga publika användarkonton behövs.
+Nycklar ligger i api.txt utanför git. De ska aldrig committas.
+
+FRÅGA ANVÄNDAREN innan något av det här byggs. Ställ ja/nej-frågor först,
+som vi gjorde för A+ Write.
+
+------------------------------------------------------------------------
+A+ SHOOT — planerade verktyg
+------------------------------------------------------------------------
+- Detaljerad shotlist på set (mer än planeringens: status per bild, tagningar,
+  anteckningar, foto från monitorn)
+- Blockingtips per scen (var skådespelare och kamera står, hur de rör sig)
+- Filmklappa som kopplas till manuset automatiskt (scen, bild, tagning fylls i
+  från shotlisten; räknar upp tagningar själv)
+- Gearöversikt (vad som finns, vad som behövs per dag, packlista)
+- Dagens schema och callsheet (se även "Callsheet" ovan)
+- Logg per tagning (bra/dålig, ljud, anmärkning, kontinuitet)
+- Rapport efter dagen (vad hann vi, vad återstår)
+- Kontinuitetsfoton per scen
+
+------------------------------------------------------------------------
+A+ LIVE — planerat, i stil med Uno Overlays / Singular.live men bättre och
+anpassat för A+ Studios produktioner
+------------------------------------------------------------------------
+- Overlays och grafik: lower thirds, poängtavlor, ticker, klockor
+- AI-overlays (grafik som reagerar på vad som händer i sändningen)
+- Import från dataset (CSV, Google Sheets, API) till grafik
+- Live-ingångar: kamera, NDI, RTMP, webbläsarkälla
+- API för egna integrationer och styrning utifrån
+- Mallar för våra produktioner (sport, evenemang, konferens)
+- Operatörsvy: styra grafik under sändning med tangentbord/kontroll
+- Uppspelning och logg av vad som visats
+
+------------------------------------------------------------------------
+A+ PLAN — undersidor att bygga
+------------------------------------------------------------------------
+- Shotlist (fristående sida, alla scener; i dag sparas Claudes shotlists per
+  projekt i skrivvyn)
+- Casting (rollbeskrivningar från manuset, casting calls, kandidater,
+  anteckningar, tidsbokning). Rollbibeln finns redan som Claude-kommando.
+- Fler: Platser, Schema, Budget (fråga först)
+
+------------------------------------------------------------------------
+TEKNISKT ATT KOMMA IHÅG
+------------------------------------------------------------------------
+- Hela projektet ligger i mappen aplustoolkit/. Det är enda mappen som pushas.
+  Vercel: Root Directory ska vara  aplustoolkit/aplusweb
+- Supabase Site URL: https://apluswriter.vercel.app
+  Redirect URLs: http://localhost:3000/auth/callback  (och Vercel-adressen)
+- Startsidans bilder ligger i aplusweb/public/media/hero/ (3:4, stående).

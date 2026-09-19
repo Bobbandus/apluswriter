@@ -4,10 +4,7 @@
     {
       "name": "aplus-write-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["--prefix", "aplustoolkit", "run", "dev"],
       "port": 3000
     }
   ]

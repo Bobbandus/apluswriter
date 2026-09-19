@@ -230,7 +230,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // than claiming the work is safe.
         saveState={hydrated ? doc.state : null}
         onExport={() => setExportOpen(true)}
-        onHome={() => router.push('/')}
+        onHome={() => router.push('/plan/write')}
         sidebar={
           <Navigator
             scenes={script.scenes}

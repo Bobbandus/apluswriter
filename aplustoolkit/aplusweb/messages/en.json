@@ -360,7 +360,8 @@
     "importFailed": "The file could not be read.",
     "movedToCloud": "Moved to the cloud.",
     "nothingFound": "No projects match.",
-    "recent": "Recent"
+    "recent": "Recent",
+    "breadcrumbWrite": "Write"
   },
   "conflict": {
     "title": "The script changed somewhere else",
@@ -420,5 +421,65 @@
     "connectClaude": "Claude Desktop",
     "connectClaudeHint": "Adds A+ Write to Claude's tools. Asks first, keeps a backup and leaves other servers alone.",
     "connectClaudeButton": "Connect …"
+  },
+  "toolkit": {
+    "name": "A+ Toolkit",
+    "tagline": "Everything a production needs, in one place.",
+    "eyebrow": "A+ Studios",
+    "soon": "Soon",
+    "open": "Open",
+    "back": "Back",
+    "plannedTitle": "Planned",
+    "plannedNote": "None of this exists yet. It is the plan.",
+    "plan": {
+      "title": "A+ Plan",
+      "blurb": "Write, plan and prepare.",
+      "lead": "Everything before the camera: script, shotlists and casting."
+    },
+    "shoot": {
+      "title": "A+ Shoot",
+      "blurb": "Tools for the shooting day.",
+      "lead": "What you need on set.",
+      "p1": "Detailed on-set shotlist",
+      "p2": "Blocking tips per scene",
+      "p3": "A slate that connects to the script automatically",
+      "p4": "Gear overview",
+      "p5": "The day's schedule and reports",
+      "p6": "Take-by-take log"
+    },
+    "live": {
+      "title": "A+ Live",
+      "blurb": "Overlays and graphics for live broadcast.",
+      "lead": "Live graphics, built for A+ Studios productions.",
+      "p1": "AI overlays",
+      "p2": "Graphics and lower thirds",
+      "p3": "Import from datasets",
+      "p4": "Live inputs: camera, NDI, RTMP",
+      "p5": "API for custom integrations",
+      "p6": "Templates for our productions"
+    },
+    "write": {
+      "title": "Write",
+      "blurb": "Write scripts.",
+      "lead": "Scripts in Fountain, with page view and export."
+    },
+    "shotlist": {
+      "title": "Shotlist",
+      "blurb": "Plan the images.",
+      "lead": "Shotlists per scene.",
+      "p1": "Shotlists per scene, drawn from the script",
+      "p2": "Size, angle, movement and lens",
+      "p3": "Storyboard images per shot",
+      "p4": "PDF export"
+    },
+    "casting": {
+      "title": "Casting",
+      "blurb": "Find the right people.",
+      "lead": "Roles and casting.",
+      "p1": "Role descriptions straight from the script",
+      "p2": "Casting calls",
+      "p3": "Candidates and notes",
+      "p4": "Booking auditions"
+    }
   }
 }

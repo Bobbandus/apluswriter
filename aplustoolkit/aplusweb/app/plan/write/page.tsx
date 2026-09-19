@@ -1,5 +1,6 @@
 import { ProjectDashboard } from '@/components/projects/ProjectDashboard';
 
-export default function Home() {
+/** A+ Plan → Write: every script, in one place. */
+export default function WritePage() {
   return <ProjectDashboard />;
 }

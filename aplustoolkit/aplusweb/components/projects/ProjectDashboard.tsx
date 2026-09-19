@@ -140,9 +140,15 @@ export function ProjectDashboard() {
       }}
     >
       <header className={styles.bar}>
-        <span className={styles.brand}>
-          A<span className={styles.plus}>+</span> Write
-        </span>
+        <nav aria-label="Breadcrumb" className={styles.brand}>
+          <Link href="/">
+            A<span className={styles.plus}>+</span> Toolkit
+          </Link>
+          <span aria-hidden="true" className={styles.sep}> / </span>
+          <Link href="/plan">A+ Plan</Link>
+          <span aria-hidden="true" className={styles.sep}> / </span>
+          <span>{t('breadcrumbWrite')}</span>
+        </nav>
 
         <div className={styles.account}>
           {session.configured && session.ready && (

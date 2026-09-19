@@ -1,0 +1,103 @@
+.card {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line);
+  box-shadow: var(--shadow-md);
+  transition:
+    transform var(--dur-slow) var(--ease-out),
+    box-shadow var(--dur-slow) var(--ease-out);
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--hero) center / cover no-repeat;
+  transition: transform 600ms var(--ease-out);
+}
+
+/* A veil so the words stay readable whatever the picture is. */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(8, 8, 10, 0.92) 0%, rgba(8, 8, 10, 0.55) 34%, rgba(8, 8, 10, 0) 62%);
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg), 0 0 0 2px var(--accent-ring);
+}
+
+.card:hover .image,
+.card:focus-visible .image {
+  transform: scale(1.05);
+}
+
+.card:focus-visible {
+  outline: none;
+}
+
+.text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--s-6);
+  color: #f4f2ec;
+}
+
+.title {
+  font-family: var(--font-black);
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.blurb {
+  font-size: var(--t-base);
+  color: rgba(244, 242, 236, 0.78);
+}
+
+.open {
+  margin-top: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-green);
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+
+.card:hover .open {
+  transform: translateX(4px);
+}
+
+.soon {
+  position: absolute;
+  top: var(--s-4);
+  left: var(--s-4);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(8, 8, 10, 0.6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: var(--hairline) solid rgba(255, 255, 255, 0.18);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f4f2ec;
+}

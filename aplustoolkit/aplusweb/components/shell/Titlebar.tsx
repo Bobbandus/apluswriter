@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { Icon } from '@/components/icons/Icon';
-import { isDesktop } from '@/lib/platform';
 import { SaveStatus, type SaveState } from './SaveStatus';
 import styles from './Titlebar.module.css';
 
@@ -54,21 +52,12 @@ export function Titlebar({
 }: TitlebarProps) {
   const t = useTranslations('titlebar');
 
-  // Resolved after mount: the server has no way to know which shell we're in.
-  const [desktop, setDesktop] = useState(false);
-  useEffect(() => setDesktop(isDesktop()), []);
 
   return (
     <header className={styles.titlebar}>
       <div className={styles.side + ' ' + styles.left}>
-        <div
-          className={[styles.lights, desktop ? '' : styles.ornamental].filter(Boolean).join(' ')}
-          aria-hidden="true"
-        >
-          <span className={`${styles.light} ${styles.close}`} />
-          <span className={`${styles.light} ${styles.minimize}`} />
-          <span className={`${styles.light} ${styles.zoom}`} />
-        </div>
+        {/* Room for the real macOS window controls in the desktop app; nothing on the web. */}
+        <div className={styles.gutter} aria-hidden="true" />
 
         {onHome && (
           <Tooltip label={t('projects')}>

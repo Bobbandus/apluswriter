@@ -360,7 +360,8 @@
     "importFailed": "Filen kunde inte läsas.",
     "movedToCloud": "Flyttat till molnet.",
     "nothingFound": "Inga projekt matchar.",
-    "recent": "Senaste"
+    "recent": "Senaste",
+    "breadcrumbWrite": "Write"
   },
   "conflict": {
     "title": "Manuset har ändrats på ett annat ställe",
@@ -420,5 +421,65 @@
     "connectClaude": "Claude Desktop",
     "connectClaudeHint": "Lägger till A+ Write bland Claudes verktyg. Frågar först, sparar en säkerhetskopia och rör inga andra servrar.",
     "connectClaudeButton": "Koppla in …"
+  },
+  "toolkit": {
+    "name": "A+ Toolkit",
+    "tagline": "Allt en produktion behöver, på ett ställe.",
+    "eyebrow": "A+ Studios",
+    "soon": "Kommer",
+    "open": "Öppna",
+    "back": "Tillbaka",
+    "plannedTitle": "På väg",
+    "plannedNote": "Inget av det här finns än. Det är planen.",
+    "plan": {
+      "title": "A+ Plan",
+      "blurb": "Skriv, planera och förbered.",
+      "lead": "Allt före kameran: manus, shotlists och casting."
+    },
+    "shoot": {
+      "title": "A+ Shoot",
+      "blurb": "Verktyg för inspelningsdagen.",
+      "lead": "Det du behöver på set.",
+      "p1": "Detaljerad shotlist på set",
+      "p2": "Blockingtips per scen",
+      "p3": "Filmklappa som kopplas till manuset automatiskt",
+      "p4": "Gearöversikt",
+      "p5": "Dagens schema och rapporter",
+      "p6": "Logg per tagning"
+    },
+    "live": {
+      "title": "A+ Live",
+      "blurb": "Overlays och grafik för livesändning.",
+      "lead": "Grafik för livesändning, byggd för A+ Studios produktioner.",
+      "p1": "AI-overlays",
+      "p2": "Grafik och lower thirds",
+      "p3": "Import från dataset",
+      "p4": "Live-ingångar: kamera, NDI, RTMP",
+      "p5": "API för egna integrationer",
+      "p6": "Mallar för våra produktioner"
+    },
+    "write": {
+      "title": "Write",
+      "blurb": "Skriv manus.",
+      "lead": "Manus i Fountain, med sidvy och export."
+    },
+    "shotlist": {
+      "title": "Shotlist",
+      "blurb": "Planera bilderna.",
+      "lead": "Shotlists per scen.",
+      "p1": "Shotlists per scen, hämtade från manuset",
+      "p2": "Storlek, vinkel, rörelse och objektiv",
+      "p3": "Storyboardbilder per bild",
+      "p4": "Export till PDF"
+    },
+    "casting": {
+      "title": "Casting",
+      "blurb": "Hitta rätt personer.",
+      "lead": "Roller och casting.",
+      "p1": "Rollbeskrivningar direkt från manuset",
+      "p2": "Casting calls",
+      "p3": "Kandidater och anteckningar",
+      "p4": "Tidsbokning för provspelningar"
+    }
   }
 }

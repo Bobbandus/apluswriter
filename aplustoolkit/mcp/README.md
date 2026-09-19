@@ -20,7 +20,7 @@ Claude ser exakt det du ser: samma scener, samma rollfigurer, samma metadata.
     "aplus-write": {
       "command": "node",
       "args": [
-        "C:\\Users\\du\\...\\apluswrite\\mcp\\dist\\server.mjs",
+        "C:\\Users\\du\\...\\apluswrite\\aplustoolkit\\mcp\\dist\\server.mjs",
         "C:\\Users\\du\\Documents\\Manus"
       ]
     }

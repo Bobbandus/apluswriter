@@ -47,9 +47,9 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: 'A+ Write',
-  description: 'A professional Fountain screenwriting app from A+ Studios.',
-  applicationName: 'A+ Write',
+  title: 'A+ Toolkit',
+  description: 'Plan, shoot and broadcast: the A+ Studios toolkit.',
+  applicationName: 'A+ Toolkit',
 };
 
 export const viewport: Viewport = {
