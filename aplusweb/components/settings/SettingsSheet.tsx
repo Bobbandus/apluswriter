@@ -20,6 +20,8 @@ export interface SettingsSheetProps {
   onPageSizeChange: (size: PageSize) => void;
   editor: EditorSettings;
   onEditorChange: (next: EditorSettings) => void;
+  cards: boolean;
+  onCardsChange: (next: boolean) => void;
 }
 
 /** The colours each theme's miniature is painted in — read from the tokens. */
@@ -36,8 +38,11 @@ export function SettingsSheet({
   onPageSizeChange,
   editor,
   onEditorChange,
+  cards,
+  onCardsChange,
 }: SettingsSheetProps) {
   const t = useTranslations('settings');
+  const tAssistant = useTranslations('assistant');
   const router = useRouter();
   const locale = useLocale() as Locale;
 
@@ -166,6 +171,13 @@ export function SettingsSheet({
           hint={t('autoContdHint')}
           checked={editor.autoContd}
           onChange={(autoContd) => onEditorChange({ ...editor, autoContd })}
+        />
+
+        <Toggle
+          label={tAssistant('cardsSetting')}
+          hint={tAssistant('cardsHint')}
+          checked={cards}
+          onChange={onCardsChange}
         />
 
         <div className={styles.field}>

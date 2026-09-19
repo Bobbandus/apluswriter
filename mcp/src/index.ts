@@ -3,6 +3,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { Library } from './library';
+import { Bridge } from './bridge';
+import { registerAssistant } from './assistant';
 import { serialize, serializeSides } from '../../packages/fountain/serialize';
 import { estimateMinutes } from '../../packages/paginator/geometry';
 import type { Element, Script, SceneIndexEntry } from '../../packages/fountain/types';
@@ -29,10 +31,22 @@ import type { Element, Script, SceneIndexEntry } from '../../packages/fountain/t
  * Every write is line-scoped and reports what it changed.
  */
 
-const server = new McpServer({
-  name: 'aplus-write',
-  version: '0.1.0',
-});
+const server = new McpServer(
+  { name: 'aplus-write', version: '0.2.0' },
+  {
+    instructions: [
+      'You are helping a screenwriter with their Fountain screenplay in A+ Write.',
+      'The writer writes; you assist when asked. NEVER write, rewrite or "improve" their action or dialogue, and never offer replacement lines unless they explicitly ask for options in the chat.',
+      'Read first: get_open_script (what is open, where the caret is), get_current_scene, get_selection, and the analysis tools (get_structure, get_difficulty, get_schedule_groups, get_character_lines).',
+      'Hand results back with the suggest_* tools. They arrive in the app as cards the writer accepts or discards; nothing changes until they do. If a suggest_* tool says no app is connected, give the result in the chat.',
+      'Answer in the language the writer uses (usually Swedish). Be concrete: cite scenes, pages and lines. Give reasons, not just verdicts.',
+    ].join(' '),
+  },
+);
+
+// The live link to the open app. Failing to start it is fine: file tools still work.
+const bridge = new Bridge();
+await bridge.start().catch(() => false);
 
 const roots = process.argv.slice(2).filter((arg) => !arg.startsWith('-'));
 const library = new Library(roots.length > 0 ? roots : [process.cwd()]);
@@ -540,6 +554,8 @@ server.registerTool(
 );
 
 /* ========================================================================== */
+
+registerAssistant({ server, bridge, library, findScene });
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

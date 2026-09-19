@@ -186,3 +186,52 @@ export function useProjectDocument(projectId: string, untitled: string): Project
 
   return { ready, meta, content, revision, state, conflict, update, resolve, rename, setPageSize, recordStats };
 }
+
+/* ========================================================================== */
+/* Structured project data                                                    */
+/* ========================================================================== */
+
+/**
+ * A JSON document kept beside the script: shotlists, saved assistant texts,
+ * character profiles. Not script text, so it never goes through the
+ * script's sync engine or its version check. It is a small, whole-value
+ * store, written straight to this computer.
+ */
+export function useProjectData<T>(
+  projectId: string,
+  key: string,
+  initial: T,
+): [T, (next: T | ((previous: T) => T)) => void, boolean] {
+  const [value, setValue] = useState<T>(initial);
+  const [ready, setReady] = useState(false);
+  const latest = useRef(value);
+  const initialRef = useRef(initial);
+
+  useEffect(() => {
+    let cancelled = false;
+    setReady(false);
+    void localStore()
+      .getData<T>(projectId, key)
+      .then((stored) => {
+        if (cancelled) return;
+        latest.current = stored ?? initialRef.current;
+        setValue(latest.current);
+        setReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, key]);
+
+  const update = useCallback(
+    (next: T | ((previous: T) => T)) => {
+      const resolved = typeof next === 'function' ? (next as (p: T) => T)(latest.current) : next;
+      latest.current = resolved;
+      setValue(resolved);
+      void localStore().putData(projectId, key, resolved);
+    },
+    [projectId, key],
+  );
+
+  return [value, update, ready];
+}

@@ -7,6 +7,7 @@ import { EmptyState, Panel } from '@/components/ui/Panel';
 import { estimateMinutes } from '@aplus/paginator/geometry';
 import type { ScriptSummary } from '@aplus/fountain/worker';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
+import type { ReactNode } from 'react';
 import styles from './Inspector.module.css';
 
 export interface InspectorProps {
@@ -14,6 +15,8 @@ export interface InspectorProps {
   onOpenDictionary: () => void;
   scene?: SceneIndexEntry | undefined;
   script: ScriptSummary;
+  /** Extra sections for the scene, such as its shotlist. */
+  extra?: ReactNode;
 }
 
 /**
@@ -23,7 +26,7 @@ export interface InspectorProps {
  * tags. With nothing selected it falls back to the shape of the whole script,
  * which is the number a writer actually wants at a glance.
  */
-export function Inspector({ onOpenSettings, onOpenDictionary, scene, script }: InspectorProps) {
+export function Inspector({ onOpenSettings, onOpenDictionary, scene, script, extra }: InspectorProps) {
   const t = useTranslations('common');
   const tSettings = useTranslations('settings');
   const tNav = useTranslations('navigator');
@@ -132,6 +135,8 @@ export function Inspector({ onOpenSettings, onOpenDictionary, scene, script }: I
             <p className={styles.note}>{scene.meta.locationNote}</p>
           </section>
         )}
+
+        {extra}
       </div>
     </Panel>
   );

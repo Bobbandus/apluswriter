@@ -1,0 +1,146 @@
+.card {
+  margin: var(--s-3);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line-strong);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: cardIn var(--dur-slow) var(--spring);
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-bottom: var(--hairline) solid var(--line-faint);
+  color: var(--accent-text);
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.body {
+  padding: var(--s-3);
+  font-size: var(--t-small);
+  line-height: 1.5;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.lead {
+  margin-bottom: var(--s-2);
+  color: var(--text-muted);
+}
+
+.text {
+  color: var(--text);
+}
+
+.shots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.shot {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.shotNumber {
+  flex: 0 0 20px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
+.shotBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.shotSpecs {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+.pill {
+  padding: 2px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  font-size: var(--t-micro);
+}
+
+.pill b {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-text);
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  background: var(--gold-soft);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.fact dd {
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-top: var(--hairline) solid var(--line-faint);
+  background: var(--bg-sunken);
+}

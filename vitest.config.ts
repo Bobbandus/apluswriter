@@ -10,6 +10,7 @@ export default defineConfig({
       '@aplus/fountain': at('./packages/fountain'),
       '@aplus/paginator': at('./packages/paginator'),
       '@aplus/export': at('./packages/export'),
+      '@aplus/bridge': at('./packages/bridge'),
       '@': at('./aplusweb'),
     },
   },

@@ -22,7 +22,8 @@
       "@/*": ["./aplusweb/*"],
       "@aplus/fountain/*": ["./packages/fountain/*"],
       "@aplus/paginator/*": ["./packages/paginator/*"],
-      "@aplus/export/*": ["./packages/export/*"]
+      "@aplus/export/*": ["./packages/export/*"],
+      "@aplus/bridge/*": ["./packages/bridge/*"]
     }
   },
   "include": [

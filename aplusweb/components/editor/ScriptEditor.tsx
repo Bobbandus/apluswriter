@@ -54,6 +54,8 @@ export interface ScriptEditorHandle {
   switchElement(type: SwitchableType): void;
   applyChanges(changes: { from: number; to: number; insert: string }[]): void;
   getSelection(): { from: number; to: number; text: string };
+  /** The live document. Suggestions are resolved against this, never a stale copy. */
+  getText(): string;
   revealOffset(offset: number): void;
   focus(): void;
 }
@@ -232,6 +234,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
         if (!instance || changes.length === 0) return;
         instance.dispatch({ changes, userEvent: 'input.external', scrollIntoView: true });
       },
+      getText: () => view.current?.state.doc.toString() ?? '',
       getSelection: () => {
         const instance = view.current;
         if (!instance) return { from: 0, to: 0, text: '' };

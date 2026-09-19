@@ -6,6 +6,13 @@ import { useRouter } from 'next/navigation';
 import { Workspace } from '@/components/shell/Workspace';
 import { Navigator } from '@/components/navigator/Navigator';
 import { Inspector } from '@/components/inspector/Inspector';
+import { InspectorTabs, type InspectorTab } from '@/components/inspector/InspectorTabs';
+import { ShotlistBlock } from '@/components/inspector/ShotlistBlock';
+import { SuggestionsPanel } from '@/components/suggestions/SuggestionsPanel';
+import { useToast } from '@/components/ui/Toast';
+import { useBridge } from '@/lib/bridge/useBridge';
+import { sceneOffset, useAssistant } from '@/lib/bridge/useAssistant';
+import type { AppState } from '@aplus/bridge/protocol';
 import { PageCanvas } from '@/components/editor/PageCanvas';
 import { ScriptEditor, type ScriptEditorHandle } from '@/components/editor/ScriptEditor';
 import { ElementBar } from '@/components/editor/ElementBar';
@@ -86,6 +93,11 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   );
 
   const [caret, setCaret] = useState(0);
+  const [selection, setSelection] = useState({ from: 0, to: 0, text: '' });
+  const [tab, setTab] = useState<InspectorTab>('scene');
+  const [cardsEnabled, setCardsEnabled] = usePersistentState('aplus.ui.cards', true);
+  const [toast, say] = useToast();
+  const tAssistant = useTranslations('assistant');
   const [element, setElement] = useState<LineType | null>(null);
   const editorRef = useRef<ScriptEditorHandle>(null);
   const [dictionary, setDictionary] = usePersistentState<DictionaryData>(
@@ -105,6 +117,47 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     [pageSize, locale],
   );
   const script = useScript(source, layoutOptions);
+
+  // What Claude can see of the open script. Only the live text and where the
+  // writer is; nothing is sent anywhere but this computer.
+  const bridgeState = useMemo<AppState | null>(
+    () =>
+      hydrated
+        ? {
+            projectId,
+            title: doc.meta?.title ?? '',
+            source,
+            caret,
+            selection,
+            pageSize,
+            locale: locale === 'en' ? 'en' : 'sv',
+            cards: cardsEnabled,
+          }
+        : null,
+    [hydrated, projectId, doc.meta?.title, source, caret, selection, pageSize, locale, cardsEnabled],
+  );
+  const bridge = useBridge(bridgeState);
+  const assistant = useAssistant(projectId, editorRef, bridge, say, {
+    applied: tAssistant('applied'),
+    stale: tAssistant('stale'),
+    sceneGone: tAssistant('sceneGone'),
+    notFormatting: tAssistant('notFormatting'),
+    saved: tAssistant('saved'),
+  });
+
+  // A new card is worth a glance: bring the suggestions tab forward.
+  const cardCount = bridge.cards.length;
+  useEffect(() => {
+    if (cardCount > 0 && cardsEnabled) setTab('suggestions');
+  }, [cardCount, cardsEnabled]);
+
+  // "Look at scene 12": Claude asks the app to scroll there.
+  useEffect(() => {
+    bridge.onFocus((ref) => {
+      const offset = sceneOffset(editorRef.current?.getText() ?? sourceRef.current, ref);
+      if (offset !== null) editorRef.current?.revealOffset(offset);
+    });
+  }, [bridge]);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
 
@@ -186,7 +239,39 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             onSelectScene={(selected) => editorRef.current?.revealOffset(selected.from)}
           />
         }
-        inspector={<Inspector onOpenSettings={openSettings} onOpenDictionary={openDictionary} scene={scene} script={script} />}
+        inspector={
+          <InspectorTabs
+            tab={tab}
+            onTab={setTab}
+            count={bridge.cards.length}
+            connected={bridge.status === 'connected'}
+            showSuggestions={cardsEnabled}
+            scene={
+              <Inspector
+                onOpenSettings={openSettings}
+                onOpenDictionary={openDictionary}
+                scene={scene}
+                script={script}
+                extra={(() => {
+                  const index = scene ? script.scenes.indexOf(scene) : -1;
+                  const list = scene ? assistant.shotlistFor(scene.heading, index) : null;
+                  return list ? <ShotlistBlock shotlist={list} onRemove={() => assistant.removeShotlist(list)} /> : null;
+                })()}
+              />
+            }
+            suggestions={
+              <SuggestionsPanel
+                cards={bridge.cards}
+                documents={assistant.documents}
+                status={bridge.status}
+                onUse={assistant.use}
+                onDiscard={assistant.discard}
+                onUseAllFormat={assistant.useAllFormat}
+                onRemoveDocument={assistant.removeDocument}
+              />
+            }
+          />
+        }
       >
         <PageCanvas
           pageSize={pageSize}
@@ -211,13 +296,19 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
               initialValue={doc.content}
               value={source}
               onChange={setSource}
-              onCaretChange={setCaret}
+              onCaretChange={(offset) => {
+                setCaret(offset);
+                const now = editorRef.current?.getSelection();
+                if (now) setSelection((prev) => (prev.from === now.from && prev.to === now.to && prev.text === now.text ? prev : now));
+              }}
               settings={editor}
               dictionary={autocompleteDictionary}
             />
           )}
         </PageCanvas>
       </Workspace>
+
+      {toast}
 
       <ConflictSheet conflict={doc.conflict} mine={source} onResolve={doc.resolve} />
 
@@ -237,6 +328,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onPageSizeChange={setPageSize}
         editor={editor}
         onEditorChange={setEditor}
+        cards={cardsEnabled}
+        onCardsChange={setCardsEnabled}
       />
       <DictionarySheet
         open={dictionaryOpen}

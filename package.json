@@ -33,6 +33,7 @@
     "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "ws": "^8.21.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -40,6 +41,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
+    "@types/ws": "^8.18.1",
     "esbuild": "^0.28.2",
     "fake-indexeddb": "^6.2.5",
     "typescript": "^5.7.3",
