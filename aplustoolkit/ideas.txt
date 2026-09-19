@@ -105,7 +105,7 @@ A+ PLAN — undersidor att bygga
 TEKNISKT ATT KOMMA IHÅG
 ------------------------------------------------------------------------
 - Hela projektet ligger i mappen aplustoolkit/. Det är enda mappen som pushas.
-  Vercel: Root Directory ska vara  aplustoolkit/aplusweb
+  Vercel: Root Directory = aplustoolkit (vercel.json sköter resten)
 - Supabase Site URL: https://apluswriter.vercel.app
   Redirect URLs: http://localhost:3000/auth/callback  (och Vercel-adressen)
 - Startsidans bilder ligger i aplusweb/public/media/hero/ (3:4, stående).
