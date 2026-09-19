@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ParseRequest, ParseResponse, ScriptSummary } from '@/lib/fountain/worker';
+import type { ParseRequest, ParseResponse, ScriptSummary } from '@aplus/fountain/worker';
 
 const EMPTY: ScriptSummary = {
   titlePage: null,
@@ -36,7 +36,7 @@ export function useScript(source: string, debounceMs = 140): ScriptSummary {
 
     let instance: Worker;
     try {
-      instance = new Worker(new URL('../fountain/worker.ts', import.meta.url));
+      instance = new Worker(new URL('../../../packages/fountain/worker.ts', import.meta.url));
     } catch {
       return; // No worker: the effect below parses inline instead.
     }
@@ -70,7 +70,7 @@ export function useScript(source: string, debounceMs = 140): ScriptSummary {
 
       // Main-thread fallback. Imported lazily so the parser is not pulled into
       // the initial bundle when the worker path is available.
-      void import('@/lib/fountain/worker').then(({ summarize }) => {
+      void import('@aplus/fountain/worker').then(({ summarize }) => {
         setSummary(summarize(source));
       });
     }, debounceMs);

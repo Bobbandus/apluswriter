@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // Paths resolve against this file's directory, so they are restated here
+    // rather than inherited — `../tsconfig.json` states them relative to the
+    // repository root.
+    "paths": {
+      "@/*": ["./*"],
+      "@aplus/fountain/*": ["../packages/fountain/*"],
+      "@aplus/paginator/*": ["../packages/paginator/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "../packages/**/*.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

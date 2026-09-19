@@ -1,6 +1,6 @@
 import { Prec, StateEffect, StateField, type StateCommand } from '@codemirror/state';
 import { keymap, showTooltip, type Tooltip } from '@codemirror/view';
-import { PICKER_KEYS, type SwitchableType } from '@/lib/fountain/rewrite';
+import { PICKER_KEYS, type SwitchableType } from '@aplus/fountain/rewrite';
 
 /**
  * The element picker.

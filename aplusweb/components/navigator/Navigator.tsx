@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EmptyState, Panel } from '@/components/ui/Panel';
 import { SearchField } from '@/components/ui/SearchField';
-import type { SceneIndexEntry } from '@/lib/fountain/types';
+import type { SceneIndexEntry } from '@aplus/fountain/types';
 import styles from './Navigator.module.css';
 
 export interface NavigatorProps {

@@ -3,9 +3,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { Library } from './library';
-import { serialize, serializeSides } from '../../lib/fountain/serialize';
-import { estimateMinutes } from '../../lib/paginator/geometry';
-import type { Element, Script, SceneIndexEntry } from '../../lib/fountain/types';
+import { serialize, serializeSides } from '../../packages/fountain/serialize';
+import { estimateMinutes } from '../../packages/paginator/geometry';
+import type { Element, Script, SceneIndexEntry } from '../../packages/fountain/types';
 
 /**
  * A+ Write — MCP server.
@@ -470,7 +470,7 @@ server.registerTool(
       source = source.slice(0, note.from) + source.slice(end);
     }
 
-    const reparsed = (await import('../../lib/fountain/parse')).parse(source);
+    const reparsed = (await import('../../packages/fountain/parse')).parse(source);
     const freshHeading = reparsed.elements[findScene(reparsed, reference).scene.elementIndex];
     if (!freshHeading) throw new Error('Scene heading not found after cleanup.');
 

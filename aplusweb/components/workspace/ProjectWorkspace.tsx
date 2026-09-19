@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Workspace } from '@/components/shell/Workspace';
 import { Navigator } from '@/components/navigator/Navigator';
@@ -8,6 +8,7 @@ import { Inspector } from '@/components/inspector/Inspector';
 import { PageCanvas } from '@/components/editor/PageCanvas';
 import { ScriptEditor } from '@/components/editor/ScriptEditor';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
+import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { useScript } from '@/lib/hooks/useScript';
@@ -15,7 +16,8 @@ import {
   DEFAULT_EDITOR_SETTINGS,
   type EditorSettings,
 } from '@/components/editor/fountain/settings';
-import type { PageSize } from '@/lib/paginator/geometry';
+import type { PageSize } from '@aplus/paginator/geometry';
+import { dictionaryFromScript, mergeDictionary, type DictionaryData, type DictionaryKind } from '@aplus/fountain/autocomplete';
 
 export interface ProjectWorkspaceProps {
   projectId: string;
@@ -33,6 +35,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const t = useTranslations('common');
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [dictionaryOpen, setDictionaryOpen] = useState(false);
   const [pageSize, setPageSize] = usePersistentState<PageSize>('aplus.ui.pageSize', 'a4');
 
   /* The document lives here until the storage layer lands in M6. It is held
@@ -49,9 +52,52 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   );
 
   const [caret, setCaret] = useState(0);
+  const [dictionary, setDictionary] = usePersistentState<DictionaryData>(
+    `aplus.dictionary.${projectId}`,
+    { characters: [], locations: [], tags: [] },
+  );
 
   const script = useScript(source);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
+  const openDictionary = useCallback(() => setDictionaryOpen(true), []);
+
+  // A newly typed cue or heading is usable immediately, without a save or a
+  // manual rebuild. The stored list also keeps manually learned values.
+  useEffect(() => {
+    setDictionary((current) => mergeDictionary(current, dictionaryFromScript(script)));
+  }, [script, setDictionary]);
+
+  const replaceDictionaryValue = useCallback((kind: DictionaryKind, from: string, to: string) => {
+    const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (kind === 'character') {
+      // Cues and CAST metadata are structured positions; dialogue prose is
+      // deliberately untouched by a character rename.
+      setSource((value) => value
+        .replace(new RegExp(`(^|\\n)(@?)${escaped}(\\s*(?:\\([^\\n)]*\\))?\\^?)(?=\\s*(?:\\n|$))`, 'gmi'), `$1$2${to}$3`)
+        .replace(new RegExp(`(\\[\\[CAST\\s*:\\s*[^\\]]*)\\b${escaped}\\b`, 'gi'), `$1${to}`));
+    } else if (kind === 'location') {
+      setSource((value) => value.replace(new RegExp(`(^|\\n)(\\.?(?:INT|EXT|EST|I/E|INT\\./EXT|EXT\\./INT)\\.?\\s+)${escaped}`, 'gmi'), `$1$2${to}`));
+    }
+    setDictionary((current) => ({
+      ...current,
+      [`${kind}s`]: current[`${kind}s` as keyof DictionaryData].map((value) => value === from ? to : value),
+    }) as DictionaryData);
+  }, [setDictionary, setSource]);
+
+  const removeDictionaryValue = useCallback((kind: DictionaryKind, value: string) => {
+    setDictionary((current) => ({
+      ...current,
+      [`${kind}s`]: current[`${kind}s` as keyof DictionaryData].filter((item) => item !== value),
+    }) as DictionaryData);
+  }, [setDictionary]);
+
+  const mergeDictionaryValue = useCallback((kind: DictionaryKind, from: string, into: string) => {
+    replaceDictionaryValue(kind, from, into);
+    removeDictionaryValue(kind, from);
+  }, [removeDictionaryValue, replaceDictionaryValue]);
+
+  const rebuildDictionary = useCallback(() => setDictionary(dictionaryFromScript(script)), [script, setDictionary]);
+  const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
   useHotkeys({ 'mod+,': openSettings });
 
@@ -71,7 +117,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // than claiming the work is safe.
         saveState={null}
         sidebar={<Navigator scenes={script.scenes} caret={caret} />}
-        inspector={<Inspector onOpenSettings={openSettings} scene={scene} script={script} />}
+        inspector={<Inspector onOpenSettings={openSettings} onOpenDictionary={openDictionary} scene={scene} script={script} />}
       >
         <PageCanvas pageSize={pageSize}>
           {/* Mounting before the stored draft has been read would start the
@@ -80,9 +126,11 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
           {hydrated && (
             <ScriptEditor
               initialValue={source}
+              value={source}
               onChange={setSource}
               onCaretChange={setCaret}
               settings={editor}
+              dictionary={autocompleteDictionary}
             />
           )}
         </PageCanvas>
@@ -95,6 +143,15 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onPageSizeChange={setPageSize}
         editor={editor}
         onEditorChange={setEditor}
+      />
+      <DictionarySheet
+        open={dictionaryOpen}
+        onClose={() => setDictionaryOpen(false)}
+        dictionary={autocompleteDictionary}
+        onRename={replaceDictionaryValue}
+        onRemove={removeDictionaryValue}
+        onMerge={mergeDictionaryValue}
+        onRebuild={rebuildDictionary}
       />
     </>
   );

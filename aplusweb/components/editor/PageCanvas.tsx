@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
-import { FONT_SIZE_PT, LPI, MARGINS, PAGE_SIZES, type PageSize } from '@/lib/paginator/geometry';
+import { FONT_SIZE_PT, LPI, MARGINS, PAGE_SIZES, type PageSize } from '@aplus/paginator/geometry';
 import styles from './PageCanvas.module.css';
 
 const ZOOM_STEPS = [0.75, 0.85, 1, 1.15, 1.3, 1.5, 1.75, 2] as const;

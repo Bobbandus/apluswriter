@@ -1,17 +1,21 @@
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
 
+const at = (p: string) => fileURLToPath(new URL(p, import.meta.url));
+
 export default defineConfig({
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./', import.meta.url)),
+      // Match the tsconfig paths so tests import exactly what ships.
+      '@aplus/fountain': at('./packages/fountain'),
+      '@aplus/paginator': at('./packages/paginator'),
+      '@': at('./aplusweb'),
     },
   },
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'components/**/*.test.ts'],
-    // The parser suite lands in M2. Until then `npm run check` should still
-    // be a clean gate rather than a failure.
-    passWithNoTests: true,
+    include: ['packages/**/*.test.ts', 'aplusweb/**/*.test.ts', 'mcp/**/*.test.ts'],
+    // Fixture paths are resolved from the repository root.
+    root: at('./'),
   },
 });

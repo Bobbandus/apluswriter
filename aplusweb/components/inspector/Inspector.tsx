@@ -4,13 +4,14 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { EmptyState, Panel } from '@/components/ui/Panel';
-import { estimateMinutes } from '@/lib/paginator/geometry';
-import type { ScriptSummary } from '@/lib/fountain/worker';
-import type { SceneIndexEntry } from '@/lib/fountain/types';
+import { estimateMinutes } from '@aplus/paginator/geometry';
+import type { ScriptSummary } from '@aplus/fountain/worker';
+import type { SceneIndexEntry } from '@aplus/fountain/types';
 import styles from './Inspector.module.css';
 
 export interface InspectorProps {
   onOpenSettings: () => void;
+  onOpenDictionary: () => void;
   scene?: SceneIndexEntry | undefined;
   script: ScriptSummary;
 }
@@ -22,7 +23,7 @@ export interface InspectorProps {
  * tags. With nothing selected it falls back to the shape of the whole script,
  * which is the number a writer actually wants at a glance.
  */
-export function Inspector({ onOpenSettings, scene, script }: InspectorProps) {
+export function Inspector({ onOpenSettings, onOpenDictionary, scene, script }: InspectorProps) {
   const t = useTranslations('common');
   const tSettings = useTranslations('settings');
   const tNav = useTranslations('navigator');
@@ -30,6 +31,10 @@ export function Inspector({ onOpenSettings, scene, script }: InspectorProps) {
   const tLocs = useTranslations('locations');
 
   const settingsButton = (
+    <>
+    <Tooltip label={tChars('title')} placement="left">
+      <Button variant="ghost" size="sm" icon="characters" aria-label={tChars('title')} onClick={onOpenDictionary} />
+    </Tooltip>
     <Tooltip label={tSettings('title')} shortcut="mod+," placement="left">
       <Button
         variant="ghost"
@@ -39,6 +44,7 @@ export function Inspector({ onOpenSettings, scene, script }: InspectorProps) {
         onClick={onOpenSettings}
       />
     </Tooltip>
+    </>
   );
 
   if (!scene) {

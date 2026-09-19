@@ -19,9 +19,17 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./aplusweb/*"],
+      "@aplus/fountain/*": ["./packages/fountain/*"],
+      "@aplus/paginator/*": ["./packages/paginator/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "design-references"]
+  "include": [
+    "aplusweb/**/*.ts",
+    "aplusweb/**/*.tsx",
+    "packages/**/*.ts",
+    "mcp/**/*.ts",
+    "aplusweb/.next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "design-references", "**/dist/**", "aplusdesktop/dist/**"]
 }

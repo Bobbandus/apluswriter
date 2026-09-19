@@ -10,7 +10,7 @@ import type { EditorSettings } from '@/components/editor/fountain/settings';
 import { locales, type Locale } from '@/i18n/config';
 import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
 import { applyTheme, persistLocale } from '@/lib/preferences';
-import type { PageSize } from '@/lib/paginator/geometry';
+import type { PageSize } from '@aplus/paginator/geometry';
 import styles from './SettingsSheet.module.css';
 
 export interface SettingsSheetProps {

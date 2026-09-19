@@ -6,8 +6,8 @@ import {
   ViewPlugin,
   type ViewUpdate,
 } from '@codemirror/view';
-import { classifyRange, type LineType } from '@/lib/fountain/lineClassify';
-import { scanInline } from '@/lib/fountain/inline';
+import { classifyRange, type LineType } from '@aplus/fountain/lineClassify';
+import { scanInline } from '@aplus/fountain/inline';
 import { editorSettings } from './settings';
 
 /**

@@ -10,10 +10,10 @@ import {
 } from '@codemirror/state';
 import { EditorView, keymap, type KeyBinding } from '@codemirror/view';
 import { isolateHistory } from '@codemirror/commands';
-import { classifyLine, isBlankLine, type LineType } from '@/lib/fountain/lineClassify';
-import { rewriteLine, type SwitchableType } from '@/lib/fountain/rewrite';
-import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE, TOD_SEPARATOR_RE } from '@/lib/fountain/vocab';
-import { splitCharacter } from '@/lib/fountain/parse';
+import { classifyLine, isBlankLine, type LineType } from '@aplus/fountain/lineClassify';
+import { rewriteLine, type SwitchableType } from '@aplus/fountain/rewrite';
+import { CONTD_EN, CONTD_RE, CONTD_SV, SCENE_PREFIX_RE, TOD_SEPARATOR_RE } from '@aplus/fountain/vocab';
+import { splitCharacter } from '@aplus/fountain/parse';
 import { openPicker } from './picker';
 import { editorSettings, type EditorSettings } from './settings';
 

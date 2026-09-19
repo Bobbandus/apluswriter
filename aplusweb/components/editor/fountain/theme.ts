@@ -216,4 +216,25 @@ export const fountainTheme = EditorView.theme({
     border: 'none',
     background: 'transparent',
   },
+
+  /* ---------------------------------------------------------- autofinish */
+  '.cm-autofinish': {
+    minWidth: '220px',
+    maxWidth: '320px',
+    padding: '4px',
+    borderRadius: 'var(--r-lg)',
+    background: 'color-mix(in srgb, var(--bg-raised) 92%, transparent)',
+    border: '1px solid var(--line-strong)',
+    boxShadow: 'var(--shadow-lg)',
+    backdropFilter: 'blur(18px)',
+    fontFamily: 'var(--font-ui)',
+  },
+  '.cm-autofinish-row': {
+    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
+    padding: '6px 8px', border: '0', borderRadius: 'var(--r-sm)', background: 'transparent', color: 'var(--text)',
+    font: 'inherit', textAlign: 'left', cursor: 'pointer',
+  },
+  '.cm-autofinish-row[aria-selected="true"], .cm-autofinish-row:hover': { background: 'var(--accent-soft)' },
+  '.cm-autofinish-row small': { color: 'var(--text-muted)', fontSize: 'var(--t-micro)' },
+  '.cm-autofinish-ghost': { color: 'var(--page-ink-muted)', opacity: '0.55', pointerEvents: 'none' },
 });

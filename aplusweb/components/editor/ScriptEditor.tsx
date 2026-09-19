@@ -10,18 +10,23 @@ import { fountainTheme } from './fountain/theme';
 import { fountainDecorations } from './fountain/decorations';
 import { elementFlow, switchElement } from './fountain/elementFlow';
 import { elementPicker } from './fountain/picker';
+import { fountainAutocomplete } from './fountain/autocomplete';
 import {
   DEFAULT_EDITOR_SETTINGS,
   editorSettings,
   type EditorSettings,
 } from './fountain/settings';
-import type { SwitchableType } from '@/lib/fountain/rewrite';
+import type { SwitchableType } from '@aplus/fountain/rewrite';
+import type { DictionaryData } from '@aplus/fountain/autocomplete';
 
 export interface ScriptEditorProps {
   /** The Fountain source. Only read on mount — this is an uncontrolled editor. */
   initialValue: string;
+  /** External structural edits (for example a dictionary rename). */
+  value?: string;
   onChange: (value: string) => void;
   settings?: Partial<EditorSettings>;
+  dictionary?: DictionaryData;
   /** Reports the caret offset, so the navigator can mark the current scene. */
   onCaretChange?: (offset: number) => void;
   autoFocus?: boolean;
@@ -38,18 +43,22 @@ export interface ScriptEditorProps {
  */
 export function ScriptEditor({
   initialValue,
+  value,
   onChange,
   settings,
+  dictionary,
   onCaretChange,
   autoFocus = true,
 }: ScriptEditorProps) {
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const settingsCompartment = useRef(new Compartment());
+  const autocompleteCompartment = useRef(new Compartment());
 
   const locale = useLocale();
   const tElements = useTranslations('elements');
   const tEditor = useTranslations('editor');
+  const tAutocomplete = useTranslations('autocomplete');
 
   /* Callbacks are read through refs so a parent re-render never tears down
      and rebuilds the editor, which would drop the caret and the undo stack. */
@@ -86,6 +95,19 @@ export function ScriptEditor({
       rectangularSelection(),
       EditorView.lineWrapping,
       settingsCompartment.current.of(editorSettings.of(resolved)),
+      autocompleteCompartment.current.of(
+        fountainAutocomplete({
+          dictionary: dictionary ?? { characters: [], locations: [], tags: [] },
+          labels: {
+            character: tAutocomplete('characters'),
+            location: tAutocomplete('locations'),
+            time: tAutocomplete('timesOfDay'),
+            transition: tAutocomplete('transitions'),
+            extension: tAutocomplete('extensions'),
+            tag: tAutocomplete('tags'),
+          },
+        }),
+      ),
       fountainTheme,
       fountainDecorations,
       elementPicker(labels, tEditor('elementPickerHint'), switchElement),
@@ -129,6 +151,37 @@ export function ScriptEditor({
       effects: settingsCompartment.current.reconfigure(editorSettings.of(resolved)),
     });
   }, [resolved.renderNotes, resolved.autoUppercase, resolved.autoContd, resolved.tabOnCharacter, resolved.locale]);
+
+  useEffect(() => {
+    view.current?.dispatch({
+      effects: autocompleteCompartment.current.reconfigure(
+        fountainAutocomplete({
+          dictionary: dictionary ?? { characters: [], locations: [], tags: [] },
+          labels: {
+            character: tAutocomplete('characters'),
+            location: tAutocomplete('locations'),
+            time: tAutocomplete('timesOfDay'),
+            transition: tAutocomplete('transitions'),
+            extension: tAutocomplete('extensions'),
+            tag: tAutocomplete('tags'),
+          },
+        }),
+      ),
+    });
+  }, [dictionary, tAutocomplete]);
+
+  // Most edits originate in CodeMirror and are already present. Structural
+  // tools may edit the source outside the view; reflect only those edits.
+  useEffect(() => {
+    const instance = view.current;
+    if (!instance || value === undefined || value === instance.state.doc.toString()) return;
+    const head = Math.min(instance.state.selection.main.head, value.length);
+    instance.dispatch({
+      changes: { from: 0, to: instance.state.doc.length, insert: value },
+      selection: { anchor: head },
+      userEvent: 'input.external',
+    });
+  }, [value]);
 
   return <div ref={host} data-testid="script-editor" />;
 }

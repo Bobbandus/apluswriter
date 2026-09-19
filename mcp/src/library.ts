@@ -1,7 +1,7 @@
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { basename, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { parse } from '../../lib/fountain/parse';
-import type { Script } from '../../lib/fountain/types';
+import { parse } from '../../packages/fountain/parse';
+import type { Script } from '../../packages/fountain/types';
 
 /**
  * The script library the MCP server is allowed to touch.
