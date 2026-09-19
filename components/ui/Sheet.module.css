@@ -1,0 +1,81 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--titlebar-h) var(--s-4) var(--s-8);
+  background: rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: fade var(--dur-fast) var(--ease-out);
+  overflow-y: auto;
+}
+
+/* The macOS sheet metaphor: it drops out of the titlebar rather than appearing
+   in the middle, so it reads as belonging to this window. */
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: var(--sheet-w, 520px);
+  margin-top: 0;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line);
+  border-top: 0;
+  box-shadow: var(--shadow-lg);
+  animation: drop var(--dur-slow) var(--ease-out);
+  overflow: hidden;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drop {
+  from {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) var(--s-5);
+  border-bottom: var(--hairline) solid var(--line-faint);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.body {
+  padding: var(--s-5);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-5);
+  border-top: var(--hairline) solid var(--line-faint);
+  background: var(--bg-sunken);
+}

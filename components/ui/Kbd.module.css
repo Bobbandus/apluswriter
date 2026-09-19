@@ -1,0 +1,19 @@
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-xs);
+  background: var(--glass-bg);
+  border: var(--hairline) solid var(--glass-border);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text-faint);
+  white-space: nowrap;
+  /* Mac glyphs sit high in the em box; nudge them back to optical centre. */
+  padding-top: 1px;
+}

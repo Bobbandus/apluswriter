@@ -1,0 +1,18 @@
+# Normalise source to LF in the repository.
+* text=auto eol=lf
+
+# Fountain fixtures are byte-exact test data. The parser's round-trip suite
+# asserts `serialize(parse(x)) === x`, so git must not touch their line
+# endings — a CRLF conversion here would silently break those tests on
+# Windows checkouts.
+*.fountain -text
+*.fdx -text
+*.highland -text
+
+# Binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.woff2 binary
+*.ttf binary

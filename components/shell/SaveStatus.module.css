@@ -1,0 +1,57 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+  transition: color var(--dur-mid) var(--ease-out);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+/* Saved is the quiet default — it should never pull the eye. */
+.saved {
+  color: var(--text-faint);
+}
+
+.saving,
+.syncing {
+  color: var(--text-muted);
+}
+
+.saving .dot,
+.syncing .dot {
+  animation: pulse 1.4s var(--ease-in-out) infinite;
+}
+
+/* Offline is not an error. The work is safe locally, and saying so plainly is
+   the whole point of showing this at all. */
+.offline {
+  color: var(--gold);
+}
+
+.conflict,
+.error {
+  color: var(--flare);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}

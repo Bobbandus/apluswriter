@@ -1,0 +1,158 @@
+'use client';
+
+import { useCallback, useEffect, useState, useTransition, type CSSProperties } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { Sheet } from '@/components/ui/Sheet';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { locales, type Locale } from '@/i18n/config';
+import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
+import { applyTheme, persistLocale } from '@/lib/preferences';
+import type { PageSize } from '@/lib/paginator/geometry';
+import styles from './SettingsSheet.module.css';
+
+export interface SettingsSheetProps {
+  open: boolean;
+  onClose: () => void;
+  pageSize: PageSize;
+  onPageSizeChange: (size: PageSize) => void;
+}
+
+/** The colours each theme's miniature is painted in — read from the tokens. */
+const THEME_SWATCHES: Record<Theme, { sidebar: string; canvas: string; page: string; edge: string }> = {
+  light: { sidebar: '#ececed', canvas: '#dededf', page: '#ffffff', edge: 'rgba(0,0,0,0.12)' },
+  dark: { sidebar: '#17171c', canvas: '#0f0f12', page: '#f7f5f0', edge: 'rgba(0,0,0,0.5)' },
+  midnight: { sidebar: '#060607', canvas: '#000000', page: '#000000', edge: '#1a1a20' },
+};
+
+export function SettingsSheet({ open, onClose, pageSize, onPageSizeChange }: SettingsSheetProps) {
+  const t = useTranslations('settings');
+  const router = useRouter();
+  const locale = useLocale() as Locale;
+
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [, startTransition] = useTransition();
+
+  // The server already set `data-theme`; read it back rather than keeping a
+  // second copy of the truth in React state.
+  useEffect(() => {
+    const current = document.documentElement.dataset['theme'];
+    if (isTheme(current)) setTheme(current);
+  }, [open]);
+
+  const onThemeChange = useCallback((next: Theme) => {
+    setTheme(next);
+    applyTheme(next);
+  }, []);
+
+  const onLocaleChange = useCallback(
+    (next: Locale) => {
+      persistLocale(next);
+      // Messages are resolved on the server, so the route has to re-render.
+      startTransition(() => router.refresh());
+    },
+    [router],
+  );
+
+  return (
+    <Sheet open={open} onClose={onClose} title={t('title')} width={560}>
+      <div className={styles.group}>
+        <p className={styles.groupTitle}>{t('appearance')}</p>
+
+        <div>
+          <div className={styles.fieldText}>
+            <p className={styles.fieldLabel}>{t('theme')}</p>
+          </div>
+
+          <div
+            className={styles.themeRow}
+            role="radiogroup"
+            aria-label={t('theme')}
+            style={{ marginTop: 'var(--s-3)' }}
+          >
+            {themes.map((name) => {
+              const swatch = THEME_SWATCHES[name];
+              const vars: CSSProperties = {
+                ['--sw-sidebar' as string]: swatch.sidebar,
+                ['--sw-canvas' as string]: swatch.canvas,
+                ['--sw-page' as string]: swatch.page,
+                ['--sw-edge' as string]: swatch.edge,
+              };
+
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  role="radio"
+                  aria-checked={theme === name}
+                  className={styles.themeOption}
+                  // Only Midnight needs explaining — the other two are what
+                  // their swatch shows.
+                  title={name === 'midnight' ? t('themeMidnightHint') : undefined}
+                  onClick={() => onThemeChange(name)}
+                >
+                  <span className={styles.swatch} style={vars} aria-hidden="true">
+                    <span className={styles.swatchSide} />
+                    <span className={styles.swatchMain}>
+                      <span className={styles.swatchPage} />
+                    </span>
+                  </span>
+                  <span className={styles.themeName}>
+                    {name === 'light'
+                      ? t('themeLight')
+                      : name === 'dark'
+                        ? t('themeDark')
+                        : t('themeMidnight')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <p className={styles.groupTitle}>{t('general')}</p>
+
+        <div className={styles.field}>
+          <div className={styles.fieldText}>
+            <p className={styles.fieldLabel}>{t('language')}</p>
+            <p className={styles.fieldHint}>{t('languageHint')}</p>
+          </div>
+          <div className={styles.fieldControl}>
+            <SegmentedControl<Locale>
+              label={t('language')}
+              value={locale}
+              onChange={onLocaleChange}
+              options={locales.map((code) => ({
+                value: code,
+                label: code.toUpperCase(),
+              }))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <p className={styles.groupTitle}>{t('page')}</p>
+
+        <div className={styles.field}>
+          <div className={styles.fieldText}>
+            <p className={styles.fieldLabel}>{t('pageSize')}</p>
+          </div>
+          <div className={styles.fieldControl}>
+            <SegmentedControl<PageSize>
+              label={t('pageSize')}
+              value={pageSize}
+              onChange={onPageSizeChange}
+              options={[
+                { value: 'a4', label: t('pageSizeA4') },
+                { value: 'letter', label: t('pageSizeLetter') },
+              ]}
+            />
+          </div>
+        </div>
+      </div>
+    </Sheet>
+  );
+}

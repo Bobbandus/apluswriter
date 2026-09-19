@@ -1,0 +1,67 @@
+.root {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  position: relative;
+  padding: 2px;
+  border-radius: var(--r-md);
+  background: var(--bg-sunken);
+  border: var(--hairline) solid var(--line);
+  isolation: isolate;
+}
+
+.fullWidth {
+  display: grid;
+  width: 100%;
+}
+
+/* The sliding thumb. One element that moves, rather than a background on each
+   option — that is what makes the movement read as a single physical control. */
+.thumb {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: calc(var(--r-md) - 2px);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-sm);
+  border: var(--hairline) solid var(--line-strong);
+  z-index: -1;
+  transition:
+    transform var(--dur-mid) var(--ease-out),
+    width var(--dur-mid) var(--ease-out);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  height: 26px;
+  padding: 0 var(--s-3);
+  border-radius: calc(var(--r-md) - 2px);
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.option:hover {
+  color: var(--text);
+}
+
+.option[aria-checked='true'] {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sm .option {
+  height: 22px;
+  padding: 0 var(--s-2);
+  font-size: var(--t-micro);
+}

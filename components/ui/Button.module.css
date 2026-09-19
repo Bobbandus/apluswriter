@@ -1,0 +1,138 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  border-radius: var(--r-md);
+  border: var(--hairline) solid transparent;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.button:not(:disabled):active {
+  transform: translateY(0.5px);
+}
+
+/* ---------------------------------------------------------------- sizes */
+
+.sm {
+  height: 26px;
+  padding: 0 var(--s-3);
+  font-size: var(--t-small);
+}
+
+.md {
+  height: 32px;
+  padding: 0 var(--s-4);
+  font-size: var(--t-body);
+}
+
+.lg {
+  height: 38px;
+  padding: 0 var(--s-5);
+  font-size: var(--t-base);
+}
+
+/* An icon-only button is square, so it reads as a control and not a gap. */
+.iconOnly.sm {
+  width: 26px;
+  padding: 0;
+}
+
+.iconOnly.md {
+  width: 32px;
+  padding: 0;
+}
+
+.iconOnly.lg {
+  width: 38px;
+  padding: 0;
+}
+
+/* -------------------------------------------------------------- variants */
+
+/* The green is loud by design — one primary per view, never two. */
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--accent) 88%, white);
+  box-shadow: var(--shadow-md);
+}
+
+.secondary {
+  background: var(--bg-raised);
+  border-color: var(--line-strong);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondary:not(:disabled):hover {
+  background: var(--bg-raised-hover);
+  border-color: var(--text-faint);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.ghost:not(:disabled):hover {
+  background: var(--bg-raised-hover);
+  color: var(--text);
+}
+
+/* Reads as a link but hits like a button. For inline, low-stakes actions. */
+.subtle {
+  background: transparent;
+  color: var(--accent-text);
+  padding-left: var(--s-2);
+  padding-right: var(--s-2);
+}
+
+.subtle:not(:disabled):hover {
+  background: var(--accent-soft);
+}
+
+.danger {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--flare);
+}
+
+.danger:not(:disabled):hover {
+  background: var(--flare-soft);
+  border-color: var(--flare);
+}
+
+/* --------------------------------------------------------------- states */
+
+/* For toggle buttons in the titlebar and toolbars. */
+.button[aria-pressed='true'].ghost,
+.button[data-active='true'].ghost {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.label {
+  /* Keeps a long label from stretching the control past its container. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

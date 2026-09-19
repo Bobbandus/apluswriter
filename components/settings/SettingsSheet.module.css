@@ -1,0 +1,114 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.group + .group {
+  margin-top: var(--s-6);
+  padding-top: var(--s-6);
+  border-top: var(--hairline) solid var(--line-faint);
+}
+
+.groupTitle {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.fieldText {
+  flex: 1;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: var(--t-body);
+  color: var(--text);
+}
+
+.fieldHint {
+  margin-top: 2px;
+  font-size: var(--t-small);
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.fieldControl {
+  flex: 0 0 auto;
+}
+
+/* The theme picker shows what each theme looks like, not just its name. */
+.themeRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-2);
+}
+
+.themeOption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: var(--bg-sunken);
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.themeOption:hover {
+  border-color: var(--line-strong);
+}
+
+.themeOption[aria-checked='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* A miniature of the three-pane layout, painted in that theme's own colours
+   so the choice is made by eye rather than by reading three words. */
+.swatch {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  height: 42px;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  border: var(--hairline) solid rgba(128, 128, 128, 0.25);
+}
+
+.swatchSide {
+  background: var(--sw-sidebar);
+}
+
+.swatchMain {
+  background: var(--sw-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swatchPage {
+  width: 58%;
+  height: 74%;
+  border-radius: 1px;
+  background: var(--sw-page);
+  border: var(--hairline) solid var(--sw-edge);
+}
+
+.themeName {
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: var(--text);
+}

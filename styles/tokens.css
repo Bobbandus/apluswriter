@@ -1,0 +1,310 @@
+/* ==========================================================================
+   A+ WRITE — design tokens
+   --------------------------------------------------------------------------
+   Derived from the A+ Studios identity (design-references/style.css): studio
+   green, REC red, gold, Space Mono labels, glass and grain.
+
+   Deliberately NOT a copy of the marketing site. That page shouts once; this
+   app is stared at for eight hours. So: calmer neutrals, softer radii, layered
+   macOS shadows instead of hard poster offsets, and three authored themes
+   rather than dark-only.
+
+   Every colour below is a semantic token. Components never hardcode a hex.
+   ========================================================================== */
+
+:root {
+  /* ---------- Brand constants (identical in every theme) ---------- */
+  --brand-green: #3be389; /* studio green — the accent */
+  --brand-green-deep: #1f9a61; /* accessible green for text on light */
+  --brand-green-ink: #05130c; /* text sitting on top of green */
+  --brand-flare: #ff4b3e; /* REC red — revisions, errors, recording */
+  --brand-gold: #ffce3f; /* tags, scene numbers, sticky notes */
+
+  /* ---------- Typography ---------- */
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-black: var(--font-archivo-black), var(--font-archivo), system-ui, sans-serif;
+  --font-ui: var(--font-inter), -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+  /* The screenplay itself. Never used for interface text. */
+  --font-script: var(--font-courier-prime), 'Courier Prime', 'Courier New', monospace;
+
+  /* Interface type scale */
+  --t-micro: 0.6875rem; /* 11px — shortcut hints, chips */
+  --t-small: 0.75rem; /* 12px — labels, meta */
+  --t-body: 0.8125rem; /* 13px — the macOS interface default */
+  --t-base: 0.875rem; /* 14px — comfortable body */
+  --t-lg: 1rem;
+  --t-xl: 1.25rem;
+  --t-2xl: 1.75rem;
+
+  /* Mono labels — the A+ signature. Uppercase, tracked out. */
+  --label-size: 0.6875rem;
+  --label-tracking: 0.12em;
+  --label-weight: 700;
+
+  /* ---------- Radii ---------- */
+  --r-xs: 4px; /* chips, pills-on-text, colour dots */
+  --r-sm: 6px; /* small buttons, inputs */
+  --r-md: 8px; /* buttons, menu items */
+  --r-lg: 12px; /* panels, popovers, cards */
+  --r-xl: 16px; /* sheets, modals */
+  --r-pill: 999px;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --s-0: 0;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* ---------- Layout ---------- */
+  --titlebar-h: 38px;
+  --sidebar-w: 268px;
+  --sidebar-w-min: 200px;
+  --sidebar-w-max: 420px;
+  --inspector-w: 300px;
+  --hairline: 1px;
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-mid: 190ms;
+  --dur-slow: 220ms;
+
+  /* ---------- Elevation (z) ---------- */
+  --z-canvas: 0;
+  --z-sticky: 10;
+  --z-titlebar: 100;
+  --z-popover: 400;
+  --z-sheet: 500;
+  --z-toast: 600;
+  --z-grain: 900;
+}
+
+/* ==========================================================================
+   THEME: DARK (default)
+   A step lighter than the marketing site's #0b0b0c so long sessions don't
+   glow. The page is warm paper floating on a dark canvas — the Pages look.
+   ========================================================================== */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-app: #131317;
+  --bg-sidebar: #17171c;
+  --bg-raised: #1c1c22;
+  --bg-raised-hover: #23232a;
+  --bg-sunken: #0e0e11;
+  --bg-canvas: #0f0f12; /* behind the page sheets */
+
+  --text: #f4f2ec;
+  --text-muted: #9a9aa4;
+  --text-faint: #6a6a74;
+  --text-inverse: #16161a;
+
+  --line: #26262c;
+  --line-strong: #34343c;
+  --line-faint: #1e1e24;
+
+  --accent: var(--brand-green);
+  --accent-text: var(--brand-green); /* readable on dark as-is */
+  --accent-ink: var(--brand-green-ink);
+  --accent-soft: rgba(59, 227, 137, 0.14);
+  --accent-ring: rgba(59, 227, 137, 0.5);
+
+  --flare: var(--brand-flare);
+  --flare-soft: rgba(255, 75, 62, 0.14);
+  --gold: var(--brand-gold);
+  --gold-soft: rgba(255, 206, 63, 0.14);
+
+  /* The screenplay page */
+  --page-bg: #f7f5f0; /* warm white — never #fff, it glares */
+  --page-ink: #16150f;
+  --page-ink-muted: #6a6758;
+  --page-edge: rgba(0, 0, 0, 0.5);
+  --page-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 12px 34px rgba(0, 0, 0, 0.45);
+
+  /* Glass — about 40% of the marketing site's intensity */
+  --glass-bg: rgba(255, 255, 255, 0.045);
+  --glass-bg-strong: rgba(255, 255, 255, 0.075);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: saturate(160%) blur(18px);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* Layered macOS shadows, not poster offsets */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4), 0 20px 50px rgba(0, 0, 0, 0.45);
+
+  --selection-bg: rgba(59, 227, 137, 0.28);
+  --grain-opacity: 0.035;
+}
+
+/* ==========================================================================
+   THEME: LIGHT
+   Authored, not inverted. Cool-neutral chrome so the warm page reads as paper
+   sitting on a desk rather than as another panel.
+   ========================================================================== */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-app: #f4f4f6;
+  --bg-sidebar: #ececed;
+  --bg-raised: #ffffff;
+  --bg-raised-hover: #f2f2f4;
+  --bg-sunken: #e6e6e9;
+  --bg-canvas: #dededf;
+
+  --text: #16161a;
+  --text-muted: #5d5d68;
+  --text-faint: #8b8b96;
+  --text-inverse: #f4f2ec;
+
+  --line: #dcdce0;
+  --line-strong: #c4c4cc;
+  --line-faint: #e8e8ec;
+
+  --accent: var(--brand-green);
+  /* #3be389 on white is ~1.6:1 — unreadable as text. Deep green for anything
+     the eye has to read; the bright green stays for fills and rings. */
+  --accent-text: #0d7a46;
+  --accent-ink: var(--brand-green-ink);
+  --accent-soft: rgba(31, 154, 97, 0.12);
+  --accent-ring: rgba(31, 154, 97, 0.55);
+
+  --flare: #d6362a;
+  --flare-soft: rgba(214, 54, 42, 0.1);
+  --gold: #a17400;
+  --gold-soft: rgba(255, 206, 63, 0.2);
+
+  --page-bg: #ffffff;
+  --page-ink: #16150f;
+  --page-ink-muted: #6a6758;
+  --page-edge: rgba(0, 0, 0, 0.12);
+  --page-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(0, 0, 0, 0.1);
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1), 0 20px 50px rgba(0, 0, 0, 0.14);
+
+  --selection-bg: rgba(31, 154, 97, 0.22);
+  --grain-opacity: 0;
+}
+
+/* ==========================================================================
+   THEME: MIDNIGHT
+   True-black writing mode. The paper metaphor is dropped entirely — the page
+   is black too, so there is no bright rectangle at 3am. Text steps down from
+   pure white to reduce halation on OLED.
+   ========================================================================== */
+[data-theme='midnight'] {
+  color-scheme: dark;
+
+  --bg-app: #000000;
+  --bg-sidebar: #060607;
+  --bg-raised: #0d0d10;
+  --bg-raised-hover: #15151a;
+  --bg-sunken: #000000;
+  --bg-canvas: #000000;
+
+  --text: #d8d8d2;
+  --text-muted: #7c7c86;
+  --text-faint: #4e4e58;
+  --text-inverse: #000000;
+
+  --line: #1a1a20;
+  --line-strong: #2a2a32;
+  --line-faint: #121218;
+
+  --accent: var(--brand-green);
+  --accent-text: var(--brand-green);
+  --accent-ink: var(--brand-green-ink);
+  --accent-soft: rgba(59, 227, 137, 0.12);
+  --accent-ring: rgba(59, 227, 137, 0.45);
+
+  --flare: var(--brand-flare);
+  --flare-soft: rgba(255, 75, 62, 0.12);
+  --gold: var(--brand-gold);
+  --gold-soft: rgba(255, 206, 63, 0.12);
+
+  /* No paper. The page is the void. */
+  --page-bg: #000000;
+  --page-ink: #d8d8d2;
+  --page-ink-muted: #6a6a74;
+  --page-edge: #1a1a20;
+  --page-shadow: none;
+
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --glass-bg-strong: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: saturate(150%) blur(18px);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.8);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.9);
+
+  --selection-bg: rgba(59, 227, 137, 0.24);
+  --grain-opacity: 0;
+}
+
+/* ==========================================================================
+   Production revision colours
+   The industry sequence, in order. Used for revision chips and page stock.
+   ========================================================================== */
+:root {
+  --rev-white: #f7f5f0;
+  --rev-blue: #a8c8e8;
+  --rev-pink: #f4b8cc;
+  --rev-yellow: #f2e07a;
+  --rev-green: #a8d8b0;
+  --rev-goldenrod: #e8c96a;
+  --rev-buff: #efdfc0;
+  --rev-salmon: #f5b49a;
+  --rev-cherry: #e08898;
+}
+
+/* ==========================================================================
+   Scene colours — what `[[color: blue]]` maps to
+   ========================================================================== */
+:root {
+  --scene-none: transparent;
+  --scene-red: #ff6b5e;
+  --scene-orange: #ff9f45;
+  --scene-yellow: #ffce3f;
+  --scene-green: #3be389;
+  --scene-blue: #5ab0ff;
+  --scene-purple: #b47cff;
+  --scene-gray: #8b8b96;
+}
+
+/* ==========================================================================
+   Element identity — the colour each screenplay element answers to in the
+   navigator, element labels and the source view.
+   ========================================================================== */
+:root {
+  --el-scene: var(--accent-text);
+  --el-action: var(--text-muted);
+  --el-character: var(--gold);
+  --el-dialogue: var(--text);
+  --el-parenthetical: var(--text-faint);
+  --el-transition: var(--flare);
+  --el-section: var(--text-muted);
+  --el-synopsis: var(--text-faint);
+  --el-note: var(--gold);
+  --el-lyrics: #b47cff;
+}

@@ -1,0 +1,114 @@
+.canvas {
+  height: 100%;
+  overflow: auto;
+  padding: var(--s-8) var(--s-6) 40vh;
+  /* The tall bottom padding is what makes typewriter scrolling possible —
+     the last line of the script has to be able to reach the middle of the
+     viewport. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* When the page is wider than the pane — a zoomed-in A4 in a narrow window —
+     plain `center` clips the left edge and makes it unreachable. `safe`
+     degrades to flex-start in that case, so the overflow scrolls instead. */
+  align-items: safe center;
+  gap: var(--s-6);
+  background: var(--bg-canvas);
+  scroll-behavior: smooth;
+}
+
+/* A sheet of paper. Width is the real page width at the current zoom, so what
+   is on screen is literally what comes out of the exporter. */
+.sheet {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--page-w);
+  min-height: var(--page-h);
+  background: var(--page-bg);
+  color: var(--page-ink);
+  box-shadow: var(--page-shadow);
+  border-radius: 2px;
+  /* Midnight has no paper, so it gets a hairline instead of a shadow to keep
+     the page edge findable. */
+  border: var(--hairline) solid var(--page-edge);
+}
+
+.body {
+  padding: var(--page-mt) var(--page-mr) var(--page-mb) var(--page-ml);
+  font-family: var(--font-script);
+  font-size: var(--script-size);
+  line-height: var(--script-leading);
+  /* Courier is monospaced; anything that disturbs the advance width breaks
+     pagination, so ligatures and kerning are switched off explicitly. */
+  font-variant-ligatures: none;
+  font-kerning: none;
+  letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  tab-size: 4;
+}
+
+/* Page number, top right, inside the margin. Never on page one. */
+.folio {
+  position: absolute;
+  top: calc(var(--page-mt) - 0.34in * var(--zoom, 1));
+  right: var(--page-mr);
+  font-family: var(--font-script);
+  font-size: var(--script-size);
+  line-height: 1;
+  color: var(--page-ink-muted);
+  user-select: none;
+}
+
+/* ------------------------------------------------------------ empty state */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-height: 40vh;
+}
+
+.emptyHeading {
+  font-family: var(--font-script);
+  font-size: var(--script-size);
+  color: var(--page-ink-muted);
+  letter-spacing: 0;
+}
+
+.emptyHint {
+  max-width: 34em;
+  font-family: var(--font-ui);
+  font-size: var(--t-small);
+  line-height: 1.55;
+  color: var(--page-ink-muted);
+}
+
+/* ---------------------------------------------------------------- toolbar */
+
+.zoomBar {
+  position: absolute;
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+}
+
+.zoomValue {
+  min-width: 42px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-muted);
+  user-select: none;
+}

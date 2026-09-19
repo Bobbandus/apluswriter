@@ -1,0 +1,47 @@
+.wrapper {
+  display: inline-flex;
+}
+
+.tip {
+  position: fixed;
+  z-index: var(--z-popover);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  max-width: 260px;
+  padding: 5px var(--s-2) 5px var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--shadow-md), var(--glass-highlight);
+  color: var(--text);
+  font-size: var(--t-small);
+  line-height: 1.35;
+  pointer-events: none;
+  animation: tipIn var(--dur-fast) var(--ease-out);
+}
+
+/* Glass alone is not opaque enough to read against a busy page, so the tip
+   carries its own base layer underneath the blur. */
+.tip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--bg-raised);
+  opacity: 0.86;
+  z-index: -1;
+}
+
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

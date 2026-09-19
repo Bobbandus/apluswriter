@@ -1,0 +1,164 @@
+.workspace {
+  display: grid;
+  grid-template-areas:
+    'titlebar titlebar titlebar'
+    'sidebar main inspector';
+  grid-template-rows: var(--titlebar-h) 1fr;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--inspector-w);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-app);
+  transition: grid-template-columns var(--dur-slow) var(--ease-out);
+}
+
+/* Collapsing to 0fr rather than unmounting keeps the panes' scroll positions
+   and lets the width animate. */
+.sidebarClosed {
+  grid-template-columns: 0 minmax(0, 1fr) var(--inspector-w);
+}
+
+.inspectorClosed {
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr) 0;
+}
+
+.sidebarClosed.inspectorClosed {
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+/* While a resize is in flight the grid must track the pointer exactly, so the
+   easing is switched off for the duration. */
+.resizing {
+  transition: none;
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* ----------------------------------------------------------------- panes */
+
+.sidebar {
+  grid-area: sidebar;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-sidebar);
+  border-right: var(--hairline) solid var(--line);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+.inspector {
+  grid-area: inspector;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg-sidebar);
+  border-left: var(--hairline) solid var(--line);
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-canvas);
+}
+
+/* Hidden panes must leave the tab order too, not just the viewport. */
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------- resizer */
+
+.resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 7px;
+  z-index: var(--z-sticky);
+  cursor: col-resize;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.resizer::after {
+  content: '';
+  position: absolute;
+  inset: 0 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.resizer:hover::after,
+.resizer:focus-visible::after,
+.resizer[data-dragging='true']::after {
+  opacity: 0.7;
+}
+
+.resizer:focus-visible {
+  outline: none;
+}
+
+/* ------------------------------------------------------------ focus mode */
+
+/* Focus mode collapses the chrome to nothing but the page. The titlebar stays
+   mounted — it holds the save status, which is never hidden. */
+.focusMode {
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+.focusMode .sidebar,
+.focusMode .inspector {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------- responsive */
+
+/* Below tablet width the side panes become overlays rather than columns,
+   so the page keeps its full measure. */
+@media (max-width: 900px) {
+  .workspace,
+  .sidebarClosed,
+  .inspectorClosed {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'titlebar'
+      'main';
+  }
+
+  .sidebar,
+  .inspector {
+    position: absolute;
+    top: var(--titlebar-h);
+    bottom: 0;
+    width: min(320px, 86vw);
+    z-index: var(--z-sticky);
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .sidebar {
+    left: 0;
+    transform: translateX(-101%);
+  }
+
+  .inspector {
+    right: 0;
+    transform: translateX(101%);
+  }
+
+  .sidebarOpenMobile .sidebar,
+  .inspectorOpenMobile .inspector {
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .resizer {
+    display: none;
+  }
+}
