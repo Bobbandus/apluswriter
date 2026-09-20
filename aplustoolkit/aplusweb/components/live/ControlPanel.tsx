@@ -6,6 +6,7 @@ import type { LiveAction } from '@aplus/live/board';
 import type { LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
 import { useLiveBoard, type LiveBoard, type LiveStatus } from '@/lib/live/useLiveBoard';
 import { BoardView } from './BoardView';
+import { Canvas } from './Canvas';
 import styles from './ControlPanel.module.css';
 
 /** The operator's page: the board as it looks on air, and the buttons that change it. */
@@ -30,7 +31,9 @@ export function ControlPanel({ token }: { token: string }) {
         {board && (
           <>
             <div className={styles.preview}>
-              <BoardView kind={board.kind} state={board.state} theme={board.theme} winnerLabel={t('winner')} />
+              <Canvas>
+                <BoardView kind={board.kind} state={board.state} theme={board.theme} position="bl" winnerLabel={t('winner')} />
+              </Canvas>
             </div>
             {board.canControl && <Controls board={board} apply={apply} />}
           </>
@@ -110,7 +113,10 @@ function ScoreControls({ state, apply }: { state: ScoreState; apply: (action: Li
         {side('a')}
         {side('b')}
       </div>
-      <CommitField className={styles.field} value={state.label} placeholder={t('label')} label={t('label')} onCommit={(text) => apply({ type: 'label', text })} />
+      <div className={styles.row}>
+        <CommitField className={styles.field} value={state.label} placeholder={t('label')} label={t('label')} onCommit={(text) => apply({ type: 'label', text })} />
+        <CommitField className={styles.field} value={state.clock} placeholder={t('clock')} label={t('clock')} onCommit={(text) => apply({ type: 'clock', text })} />
+      </div>
       <div className={styles.row}>
         <button type="button" className={styles.btn} onClick={() => apply({ type: 'swap' })}>
           {t('swap')}
