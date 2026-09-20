@@ -27,8 +27,37 @@ const decode = (text: string) =>
 
 interface Para {
   type: string;
+  /** The words, without any styling. Used to decide what kind of line this is. */
   text: string;
+  /** The same words with bold, italic and underline written as Fountain markup. */
+  styled: string;
   number?: string;
+}
+
+/**
+ * One run of text, written as Fountain.
+ *
+ * A literal `*`, `_` or `\` is escaped first, or a Final Draft line that merely
+ * contains an asterisk would turn into emphasis on the way in. Emphasis cannot
+ * touch whitespace on its inside, so spaces stay outside the markers, and each
+ * line of a run is marked on its own since Fountain emphasis stops at a line end.
+ */
+function styledRun(text: string, style: string): string {
+  const escaped = text.replace(/[\\*_]/g, (character) => `\\${character}`);
+  if (!style) return escaped;
+  const bold = /bold/i.test(style);
+  const italic = /italic/i.test(style);
+  const underline = /underline/i.test(style);
+  return escaped
+    .split('\n')
+    .map((line) => {
+      const [, before = '', inner = '', after = ''] = /^(\s*)([\s\S]*?)(\s*)$/.exec(line) ?? [];
+      if (!inner) return line;
+      let marked = bold && italic ? `***${inner}***` : bold ? `**${inner}**` : italic ? `*${inner}*` : inner;
+      if (underline) marked = `_${marked}_`;
+      return `${before}${marked}${after}`;
+    })
+    .join('\n');
 }
 
 /** Every paragraph inside one chunk of the file, with its text runs joined. */
@@ -38,9 +67,16 @@ function paragraphsIn(chunk: string): Para[] {
     const attrs = match[1] ?? '';
     const type = /\bType="([^"]*)"/.exec(attrs)?.[1] ?? 'Action';
     const number = /\bNumber="([^"]*)"/.exec(attrs)?.[1];
-    const runs = [...(match[2] ?? '').matchAll(/<Text\b[^>]*?(?:\/>|>([\s\S]*?)<\/Text>)/g)];
-    const text = decode(runs.map((run) => run[1] ?? '').join('')).replace(/\r/g, '');
-    out.push({ type: decode(type), text, ...(number ? { number: decode(number) } : {}) });
+    const runs = [...(match[2] ?? '').matchAll(/<Text\b([^>]*?)(?:\/>|>([\s\S]*?)<\/Text>)/g)].map((run) => ({
+      style: /\bStyle="([^"]*)"/.exec(run[1] ?? '')?.[1] ?? '',
+      text: decode(run[2] ?? '').replace(/\r/g, ''),
+    }));
+    out.push({
+      type: decode(type),
+      text: runs.map((run) => run.text).join(''),
+      styled: runs.map((run) => styledRun(run.text, run.style)).join(''),
+      ...(number ? { number: decode(number) } : {}),
+    });
   }
   return out;
 }
@@ -86,7 +122,7 @@ export function fdxToFountain(xml: string): string {
 
     if ((para.type === 'Dialogue' || para.type === 'Parenthetical') && dialogue) {
       // Line breaks stay (lyrics, verse); only blank lines go, as one would end the block.
-      const kept = para.text.split('\n').map((line) => line.trim()).filter(Boolean).join('\n');
+      const kept = para.styled.split('\n').map((line) => line.trim()).filter(Boolean).join('\n');
       if (kept) dialogue.push(para.type === 'Parenthetical' && !kept.startsWith('(') ? `(${kept})` : kept);
       continue;
     }
@@ -101,7 +137,7 @@ export function fdxToFountain(xml: string): string {
       blocks.push(/^[A-ZÅÄÖ0-9 .'-]+TO:$/.test(text) ? text : `> ${text.replace(/^>\s*/, '')}`);
     } else {
       // Action, General, Shot, and anything Final Draft adds that we do not know.
-      const lines = para.text.split('\n').map((line) => line.trimEnd());
+      const lines = para.styled.split('\n').map((line) => line.trimEnd());
       const block = lines.join('\n');
       if (block.trim() === '') {
         blocks.push(''); // a deliberate empty line in the source

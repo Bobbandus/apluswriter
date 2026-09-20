@@ -92,4 +92,44 @@ describe('Final Draft import', () => {
     const plain = (rows: typeof before) => only(rows, 'dialogue').map((x) => x.replace(/\*/g, '').replace(/\s+/g, ' '));
     expect(plain(after)).toEqual(plain(before));
   }, 60_000);
+
+  describe('styles', () => {
+    const run = (text: string, style = '') => `<Text${style ? ` Style="${style}"` : ''}>${text}</Text>`;
+    const action = (...runs: string[]) => wrap(`<Paragraph Type="Action">${runs.join('')}</Paragraph>`);
+
+    it('writes bold, italic and underline as Fountain emphasis', () => {
+      const out = fdxToFountain(action(run('Han '), run('skriker', 'Bold'), run(' och '), run('viskar', 'Italic'), run(' och '), run('allt', 'Bold+Italic'), run(' och '), run('understryker', 'Underline')));
+      expect(out).toBe('Han **skriker** och *viskar* och ***allt*** och _understryker_\n');
+      expect(parse(out).elements[0]?.spans.map((span) => span.type)).toEqual(['bold', 'italic', 'boldItalic', 'underline']);
+    });
+
+    it('keeps the spaces outside the markers, where Fountain wants them', () => {
+      expect(fdxToFountain(action(run('Han'), run(' skriker ', 'Bold'), run('nu')))).toBe('Han **skriker** nu\n');
+    });
+
+    it('marks each line of a styled run, since emphasis ends at a line end', () => {
+      expect(fdxToFountain(action(run('a\nb', 'Italic')))).toBe('*a*\n*b*\n');
+    });
+
+    it('does not let a literal asterisk or underscore become emphasis', () => {
+      const out = fdxToFountain(action(run('Skriv *inte* så_här\\')));
+      const element = parse(out).elements[0];
+      expect(element?.spans.filter((span) => span.type !== 'escape')).toEqual([]);
+      expect(element?.text).toBe('Skriv *inte* så_här\\');
+    });
+
+    it('styles dialogue as well', () => {
+      const out = fdxToFountain(wrap(p('Character', 'ERIK') + `<Paragraph Type="Dialogue">${run('Jag ')}${run('vet', 'Italic')}${run('.')}</Paragraph>`));
+      expect(out).toBe('ERIK\nJag *vet*.\n');
+    });
+
+    it('comes back with the same emphasis after an export and an import', () => {
+      const source = 'INT. A - DAG\n\nHan **skriker** och *viskar* och _understryker_ ***allt***.\n\nERIK\nJag *vet* det.\n';
+      const back = parse(fdxToFountain(renderFdx(parse(source))));
+      expect(back.elements.filter((e) => e.type === 'action' || e.type === 'dialogue').map((e) => [e.text, e.spans.map((s) => s.type)])).toEqual([
+        ['Han skriker och viskar och understryker allt.', ['bold', 'italic', 'underline', 'boldItalic']],
+        ['Jag vet det.', ['italic']],
+      ]);
+    });
+  });
 });

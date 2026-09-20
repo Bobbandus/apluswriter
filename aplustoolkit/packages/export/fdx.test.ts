@@ -86,7 +86,31 @@ describe('FDX export', () => {
   it('has as many closing tags as opening ones, on a whole feature', () => {
     const xml = renderFdx(parse(readFileSync(join(process.cwd(), 'fixtures/official/Big-Fish.fountain'), 'utf8')));
     expect((xml.match(/<Paragraph[ >]/g) ?? []).length).toBe((xml.match(/<\/Paragraph>/g) ?? []).length);
-    expect((xml.match(/<Text>/g) ?? []).length).toBe((xml.match(/<\/Text>/g) ?? []).length);
+    expect((xml.match(/<Text[ >]/g) ?? []).length).toBe((xml.match(/<\/Text>/g) ?? []).length);
     expect(paragraphs(xml).length).toBeGreaterThan(1000);
+  });
+
+  it('carries bold, italic and underline as styled runs', () => {
+    const xml = fdx('INT. A - DAG\n\nHan **skriker** och *viskar* och _understryker_ ***allt***.');
+    expect(xml).toContain('<Text>Han </Text><Text Style="Bold">skriker</Text><Text> och </Text>');
+    expect(xml).toContain('<Text Style="Italic">viskar</Text>');
+    expect(xml).toContain('<Text Style="Underline">understryker</Text>');
+    expect(xml).toContain('<Text Style="Bold+Italic">allt</Text><Text>.</Text>');
+  });
+
+  it('combines styles that overlap', () => {
+    expect(fdx('INT. A - DAG\n\n**fet _och understruken_**')).toContain('<Text Style="Bold">fet </Text><Text Style="Bold+Underline">och understruken</Text>');
+  });
+
+  it('styles dialogue too, and leaves a note out of the words', () => {
+    const xml = fdx('ERIK\nJag *vet* [[fråga Vilde]] det.');
+    expect(xml).toContain('<Text>Jag </Text><Text Style="Italic">vet</Text><Text>  det.</Text>');
+    expect(xml).not.toContain('fråga Vilde');
+  });
+
+  it('keeps the words exact even where the styles cannot be read', () => {
+    // A forced action line with emphasis still comes out with its text and its style.
+    const xml = fdx('INT. A - DAG\n\n!DET *REGNAR*.');
+    expect(xml).toContain('<Text>DET </Text><Text Style="Italic">REGNAR</Text><Text>.</Text>');
   });
 });
