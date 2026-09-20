@@ -5,6 +5,10 @@ node_modules/
 
 # next
 .next/
+# Builds run with APLUS_DIST_DIR so they never overwrite what a dev server is
+# serving. Next also writes the folder into aplusweb/tsconfig.json's include;
+# that line is scratch and does not belong in the repository either.
+.next-*/
 out/
 build/
 next-env.d.ts
