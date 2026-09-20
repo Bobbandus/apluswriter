@@ -90,6 +90,14 @@ export type Suggestion =
       /** Where `before` starts, as a hint; the app searches nearby if it moved. */
       near: number;
     }
+  | {
+      kind: 'rewrite';
+      scene?: SceneRef;
+      title: string;
+      explanation: string;
+      before: string;
+      after: string;
+    }
   | { kind: 'character'; name: string; profile: CharacterProfile }
   | { kind: 'document'; title: string; body: string };
 

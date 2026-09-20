@@ -251,6 +251,16 @@ export interface TitlePage {
 /* Derived indexes                                                            */
 /* ========================================================================== */
 
+/** A Fountain section (`# Akt I`, `## Sekvens A`). Used in the hierarchical navigator. */
+export interface SectionEntry {
+  /** The text after the `#` marks, e.g. "Akt I". */
+  title: string;
+  /** 1 for `#`, 2 for `##`, 3 for `###`. */
+  depth: number;
+  /** Source offset of the section heading. */
+  from: number;
+}
+
 /** One scene: its heading plus everything up to the next heading. */
 export interface SceneIndexEntry {
   /** The stable `[[id:]]`, or a generated one if the document has none yet. */
@@ -305,6 +315,8 @@ export interface Script {
   titlePage: TitlePage | null;
   elements: Element[];
   scenes: SceneIndexEntry[];
+  /** `# Akt I`, `## Sekvens A` … in source order, for the navigator's outline. */
+  sections: SectionEntry[];
   characters: CharacterEntry[];
   locations: LocationEntry[];
   /** Every unresolved `[[todo: …]]`, for the to-do panel and export warning. */

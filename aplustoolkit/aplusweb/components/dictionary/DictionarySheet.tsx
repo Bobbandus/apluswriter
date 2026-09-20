@@ -15,6 +15,7 @@ export interface DictionarySheetProps {
   onRemove: (kind: DictionaryKind, value: string) => void;
   onMerge: (kind: DictionaryKind, from: string, into: string) => void;
   onRebuild: () => void;
+  onAdd?: (kind: DictionaryKind, value: string) => void;
 }
 
 const KINDS: DictionaryKind[] = ['character', 'location', 'tag'];
@@ -26,6 +27,7 @@ export function DictionarySheet(props: DictionarySheetProps) {
   const tChars = useTranslations('characters');
   const tLocs = useTranslations('locations');
   const [editing, setEditing] = useState<{ kind: DictionaryKind; value: string } | null>(null);
+  const [newValues, setNewValues] = useState<Record<DictionaryKind, string>>({ character: '', location: '', tag: '' });
 
   const labels: Record<DictionaryKind, string> = {
     character: tChars('title'), location: tLocs('title'), tag: tAuto('tags'),
@@ -52,6 +54,43 @@ export function DictionarySheet(props: DictionarySheetProps) {
                 </li>
               ))}
             </ul>
+          )}
+          {props.onAdd && (
+            <div style={{ display: 'flex', gap: 'var(--s-2)', marginTop: 'var(--s-2)' }}>
+              <input
+                style={{
+                  flex: 1,
+                  minHeight: 32,
+                  padding: '0 var(--s-3)',
+                  border: 'var(--hairline) solid var(--line-strong)',
+                  borderRadius: 'var(--r-sm)',
+                  background: 'var(--bg-raised)',
+                  color: 'var(--text)',
+                  font: 'inherit',
+                }}
+                placeholder={`${t('addItem')}...`}
+                value={newValues[kind]}
+                onChange={(e) => setNewValues((prev) => ({ ...prev, [kind]: e.target.value }))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newValues[kind].trim()) {
+                    props.onAdd!(kind, newValues[kind].trim());
+                    setNewValues((prev) => ({ ...prev, [kind]: '' }));
+                  }
+                }}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  if (newValues[kind].trim()) {
+                    props.onAdd!(kind, newValues[kind].trim());
+                    setNewValues((prev) => ({ ...prev, [kind]: '' }));
+                  }
+                }}
+              >
+                {t('addItem')}
+              </Button>
+            </div>
           )}
         </section>
       ))}

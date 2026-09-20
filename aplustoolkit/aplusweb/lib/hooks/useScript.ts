@@ -6,6 +6,7 @@ import type { LayoutOptions, ParseRequest, ParseResponse, ScriptSummary } from '
 const EMPTY: ScriptSummary = {
   titlePage: null,
   scenes: [],
+  sections: [],
   characters: [],
   locations: [],
   todos: [],

@@ -4,11 +4,12 @@ import type {
   Element,
   LocationEntry,
   SceneIndexEntry,
+  SectionEntry,
   Script,
 } from './types';
 
 /**
- * The derived indexes: scenes, characters, locations and to-dos.
+ * The derived indexes: scenes, characters, locations, sections and to-dos.
  *
  * These are what the navigator, the index cards, the reports and the
  * autocomplete all read. They are rebuilt from the element list rather than
@@ -16,12 +17,13 @@ import type {
  * wrong about the script — and it is the same way the script itself is wrong.
  */
 
-export type Indexes = Pick<Script, 'scenes' | 'characters' | 'locations' | 'todos'>;
+export type Indexes = Pick<Script, 'scenes' | 'sections' | 'characters' | 'locations' | 'todos'>;
 
 const TODO_RE = /^\s*(?:todo|att göra)\s*:\s*([\s\S]+)$/i;
 
 export function buildIndexes(elements: Element[]): Indexes {
   const scenes: SceneIndexEntry[] = [];
+  const sections: SectionEntry[] = [];
   const characters = new Map<string, CharacterEntry>();
   const locations = new Map<string, LocationEntry>();
   const todos: Script['todos'] = [];
@@ -87,6 +89,11 @@ export function buildIndexes(elements: Element[]): Indexes {
       });
     }
 
+    if (element.type === 'section') {
+      sections.push({ title: element.text, depth: element.depth, from: element.from });
+      continue;
+    }
+
     if (element.type === 'sceneHeading' && element.location) {
       const key = element.location.toUpperCase();
       const entry = locations.get(key) ?? {
@@ -150,6 +157,7 @@ export function buildIndexes(elements: Element[]): Indexes {
 
   return {
     scenes,
+    sections,
     characters: [...characters.values()].sort((a, b) => b.cues - a.cues || a.name.localeCompare(b.name)),
     locations: [...locations.values()].sort((a, b) => a.name.localeCompare(b.name)),
     todos,

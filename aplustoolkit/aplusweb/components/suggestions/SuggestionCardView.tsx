@@ -15,7 +15,7 @@ export interface SuggestionCardViewProps {
 }
 
 /** Kinds that end up in the script text; the rest are saved beside it. */
-const EDITS_SCRIPT = new Set<Suggestion['kind']>(['synopsis', 'tags', 'metadata', 'note', 'format']);
+const EDITS_SCRIPT = new Set<Suggestion['kind']>(['synopsis', 'tags', 'metadata', 'note', 'format', 'rewrite']);
 
 /**
  * One suggestion, with the two choices the writer always has.
@@ -82,6 +82,13 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
         )}
 
         {s.kind === 'format' && (
+          <>
+            <p className={styles.text}>{s.explanation}</p>
+            <DiffView before={s.before} after={s.after} context={1} />
+          </>
+        )}
+
+        {s.kind === 'rewrite' && (
           <>
             <p className={styles.text}>{s.explanation}</p>
             <DiffView before={s.before} after={s.after} context={1} />

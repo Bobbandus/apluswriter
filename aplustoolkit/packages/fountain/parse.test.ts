@@ -392,4 +392,20 @@ describe('indexes', () => {
     const script = parse('INT. ROOM - DAY\n\n= They finally talk.\n\nAction.');
     expect(script.scenes[0]?.synopsis).toBe('They finally talk.');
   });
+
+  it('indexes sections with title, depth and offset, in source order', () => {
+    const text = '# Akt I\n\n## Sekvens A\n\nINT. KÖK - DAG\n\nHej.\n\n# Akt II\n\nEXT. GATA - NATT';
+    const { sections } = parse(text);
+    expect(sections.map((s) => [s.title, s.depth])).toEqual([
+      ['Akt I', 1],
+      ['Sekvens A', 2],
+      ['Akt II', 1],
+    ]);
+    // `from` points at the `#`, so the navigator can scroll straight there.
+    for (const section of sections) expect(text[section.from]).toBe('#');
+  });
+
+  it('has no sections when the script has none', () => {
+    expect(parse(source).sections).toEqual([]);
+  });
 });

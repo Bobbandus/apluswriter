@@ -39,6 +39,14 @@ export function dictionaryFromScript(script: Pick<Script, 'characters' | 'locati
   };
 }
 
+/**
+ * Returns only character names who have spoken at least one completed line of dialogue (words > 0).
+ * Incomplete cues (typed but not finished with dialogue) are excluded so they do not pollute persistent storage.
+ */
+export function completedCharactersFromScript(script: Pick<Script, 'characters'>): string[] {
+  return script.characters.filter((entry) => entry.words > 0).map((entry) => entry.name);
+}
+
 export function mergeDictionary(...dictionaries: DictionaryData[]): DictionaryData {
   const unique = (values: string[]) => [...new Set(values.map((value) => value.trim()).filter(Boolean))];
   // Cue counts describe the script as it is now, so the most recent

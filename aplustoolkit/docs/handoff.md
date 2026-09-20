@@ -53,7 +53,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 **Fas 0 — Lås upp**
 - [x] 0.0 Minne, `handoff.md`, `ideas.txt`, `PLAN.md`
-- [ ] 0.1 Bygget grönt (`sections` i `Script`)
+- [x] 0.1 Bygget grönt (`sections` i `Script`)
 - [ ] 0.2 Inloggning (env-mapp, konto-knapp på alla sidor, Supabase-guide)
 - [ ] 0.3 Ordboken: spara först när färdig (E-buggen)
 - [ ] 0.4 MCP-instruktioner + craft-regler

@@ -138,6 +138,17 @@ export function editsFor(source: string, suggestion: Suggestion): ApplyResult {
       return { ok: true, edits: [{ from: at, to: at + suggestion.before.length, insert: suggestion.after }] };
     }
 
+    case 'rewrite': {
+      let near = 0;
+      if (suggestion.scene) {
+        const scene = sceneFor(suggestion.scene);
+        if (scene) near = scene.from;
+      }
+      const at = nearest(source, suggestion.before, near);
+      if (at < 0) return { ok: false, reason: 'stale' };
+      return { ok: true, edits: [{ from: at, to: at + suggestion.before.length, insert: suggestion.after }] };
+    }
+
     // Production data, not script text: stored by the app, no edits here.
     case 'shotlist':
     case 'character':

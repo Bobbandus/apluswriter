@@ -397,6 +397,38 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
   );
 
   server.registerTool(
+    'suggest_rewrite',
+    {
+      title: 'Suggest a rewrite',
+      description:
+        'Deliver a rewrite suggestion as a +/− diff card. Unlike suggest_format_fix this tool CAN change words — it is for dialogue and action rewrites ' +
+        'the writer explicitly asked for. `before` must be an EXACT excerpt copied verbatim from the script. ' +
+        'The writer sees both versions in a red/green diff and must click "Use" before anything changes. ' +
+        'Never call this speculatively — only when the writer asks you to rewrite something.',
+      inputSchema: {
+        path: PATH,
+        scene: SCENE.optional(),
+        title: z.string().describe('Short label, e.g. "Omskriv Vilas replik"'),
+        explanation: z.string().describe('One sentence explaining what changed and why'),
+        before: z.string().describe('Exact text from the script to replace'),
+        after: z.string().describe('The rewritten replacement text'),
+      },
+    },
+    async ({ path, scene: sceneRef, title, explanation, before, after }) => {
+      const { source, script } = await open(path);
+      if (!source.includes(before)) {
+        throw new Error('`before` is not found in the current script. Copy it verbatim from get_current_scene or get_scene.');
+      }
+      let ref: SceneRef | undefined;
+      if (sceneRef) {
+        const { scene, index } = pick(script, sceneRef);
+        ref = refOf(scene, index);
+      }
+      return deliver({ kind: 'rewrite', scene: ref, title, explanation, before, after }, title);
+    },
+  );
+
+  server.registerTool(
     'suggest_character_profile',
     {
       title: 'Suggest a character profile',
@@ -473,8 +505,9 @@ const FORMAT_EXPLANATIONS = {
 /* ========================================================================== */
 
 const RULES =
-  'Rules: never write or rewrite the writer\'s action or dialogue. Deliver results with the suggest_* tools (they become cards the writer chooses ' +
-  'from) or as plain answers in the chat. Answer in the language the writer uses. Be concrete and brief; give reasons.';
+  'Rules: never rewrite the writer\'s dialogue or action on your own initiative. When the writer explicitly asks you to rewrite something, ' +
+  'use suggest_rewrite — it shows a diff card the writer must accept. All other results go via the suggest_* tools or plain chat answers. ' +
+  'Answer in the language the writer uses. Be concrete and brief; give reasons.';
 
 function registerPrompts(server: McpServer): void {
   const sceneArg = { scene: z.string().optional().describe('Scene number or heading. Leave empty for the scene you are in.') };

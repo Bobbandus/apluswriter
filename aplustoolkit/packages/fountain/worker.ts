@@ -36,6 +36,7 @@ export interface LayoutOptions {
 export interface ScriptSummary {
   titlePage: Script['titlePage'];
   scenes: Script['scenes'];
+  sections: Script['sections'];
   characters: Script['characters'];
   locations: Script['locations'];
   todos: Script['todos'];
@@ -63,6 +64,7 @@ export function summarize(source: string, layout?: LayoutOptions): ScriptSummary
   return {
     titlePage: script.titlePage,
     scenes: script.scenes,
+    sections: script.sections,
     characters: script.characters,
     locations: script.locations,
     todos: script.todos,

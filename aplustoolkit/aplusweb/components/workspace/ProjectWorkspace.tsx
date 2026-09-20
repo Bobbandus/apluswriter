@@ -30,7 +30,13 @@ import {
   type EditorSettings,
 } from '@/components/editor/fountain/settings';
 import type { PageSize } from '@aplus/paginator/geometry';
-import { dictionaryFromScript, mergeDictionary, type DictionaryData, type DictionaryKind } from '@aplus/fountain/autocomplete';
+import {
+  completedCharactersFromScript,
+  dictionaryFromScript,
+  mergeDictionary,
+  type DictionaryData,
+  type DictionaryKind,
+} from '@aplus/fountain/autocomplete';
 
 export interface ProjectWorkspaceProps {
   projectId: string;
@@ -161,11 +167,31 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
 
-  // A newly typed cue or heading is usable immediately, without a save or a
-  // manual rebuild. The stored list also keeps manually learned values.
+  // The persistent dictionary only remembers characters who have spoken at least
+  // one completed line of dialogue (words > 0) or words added manually.
+  // In-progress or deleted cues stay dynamic via dictionaryFromScript and never pollute storage.
   useEffect(() => {
-    setDictionary((current) => mergeDictionary(current, dictionaryFromScript(script)));
-  }, [script, setDictionary]);
+    const completedCharacters = completedCharactersFromScript(script);
+    if (completedCharacters.length === 0) return;
+    setDictionary((current) => {
+      const added = completedCharacters.filter((name) => !current.characters.includes(name));
+      if (added.length === 0) return current;
+      return {
+        ...current,
+        characters: [...current.characters, ...added],
+      };
+    });
+  }, [script.characters, setDictionary]);
+
+  const addDictionaryValue = useCallback((kind: DictionaryKind, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const val = kind === 'character' ? trimmed.toUpperCase() : trimmed;
+    setDictionary((current) => ({
+      ...current,
+      [`${kind}s`]: [...new Set([...(current[`${kind}s` as "characters" | "locations" | "tags"] || []), val])],
+    }) as DictionaryData);
+  }, [setDictionary]);
 
   const replaceDictionaryValue = useCallback((kind: DictionaryKind, from: string, to: string) => {
     const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -196,7 +222,13 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     removeDictionaryValue(kind, from);
   }, [removeDictionaryValue, replaceDictionaryValue]);
 
-  const rebuildDictionary = useCallback(() => setDictionary(dictionaryFromScript(script)), [script, setDictionary]);
+  const rebuildDictionary = useCallback(() => {
+    setDictionary((current) => ({
+      characters: [...new Set([...current.characters.filter((c) => !script.characters.some((sc) => sc.name === c)), ...completedCharactersFromScript(script)])],
+      locations: current.locations,
+      tags: current.tags,
+    }));
+  }, [script.characters, setDictionary]);
   const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
   // Page and scene counts for the dashboard, from the same pagination as the PDF.
@@ -339,6 +371,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onRemove={removeDictionaryValue}
         onMerge={mergeDictionaryValue}
         onRebuild={rebuildDictionary}
+        onAdd={addDictionaryValue}
       />
     </>
   );

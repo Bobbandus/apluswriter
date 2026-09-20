@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   characterPrefixMatches,
   closestTypo,
+  completedCharactersFromScript,
   editDistance,
   likelyTypo,
   mergeDictionary,
@@ -79,5 +80,18 @@ describe('mergeDictionary', () => {
     const remembered = { characters: ['JONATHAN'], locations: [], tags: [], characterCues: { JONATHAN: 40 } };
     const live = { characters: ['JONAS'], locations: [], tags: [], characterCues: { JONAS: 40 } };
     expect(mergeDictionary(remembered, live).characterCues).toEqual({ JONAS: 40 });
+  });
+});
+
+describe('completedCharactersFromScript', () => {
+  it('includes only characters with at least one spoken line (words > 0)', () => {
+    const script = {
+      characters: [
+        { name: 'JONATHAN', cues: 2, words: 15, scenes: [0], extensions: [], firstAt: 10 },
+        { name: 'PAUSED_TYPING', cues: 1, words: 0, scenes: [0], extensions: [], firstAt: 50 },
+        { name: 'VILDE', cues: 5, words: 80, scenes: [0], extensions: [], firstAt: 100 },
+      ],
+    };
+    expect(completedCharactersFromScript(script)).toEqual(['JONATHAN', 'VILDE']);
   });
 });
