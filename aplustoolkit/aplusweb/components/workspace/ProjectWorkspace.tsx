@@ -14,7 +14,10 @@ import { useBridge } from '@/lib/bridge/useBridge';
 import { sceneOffset, useAssistant } from '@/lib/bridge/useAssistant';
 import type { AppState } from '@aplus/bridge/protocol';
 import { diffToEdit, editsFor } from '@aplus/bridge/apply';
+import { parse } from '@aplus/fountain/parse';
 import { reorderScenes } from '@aplus/fountain/structure';
+import { removeTodo } from '@aplus/fountain/todos';
+import { TodoPanel, type TodoItem } from '@/components/todos/TodoPanel';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
 import { IndexCardBoard } from '@/components/cards/IndexCardBoard';
 import { PageCanvas } from '@/components/editor/PageCanvas';
@@ -207,6 +210,38 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     if (result.ok) handle.applyChanges(result.edits);
   }, []);
 
+  /* --------------------------------------------------------------- to-dos
+     The list comes from the parse worker, which is a moment behind the
+     editor. So a click is resolved against the live text: re-read the notes
+     there, take the one that says the same thing nearest where it was, and
+     remove that. Deleting by a stale offset would take out somebody's words. */
+
+  const liveTodo = useCallback((todo: TodoItem) => {
+    const handle = editorRef.current;
+    if (!handle) return null;
+    const text = handle.getText();
+    const match = parse(text)
+      .todos.filter((candidate) => candidate.text === todo.text)
+      .sort((a, b) => Math.abs(a.from - todo.from) - Math.abs(b.from - todo.from))[0];
+    return match ? { handle, text, match } : null;
+  }, []);
+
+  const revealTodo = useCallback(
+    (todo: TodoItem) => {
+      const found = liveTodo(todo);
+      if (found) found.handle.revealOffset(found.match.from);
+    },
+    [liveTodo],
+  );
+
+  const finishTodo = useCallback(
+    (todo: TodoItem) => {
+      const found = liveTodo(todo);
+      if (found) found.handle.applyChanges([removeTodo(found.text, found.match)]);
+    },
+    [liveTodo],
+  );
+
   const openScene = useCallback((scene: SceneIndexEntry) => {
     setView('script');
     // The editor is hidden, not unmounted, but it can only scroll once it is
@@ -349,6 +384,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             count={bridge.cards.length}
             connected={bridge.status === 'connected'}
             showSuggestions={cardsEnabled}
+            todoCount={script.todos.length}
+            todos={<TodoPanel todos={script.todos} scenes={script.scenes} onReveal={revealTodo} onDone={finishTodo} />}
             scene={
               <Inspector
                 onOpenSettings={openSettings}

@@ -438,6 +438,12 @@
     "connectClaudeHint": "Adds A+ Write to Claude's tools. Asks first, keeps a backup and leaves other servers alone.",
     "connectClaudeButton": "Connect …"
   },
+  "todos": {
+    "title": "To do",
+    "tab": "To do",
+    "done": "Done: {text}",
+    "hint": "Ticking one off removes the note from the script. Undo with Ctrl+Z."
+  },
   "desktop": {
     "bannerTitle": "There is an app for Windows.",
     "bannerBody": "The same thing as here, in its own window, offline, and wired to Claude Desktop.",

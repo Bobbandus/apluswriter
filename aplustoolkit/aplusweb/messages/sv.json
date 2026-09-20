@@ -438,6 +438,12 @@
     "connectClaudeHint": "Lägger till A+ Write bland Claudes verktyg. Frågar först, sparar en säkerhetskopia och rör inga andra servrar.",
     "connectClaudeButton": "Koppla in …"
   },
+  "todos": {
+    "title": "Att göra",
+    "tab": "Att göra",
+    "done": "Klart: {text}",
+    "hint": "Att bocka av tar bort anteckningen ur manuset. Ångra med Ctrl+Z."
+  },
   "desktop": {
     "bannerTitle": "Det finns en app för Windows.",
     "bannerBody": "Samma sak som här, fast i ett eget fönster, utan internet och kopplad till Claude Desktop.",
