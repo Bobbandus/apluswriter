@@ -748,14 +748,23 @@
       "suspendA": "Utvisning lag A",
       "suspendB": "Utvisning lag B",
       "endSuspension": "Avsluta utvisningen",
-      "keysHandball": "Tangenter: Mellanslag start/stopp, S utvisning A, K utvisning B, Q/A och P/L för mål."
+      "keysHandball": "Tangenter: Mellanslag start/stopp, S utvisning A, K utvisning B, Q/A och P/L för mål.",
+      "rankingTitle": "Rubrik (t.ex. Juryns poäng)",
+      "minusOne": "Minus ett",
+      "highlight": "Markera",
+      "unhighlight": "Avmarkera",
+      "removeEntryConfirm": "Ta bort {name}?",
+      "entryName": "Ny deltagare",
+      "resetPoints": "Nollställ poängen",
+      "resetPointsConfirm": "Nollställa alla poäng?"
     },
     "owner": {
       "kinds": {
         "score": "Poängtavla",
         "pingis": "Pingis",
         "lower": "Namnskylt",
-        "handball": "Handboll"
+        "handball": "Handboll",
+        "ranking": "Poängtabell"
       },
       "kind": "Typ",
       "name": "Namn",

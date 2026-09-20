@@ -748,14 +748,23 @@
       "suspendA": "Suspension side A",
       "suspendB": "Suspension side B",
       "endSuspension": "End the suspension",
-      "keysHandball": "Keys: Space start/stop, S suspension A, K suspension B, Q/A and P/L for goals."
+      "keysHandball": "Keys: Space start/stop, S suspension A, K suspension B, Q/A and P/L for goals.",
+      "rankingTitle": "Heading (e.g. The jury points)",
+      "minusOne": "Minus one",
+      "highlight": "Highlight",
+      "unhighlight": "Remove highlight",
+      "removeEntryConfirm": "Remove {name}?",
+      "entryName": "New entry",
+      "resetPoints": "Reset the points",
+      "resetPointsConfirm": "Reset all points?"
     },
     "owner": {
       "kinds": {
         "score": "Scoreboard",
         "pingis": "Table tennis",
         "lower": "Name bar",
-        "handball": "Handball"
+        "handball": "Handball",
+        "ranking": "Leaderboard"
       },
       "kind": "Type",
       "name": "Name",

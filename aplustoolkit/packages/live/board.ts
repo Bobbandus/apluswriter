@@ -1,18 +1,19 @@
 import { applyHandball, defaultHandball, type HandballAction } from './handball';
 import { applyLower, defaultLower, type LowerAction } from './lower';
 import { applyPingis, defaultPingis, type PingisAction } from './pingis';
+import { applyRanking, defaultRanking, type RankingAction } from './ranking';
 import { applyScore, defaultScore, type ScoreAction } from './score';
-import type { BoardKind, BoardState, HandballState, LowerState, PingisState, ScoreState } from './types';
+import type { BoardKind, BoardState, HandballState, LowerState, PingisState, RankingState, ScoreState } from './types';
 
 /**
  * What a board's state is, whatever kind it is. The database holds it as JSON that anyone with the control
  * link could have written, so it is read through `normalizeState`, which never trusts its shape.
  */
 
-export type LiveAction = ScoreAction | PingisAction | HandballAction | LowerAction;
+export type LiveAction = ScoreAction | PingisAction | HandballAction | RankingAction | LowerAction;
 
 export function defaultState(kind: BoardKind): BoardState {
-  return kind === 'pingis' ? defaultPingis() : kind === 'handball' ? defaultHandball() : kind === 'lower' ? defaultLower() : defaultScore();
+  return kind === 'pingis' ? defaultPingis() : kind === 'handball' ? defaultHandball() : kind === 'ranking' ? defaultRanking() : kind === 'lower' ? defaultLower() : defaultScore();
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -70,6 +71,13 @@ export function normalizeState(kind: BoardKind, raw: unknown): BoardState {
     } satisfies PingisState;
   }
 
+  if (kind === 'ranking') {
+    const entries = Array.isArray(source['entries'])
+      ? source['entries'].filter(isObject).slice(0, 30).map((entry) => ({ name: str(entry['name'], '', 40), points: int(entry['points'], 0, 0, 9999), color: str(entry['color'], '', 64) }))
+      : defaultRanking().entries;
+    return { title: str(source['title'], '', 60), entries, highlight: int(source['highlight'], -1, -1, Math.max(-1, entries.length - 1)) } satisfies RankingState;
+  }
+
   const items = Array.isArray(source['items'])
     ? source['items'].filter(isObject).slice(0, 200).map((item) => ({ title: str(item['title'], '', 80), subtitle: str(item['subtitle'], '', 120) }))
     : defaultLower().items;
@@ -84,6 +92,7 @@ export function normalizeState(kind: BoardKind, raw: unknown): BoardState {
 export function applyAction(kind: BoardKind, state: BoardState, action: LiveAction): BoardState {
   if (kind === 'score') return applyScore(state as ScoreState, action as ScoreAction);
   if (kind === 'handball') return applyHandball(state as HandballState, action as HandballAction);
+  if (kind === 'ranking') return applyRanking(state as RankingState, action as RankingAction);
   if (kind === 'pingis') return applyPingis(state as PingisState, action as PingisAction);
   return applyLower(state as LowerState, action as LowerAction);
 }

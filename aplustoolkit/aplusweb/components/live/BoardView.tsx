@@ -4,7 +4,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { gamesToWin } from '@aplus/live/pingis';
 import { isColor, themeToCss, type Theme } from '@aplus/live/theme';
 import { handballView } from '@aplus/live/handball';
-import type { BoardKind, BoardState, HandballState, LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import { standings } from '@aplus/live/ranking';
+import type { BoardKind, BoardState, HandballState, LowerState, PingisState, RankingState, ScoreState, Side } from '@aplus/live/types';
 import { useTranslations } from 'next-intl';
 import { useNow } from '@/lib/live/useNow';
 import type { Position } from '@/lib/live/position';
@@ -77,6 +78,8 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
 
   if (kind === 'lower') {
     content = <LowerBlock state={state as LowerState} theme={theme} />;
+  } else if (kind === 'ranking') {
+    content = <Ranking state={state as RankingState} />;
   } else if (kind === 'pingis') {
     content = <BroadcastPingis state={state as PingisState} winnerLabel={winnerLabel} />;
   } else if (theme.design === 'bars') {
@@ -392,6 +395,38 @@ function Penalized({ penalties, children }: { penalties: { a: string[]; b: strin
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ ranking (a jury round, a leaderboard) */
+
+const RANK_ROW = 64;
+
+function Ranking({ state }: { state: RankingState }) {
+  const rows = standings(state).slice(0, 12);
+  const top = Math.max(1, ...state.entries.map((entry) => entry.points));
+  return (
+    <div className={styles.rank}>
+      <div className={styles.rankTitle}>{state.title}</div>
+      <div className={styles.rankBody} style={{ height: rows.length * RANK_ROW }}>
+        {rows.map((row, position) => (
+          <div
+            key={row.index}
+            className={`${styles.rankRow} ${state.highlight === row.index ? styles.rankOn : ''}`}
+            style={{ top: position * RANK_ROW, '--bar': isColor(row.color) ? row.color : 'var(--lv-accent)', '--w': `${Math.round((row.points / top) * 100)}%` } as CSSProperties}
+          >
+            <span className={styles.rankPlace}>{row.place}</span>
+            <span className={styles.rankName}>{row.name}</span>
+            <span className={styles.rankBar}>
+              <span />
+            </span>
+            <span className={styles.rankPoints}>
+              <Num value={row.points} />
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

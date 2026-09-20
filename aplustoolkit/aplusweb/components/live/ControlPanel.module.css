@@ -247,3 +247,46 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-ring);
 }
+
+.rankItem {
+  display: grid;
+  grid-template-columns: minmax(120px, 200px) 56px 1fr;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line);
+}
+
+.rankItem[data-on='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
+.rankPointsBox {
+  font-family: var(--font-black);
+  font-size: var(--t-xl);
+  text-align: center;
+}
+
+.rankButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+}
+
+.rankButtons .btn {
+  min-height: 40px;
+  padding: 0 var(--s-3);
+}
+
+@media (max-width: 640px) {
+  .rankItem {
+    grid-template-columns: 1fr 56px;
+  }
+
+  .rankButtons {
+    grid-column: 1 / -1;
+  }
+}

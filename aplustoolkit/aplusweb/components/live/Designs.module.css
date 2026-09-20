@@ -763,3 +763,90 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 }
+
+/* ------------------------------------------------------------------ ranking */
+
+.rank {
+  width: 820px;
+  box-shadow: var(--lv-shadow);
+  border-radius: var(--lv-radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--lv-primary), var(--lv-tertiary));
+}
+
+.rankTitle {
+  padding: 12px 24px;
+  background: var(--lv-secondary);
+  border-bottom: 4px solid var(--lv-accent);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rankBody {
+  position: relative;
+  transition: height 0.5s ease;
+}
+
+.rankRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: grid;
+  grid-template-columns: 76px 1fr 230px 110px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  transition:
+    top 0.75s cubic-bezier(0.2, 0.85, 0.2, 1),
+    background 0.3s ease;
+}
+
+.rankOn {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 6px 0 0 var(--lv-accent);
+}
+
+.rankPlace {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankName {
+  padding: 0 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 34px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.rankBar {
+  height: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.rankBar span {
+  display: block;
+  width: var(--w);
+  height: 100%;
+  background: var(--bar);
+  box-shadow: 0 0 14px var(--bar);
+  transition: width 0.75s cubic-bezier(0.2, 0.85, 0.2, 1);
+}
+
+.rankPoints {
+  padding-right: 22px;
+  text-align: right;
+  font-size: 40px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

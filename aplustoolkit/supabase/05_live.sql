@@ -36,7 +36,7 @@ create table if not exists public.live_boards (
 
 -- The kinds are checked here rather than inline, so a later version can add one and re-run this file.
 alter table public.live_boards drop constraint if exists live_boards_kind_check;
-alter table public.live_boards add constraint live_boards_kind_check check (kind in ('score', 'pingis', 'handball', 'lower'));
+alter table public.live_boards add constraint live_boards_kind_check check (kind in ('score', 'pingis', 'handball', 'ranking', 'lower'));
 
 create index if not exists live_boards_owner_idx on public.live_boards (owner_id) where deleted_at is null;
 

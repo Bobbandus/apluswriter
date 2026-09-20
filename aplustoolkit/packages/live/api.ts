@@ -17,6 +17,7 @@ export const API_NAMES: Record<BoardKind, string[]> = {
   score: ['a-plus', 'a-minus', 'b-plus', 'b-minus', 'swap', 'reset'],
   pingis: ['point-a', 'point-b', 'undo', 'next-game'],
   handball: ['a-plus', 'a-minus', 'b-plus', 'b-minus', 'clock-start', 'clock-stop', 'suspend-a', 'suspend-b', 'half-1', 'half-2'],
+  ranking: ['reset-points', 'highlight-none', 'highlight-1', 'highlight-2', 'highlight-3'],
   lower: ['show', 'hide', 'next', 'prev', 'show-1', 'show-2', 'show-3'],
 };
 
@@ -50,6 +51,13 @@ export function actionForName(kind: BoardKind, rawName: string, now: number): Li
     if (name === 'undo') return { type: 'undo' };
     if (name === 'next-game') return { type: 'nextGame' };
     return null;
+  }
+
+  if (kind === 'ranking') {
+    if (name === 'reset-points') return { type: 'resetPoints' };
+    if (name === 'highlight-none') return { type: 'highlight', index: -1 };
+    const pick = /^highlight-(\d{1,2})$/.exec(name);
+    return pick && Number(pick[1]) >= 1 ? { type: 'highlight', index: Number(pick[1]) - 1 } : null;
   }
 
   if (name === 'show') return { type: 'show' };

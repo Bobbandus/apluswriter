@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { LiveAction } from '@aplus/live/board';
 import { clockText, elapsedMs, penaltiesLeft } from '@aplus/live/handball';
-import type { HandballState, LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import type { HandballState, LowerState, PingisState, RankingState, ScoreState, Side } from '@aplus/live/types';
 import { useNow } from '@/lib/live/useNow';
 import { useLiveBoard, type LiveBoard, type LiveStatus } from '@/lib/live/useLiveBoard';
 import { BoardView } from './BoardView';
@@ -49,6 +49,7 @@ function Controls({ board, apply }: { board: LiveBoard; apply: (action: LiveActi
   if (board.kind === 'score') return <ScoreControls state={board.state as ScoreState} apply={apply} />;
   if (board.kind === 'pingis') return <PingisControls state={board.state as PingisState} apply={apply} />;
   if (board.kind === 'handball') return <HandballControls state={board.state as HandballState} apply={apply} />;
+  if (board.kind === 'ranking') return <RankingControls state={board.state as RankingState} apply={apply} />;
   return <LowerControls state={board.state as LowerState} apply={apply} />;
 }
 
@@ -327,6 +328,66 @@ function HandballControls({ state, apply }: { state: HandballState; apply: (acti
       </div>
       <ScoreControls state={state} apply={apply} textClock={false} />
       <p className={styles.hint}>{t('keysHandball')}</p>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ ranking */
+
+const QUICK_POINTS = [1, 2, 3, 5, 8, 10, 12] as const;
+
+function RankingControls({ state, apply }: { state: RankingState; apply: (action: LiveAction) => void }) {
+  const t = useTranslations('live.control');
+  const [name, setName] = useState('');
+
+  return (
+    <>
+      <CommitField className={styles.field} value={state.title} placeholder={t('rankingTitle')} label={t('rankingTitle')} onCommit={(text) => apply({ type: 'title', text })} />
+
+      <ol className={styles.queue}>
+        {state.entries.map((entry, index) => (
+          <li key={index} className={styles.rankItem} data-on={state.highlight === index}>
+            <CommitField className={styles.sideName} value={entry.name} label={t('name')} onCommit={(next) => apply({ type: 'renameEntry', index, name: next })} />
+            <span className={styles.rankPointsBox}>{entry.points}</span>
+            <span className={styles.rankButtons}>
+              {QUICK_POINTS.map((by) => (
+                <button key={by} type="button" className={styles.btn} onClick={() => apply({ type: 'points', index, by })}>
+                  +{by}
+                </button>
+              ))}
+              <button type="button" className={styles.btn} onClick={() => apply({ type: 'points', index, by: -1 })} aria-label={t('minusOne')}>
+                −1
+              </button>
+              <button type="button" className={styles.btn} onClick={() => apply({ type: 'highlight', index: state.highlight === index ? -1 : index })}>
+                {state.highlight === index ? t('unhighlight') : t('highlight')}
+              </button>
+              <button type="button" className={styles.btn} onClick={() => window.confirm(t('removeEntryConfirm', { name: entry.name })) && apply({ type: 'removeEntry', index })} aria-label={t('remove')}>
+                ×
+              </button>
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <form
+        className={styles.add}
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (name.trim()) apply({ type: 'addEntry', name });
+          setName('');
+        }}
+      >
+        <input className={styles.field} value={name} onChange={(event) => setName(event.target.value)} placeholder={t('entryName')} aria-label={t('entryName')} />
+        <span />
+        <button type="submit" className={styles.btn}>
+          {t('add')}
+        </button>
+      </form>
+      <div className={styles.row}>
+        <button type="button" className={styles.btn} onClick={() => window.confirm(t('resetPointsConfirm')) && apply({ type: 'resetPoints' })}>
+          {t('resetPoints')}
+        </button>
+      </div>
     </>
   );
 }
