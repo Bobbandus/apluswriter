@@ -121,9 +121,15 @@
 /* Below tablet width the side panes become overlays rather than columns,
    so the page keeps its full measure. */
 @media (max-width: 900px) {
+  /* Every state that sets columns above has to be named here, the combined one
+     included. It has two classes, so it outranks the single-class rules and,
+     left out, kept a three-column template under a one-column area map — which
+     gave the page a column of zero width whenever both panes were closed. On a
+     phone that was a blank screen. */
   .workspace,
   .sidebarClosed,
-  .inspectorClosed {
+  .inspectorClosed,
+  .sidebarClosed.inspectorClosed {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       'titlebar'
