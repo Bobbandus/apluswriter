@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { Archivo, Archivo_Black, Courier_Prime, Inter, Space_Mono } from 'next/font/google';
-import { THEME_COOKIE, defaultTheme, isTheme } from '@/lib/theme';
+import { THEME_COOKIE, defaultTheme, isTheme, resolveTheme } from '@/lib/theme';
 import '@/styles/globals.css';
 
 /* Interface type. `next/font` downloads and self-hosts these at build time —
@@ -62,6 +62,8 @@ export const viewport: Viewport = {
   ],
 };
 
+const THEME_SCRIPT = `(function(){var d=document.documentElement,m=window.matchMedia("(prefers-color-scheme: dark)");function s(){if(d.dataset.themePref==="system")d.dataset.theme=m.matches?"dark":"light"}s();m.addEventListener("change",s)})()`;
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [locale, messages, store] = await Promise.all([getLocale(), getMessages(), cookies()]);
 
@@ -77,8 +79,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   ].join(' ');
 
   return (
-    <html lang={locale} data-theme={theme} className={fontVars} suppressHydrationWarning>
+    <html lang={locale} data-theme={resolveTheme(theme, true)} data-theme-pref={theme} className={fontVars} suppressHydrationWarning>
       <body>
+        {/* "System" cannot be known on the server, so it is settled before first paint and kept in step with the OS. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>

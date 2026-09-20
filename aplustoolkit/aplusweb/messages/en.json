@@ -385,8 +385,6 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeMidnight": "Midnight",
-    "themeMidnightHint": "True black. For late nights.",
     "accent": "Accent color",
     "pageSize": "Paper size",
     "pageSizeA4": "A4",
@@ -406,7 +404,9 @@
     "mirrorChoose": "Choose folder",
     "mirrorOff": "Turn off",
     "renderNotes": "Render notes",
-    "renderNotesHint": "Off shows raw Fountain: the brackets stay visible and nothing is hidden."
+    "renderNotesHint": "Off shows raw Fountain: the brackets stay visible and nothing is hidden.",
+    "themeSystem": "System",
+    "themeSystemHint": "Follows your system light or dark."
   },
   "auth": {
     "signIn": "Sign in",

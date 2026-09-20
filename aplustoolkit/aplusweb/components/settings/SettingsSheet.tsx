@@ -37,7 +37,7 @@ export interface SettingsSheetProps {
 const THEME_SWATCHES: Record<Theme, { sidebar: string; canvas: string; page: string; edge: string }> = {
   light: { sidebar: '#ececed', canvas: '#dededf', page: '#ffffff', edge: 'rgba(0,0,0,0.12)' },
   dark: { sidebar: '#17171c', canvas: '#0f0f12', page: '#f7f5f0', edge: 'rgba(0,0,0,0.5)' },
-  midnight: { sidebar: '#060607', canvas: '#000000', page: '#000000', edge: '#1a1a20' },
+  system: { sidebar: '#c9c9d0', canvas: '#3a3a42', page: '#f7f5f0', edge: 'rgba(0,0,0,0.3)' },
 };
 
 export function SettingsSheet({
@@ -68,7 +68,7 @@ export function SettingsSheet({
   // The server already set `data-theme`; read it back rather than keeping a
   // second copy of the truth in React state.
   useEffect(() => {
-    const current = document.documentElement.dataset['theme'];
+    const current = document.documentElement.dataset['themePref'] ?? document.documentElement.dataset['theme'];
     if (isTheme(current)) setTheme(current);
   }, [open]);
 
@@ -118,9 +118,8 @@ export function SettingsSheet({
                   role="radio"
                   aria-checked={theme === name}
                   className={styles.themeOption}
-                  // Only Midnight needs explaining — the other two are what
-                  // their swatch shows.
-                  title={name === 'midnight' ? t('themeMidnightHint') : undefined}
+                  // Only System needs explaining — the other two are what their swatch shows.
+                  title={name === 'system' ? t('themeSystemHint') : undefined}
                   onClick={() => onThemeChange(name)}
                 >
                   <span className={styles.swatch} style={vars} aria-hidden="true">
@@ -134,7 +133,7 @@ export function SettingsSheet({
                       ? t('themeLight')
                       : name === 'dark'
                         ? t('themeDark')
-                        : t('themeMidnight')}
+                        : t('themeSystem')}
                   </span>
                 </button>
               );

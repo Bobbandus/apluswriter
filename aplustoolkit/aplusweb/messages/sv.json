@@ -385,8 +385,6 @@
     "theme": "Tema",
     "themeLight": "Ljust",
     "themeDark": "Mörkt",
-    "themeMidnight": "Midnatt",
-    "themeMidnightHint": "Helsvart. För sena nätter.",
     "accent": "Accentfärg",
     "pageSize": "Pappersstorlek",
     "pageSizeA4": "A4",
@@ -406,7 +404,9 @@
     "mirrorChoose": "Välj mapp",
     "mirrorOff": "Stäng av",
     "renderNotes": "Visa anteckningar formaterade",
-    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs."
+    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs.",
+    "themeSystem": "System",
+    "themeSystemHint": "Följer Windows ljust eller mörkt."
   },
   "auth": {
     "signIn": "Logga in",

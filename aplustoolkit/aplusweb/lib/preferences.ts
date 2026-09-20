@@ -1,7 +1,7 @@
 'use client';
 
 import { LOCALE_COOKIE, LOCALE_COOKIE_MAX_AGE, type Locale } from '@/i18n/config';
-import { THEME_COOKIE, THEME_COOKIE_MAX_AGE, type Theme } from '@/lib/theme';
+import { THEME_COOKIE, THEME_COOKIE_MAX_AGE, resolveTheme, type Theme } from '@/lib/theme';
 
 /**
  * Preferences the server has to know about on the very first render.
@@ -24,7 +24,8 @@ function writeCookie(name: string, value: string, maxAge: number): void {
  * re-render feels broken.
  */
 export function applyTheme(theme: Theme): void {
-  document.documentElement.dataset['theme'] = theme;
+  document.documentElement.dataset['themePref'] = theme;
+  document.documentElement.dataset['theme'] = resolveTheme(theme, window.matchMedia('(prefers-color-scheme: dark)').matches);
   writeCookie(THEME_COOKIE, theme, THEME_COOKIE_MAX_AGE);
 }
 

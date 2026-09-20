@@ -209,63 +209,6 @@
 }
 
 /* ==========================================================================
-   THEME: MIDNIGHT
-   True-black writing mode. The paper metaphor is dropped entirely — the page
-   is black too, so there is no bright rectangle at 3am. Text steps down from
-   pure white to reduce halation on OLED.
-   ========================================================================== */
-[data-theme='midnight'] {
-  color-scheme: dark;
-
-  --bg-app: #000000;
-  --bg-sidebar: #060607;
-  --bg-raised: #0d0d10;
-  --bg-raised-hover: #15151a;
-  --bg-sunken: #000000;
-  --bg-canvas: #000000;
-
-  --text: #d8d8d2;
-  --text-muted: #7c7c86;
-  --text-faint: #4e4e58;
-  --text-inverse: #000000;
-
-  --line: #1a1a20;
-  --line-strong: #2a2a32;
-  --line-faint: #121218;
-
-  --accent: var(--brand-blue);
-  --accent-text: var(--brand-blue);
-  --accent-ink: var(--brand-blue-ink);
-  --accent-soft: rgba(92, 180, 242, 0.12);
-  --accent-ring: rgba(92, 180, 242, 0.45);
-
-  --flare: var(--brand-flare);
-  --flare-soft: rgba(255, 75, 62, 0.12);
-  --gold: var(--brand-gold);
-  --gold-soft: rgba(255, 206, 63, 0.12);
-
-  /* No paper. The page is the void. */
-  --page-bg: #000000;
-  --page-ink: #d8d8d2;
-  --page-ink-muted: #6a6a74;
-  --page-edge: #1a1a20;
-  --page-shadow: none;
-
-  --glass-bg: rgba(255, 255, 255, 0.035);
-  --glass-bg-strong: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: saturate(150%) blur(18px);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.8);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.9);
-
-  --selection-bg: rgba(92, 180, 242, 0.24);
-  --grain-opacity: 0;
-}
-
-/* ==========================================================================
    Production revision colours
    The industry sequence, in order. Used for revision chips and page stock.
    ========================================================================== */
