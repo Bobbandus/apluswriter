@@ -6,6 +6,7 @@ import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { Titlebar } from './Titlebar';
 import type { SaveState } from './SaveStatus';
+import { FocusModeContext } from './FocusModeContext';
 import styles from './Workspace.module.css';
 
 const SIDEBAR_MIN = 200;
@@ -58,6 +59,8 @@ export function Workspace({
   const [inspectorOpen, setInspectorOpen] = usePersistentState('aplus.ui.inspectorOpen', true);
   const [sidebarWidth, setSidebarWidth] = usePersistentState('aplus.ui.sidebarWidth', 268);
   const [focusMode, setFocusMode] = useState(false);
+  // In focus mode the titlebar fades out and comes back when the pointer nears the top edge.
+  const [edgeHover, setEdgeHover] = useState(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -125,6 +128,16 @@ export function Workspace({
     return () => window.removeEventListener('keydown', onKey);
   }, [focusMode]);
 
+  useEffect(() => {
+    if (!focusMode) {
+      setEdgeHover(false);
+      return;
+    }
+    const onMove = (event: PointerEvent) => setEdgeHover(event.clientY < 56);
+    window.addEventListener('pointermove', onMove);
+    return () => window.removeEventListener('pointermove', onMove);
+  }, [focusMode]);
+
   /* --------------------------------------------------------------- render */
 
   const showSidebar = sidebarOpen && !focusMode;
@@ -135,6 +148,8 @@ export function Workspace({
     !showSidebar && styles.sidebarClosed,
     !showInspector && styles.inspectorClosed,
     focusMode && styles.focusMode,
+    // A save that failed is the one thing focus mode may not hide.
+    focusMode && (edgeHover || saveState === 'error' || saveState === 'conflict') && styles.chromeShown,
     dragging && styles.resizing,
     showSidebar && styles.sidebarOpenMobile,
     showInspector && styles.inspectorOpenMobile,
@@ -195,7 +210,7 @@ export function Workspace({
         <a href="#script" className="srOnly">
           {t('skipToEditor')}
         </a>
-        {children}
+        <FocusModeContext.Provider value={focusMode}>{children}</FocusModeContext.Provider>
       </main>
 
       <aside

@@ -105,9 +105,20 @@
 /* ------------------------------------------------------------ focus mode */
 
 /* Focus mode collapses the chrome to nothing but the page. The titlebar stays
-   mounted — it holds the save status, which is never hidden. */
+   mounted, so it can come back the moment the pointer nears the top edge or a
+   save fails, but it is invisible until then. */
 .focusMode {
   grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+.focusMode > header {
+  opacity: 0;
+  transition: opacity var(--dur-mid) var(--ease-out);
+}
+
+.focusMode.chromeShown > header,
+.focusMode > header:focus-within {
+  opacity: 1;
 }
 
 .focusMode .sidebar,
