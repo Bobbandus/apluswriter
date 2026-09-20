@@ -37,6 +37,7 @@ import { WritingPill } from '@/components/writing/WritingPill';
 import { useWritingStats } from '@/lib/hooks/useWritingStats';
 import { TimelineSheet } from '@/components/timeline/TimelineSheet';
 import { sceneNoteEdit } from '@aplus/bridge/apply';
+import { useMirror } from '@/lib/hooks/useMirror';
 import { FindReplace } from '@/components/find/FindReplace';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import type { Command } from '@/lib/commands';
@@ -403,6 +404,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   }, [hydrated, pageCount, sceneCount]);
 
   const writing = useWritingStats(projectId, source, hydrated);
+  const mirror = useMirror(projectId, doc.meta?.title ?? '', source, hydrated);
   const [passResult, setPassResult] = useState<{ minutes: number; words: number } | null>(null);
   useEffect(() => {
     if (!passResult) return;
@@ -690,6 +692,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onCardsChange={setCardsEnabled}
         styleGuide={styleGuide}
         onStyleGuideChange={setStyleGuide}
+        mirror={mirror}
       />
       <RevisionMenu
         open={versionsOpen}

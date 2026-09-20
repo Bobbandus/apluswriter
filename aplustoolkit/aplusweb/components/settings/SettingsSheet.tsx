@@ -29,6 +29,8 @@ export interface SettingsSheetProps {
   /** The writer's own note on how this script should sound. */
   styleGuide: string;
   onStyleGuideChange: (next: string) => void;
+  /** Copies to `.fountain` files in a folder. Only the desktop app can; elsewhere `available` is false. */
+  mirror?: { available: boolean; folder: string | null; choose: () => void; clear: () => void };
 }
 
 /** The colours each theme's miniature is painted in — read from the tokens. */
@@ -49,6 +51,7 @@ export function SettingsSheet({
   onCardsChange,
   styleGuide,
   onStyleGuideChange,
+  mirror,
 }: SettingsSheetProps) {
   const t = useTranslations('settings');
   const tAssistant = useTranslations('assistant');
@@ -242,6 +245,25 @@ export function SettingsSheet({
               <Button variant="secondary" size="sm" icon="sparkle" onClick={() => void desktopApi.setupClaude?.()}>
                 {tAssistant('connectClaudeButton')}
               </Button>
+            </div>
+          </div>
+        )}
+
+        {mirror?.available && (
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
+              <p className={styles.fieldLabel}>{t('mirror')}</p>
+              <p className={styles.fieldHint}>{mirror.folder ? t('mirrorOn', { folder: mirror.folder }) : t('mirrorHint')}</p>
+            </div>
+            <div className={styles.fieldControl}>
+              <Button variant="secondary" size="sm" onClick={mirror.choose}>
+                {t('mirrorChoose')}
+              </Button>
+              {mirror.folder && (
+                <Button variant="ghost" size="sm" onClick={mirror.clear}>
+                  {t('mirrorOff')}
+                </Button>
+              )}
             </div>
           </div>
         )}

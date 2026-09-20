@@ -23,6 +23,7 @@ const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const claude = require('./claudeConfig.cjs');
+const { mirrorScript } = require('./mirror.cjs');
 
 const sv = (app.getLocale() || 'en').toLowerCase().startsWith('sv');
 const say = (swedish, english) => (sv ? swedish : english);
@@ -236,6 +237,48 @@ async function saveFile(name, bytes) {
   if (result.canceled || !result.filePath) return false;
   fs.writeFileSync(result.filePath, Buffer.from(bytes));
   return true;
+}
+
+/* ------------------------------------------------------------- mirroring
+   Scripts copied, one way, to .fountain files in a folder the person picked.
+   The page can ask for the folder to be chosen or cleared and hand over text;
+   it never names a path (see mirror.cjs). */
+
+const mirrorSettings = () => path.join(app.getPath('userData'), 'mirror.json');
+
+function mirrorFolder() {
+  try {
+    const { folder } = JSON.parse(fs.readFileSync(mirrorSettings(), 'utf8'));
+    return typeof folder === 'string' && fs.statSync(folder).isDirectory() ? folder : null;
+  } catch {
+    return null;
+  }
+}
+
+function setMirrorFolder(folder) {
+  fs.writeFileSync(mirrorSettings(), JSON.stringify({ folder }), 'utf8');
+}
+
+async function chooseMirrorFolder() {
+  const result = await dialog.showOpenDialog(win, {
+    properties: ['openDirectory', 'createDirectory'],
+    defaultPath: mirrorFolder() ?? app.getPath('documents'),
+  });
+  if (result.canceled || !result.filePaths[0]) return mirrorFolder();
+  setMirrorFolder(result.filePaths[0]);
+  return result.filePaths[0];
+}
+
+/** Writes one script's copy. Never throws to the page: a failed copy must not interrupt writing. */
+function writeMirror(id, title, text) {
+  const folder = mirrorFolder();
+  if (!folder || typeof id !== 'string' || typeof text !== 'string') return null;
+  try {
+    return mirrorScript(folder, id, typeof title === 'string' ? title : '', text);
+  } catch (error) {
+    console.warn('Mirroring failed:', error && error.message);
+    return null;
+  }
 }
 
 /**
@@ -573,6 +616,13 @@ if (!app.requestSingleInstanceLock()) {
   ipcMain.handle('aplus:bridgeInfo', () => bridgeInfo());
   ipcMain.handle('aplus:saveFile', (_event, name, bytes) => saveFile(String(name), bytes));
   ipcMain.handle('aplus:setupClaude', () => connectClaude());
+  ipcMain.handle('aplus:mirrorFolder', () => mirrorFolder());
+  ipcMain.handle('aplus:mirrorChoose', () => chooseMirrorFolder());
+  ipcMain.handle('aplus:mirrorClear', () => {
+    setMirrorFolder(null);
+    return null;
+  });
+  ipcMain.handle('aplus:mirrorWrite', (_event, id, title, text) => writeMirror(id, title, text));
 
   app.on('before-quit', stopServer);
   app.on('will-quit', stopServer);
