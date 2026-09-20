@@ -83,6 +83,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 **Fas 7 — Putsning** efter varje fas (skärmdumpar Ljust/Mörkt/Midnatt, desktop + mobil).
   - Gjort: accent himmelsblå (`--brand-blue` i `styles/tokens.css`), vinröd för Shoot/Live via `data-tool`; titelraden utan fokusknapp (Ctrl+Skift+F finns kvar) och utan versionspill tills en version finns (Ctrl+K → versioner); sparstatus bara en prick när allt är sparat; inspektorn utan rollknapp och med en rad i stället för faktarutan; dashboardens inloggningsrad kan stängas.
+  - Lock-in (användaren godkände alla förslagen): klart = fokusläget (Ctrl+Skift+F) dämpar allt utom stycket, håller markörraden mitt i bild (typewriter) och tonar ut titelraden tills musen når övre kanten; Ctrl+Skift+↑/↓ flyttar scenen markören står i. Kvar: Ctrl+Skift+N snabbanteckning (`[[todo:]]`), ctrl+P/scenhopp överst i paletten, "Fortsätt skriva" på dashboarden, val av dämpning (stycke/scen/av) och typewriter alltid/bara i fokus, öppna alltid i fokusläge som inställning, ren text-tema utan pappersyta, Claude-fliken utan avbrott (redan bara en prick), Tab mellan elementtyper (kolla att elementFlow gör det).
   - Kvar (användarens val: mellan måttligt och hårt, aldrig för mycket på skärmen): skärmdumpsgenomgång i Ljust/Midnatt och mobil, ark (samma layout i export/titelsida/sök/tidslinje/inställningar), navigatorn, elementraden över sidan (överlappar sidan i smal bredd), Gemini-rester av inline-stilar.
 
 **Därefter:** Plan → Produktion, Casting, Live, realtid. Beredskapsanalysen ("Are we ready?") står i `PLAN.md` §5c.
