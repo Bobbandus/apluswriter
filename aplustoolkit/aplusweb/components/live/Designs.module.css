@@ -199,7 +199,14 @@
 }
 
 .cellSets {
-  background: linear-gradient(180deg, var(--lv-secondary), color-mix(in srgb, var(--lv-secondary) 78%, #000));
+  background: var(--lv-secondary);
+}
+
+/* Older OBS browser sources have no color-mix, and a rule that uses it inside var() would leave the box empty. */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .cellSets {
+    background: linear-gradient(180deg, var(--lv-secondary), color-mix(in srgb, var(--lv-secondary) 78%, #000));
+  }
 }
 
 .cellPoints {
@@ -619,7 +626,7 @@
   align-items: center;
   gap: 14px;
   padding: 0 44px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--badge) 88%, #fff), var(--badge) 45%, color-mix(in srgb, var(--badge) 70%, #000));
+  background: var(--badge);
   font-size: 40px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -729,4 +736,10 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--lv-text);
+}
+
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .leagueEnd {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--badge) 88%, #fff), var(--badge) 45%, color-mix(in srgb, var(--badge) 70%, #000));
+  }
 }
