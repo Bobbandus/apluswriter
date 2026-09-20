@@ -38,6 +38,7 @@ import { useWritingStats } from '@/lib/hooks/useWritingStats';
 import { TimelineSheet } from '@/components/timeline/TimelineSheet';
 import { QuickNote } from '@/components/quicknote/QuickNote';
 import { quickNoteEdit } from '@/lib/quickNote';
+import { toggleDualEdit } from '@aplus/fountain/dual';
 import { TOGGLE_FOCUS_EVENT, useFocusPrefs } from '@/lib/focusPrefs';
 import { sceneNoteEdit } from '@aplus/bridge/apply';
 import { useMirror } from '@/lib/hooks/useMirror';
@@ -156,6 +157,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [toast, say] = useToast();
   const tAssistant = useTranslations('assistant');
   const tRevisions = useTranslations('revisions');
+  const tDual = useTranslations('dual');
   const tAlternatives = useTranslations('alternatives');
   const [element, setElement] = useState<LineType | null>(null);
   const editorRef = useRef<ScriptEditorHandle>(null);
@@ -253,6 +255,15 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     },
     [moveScene],
   );
+
+  /** Puts the speech the caret is in beside the one before it, or takes it away again. */
+  const toggleDual = useCallback(() => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const edit = toggleDualEdit(handle.getText(), handle.getSelection().from);
+    if (edit) handle.applyChanges([edit]);
+    else say(tDual('unavailable'));
+  }, [say, tDual]);
 
   const writeSynopsis = useCallback((scene: SceneIndexEntry, text: string, index: number) => {
     const handle = editorRef.current;
@@ -469,6 +480,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
       { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
       { id: 'timeline', label: tCommand('timeline'), group: tCommand('groupScript'), keywords: 'dag dagar energi kurva rytm story tidslinje', run: () => setTimelineOpen(true) },
+      { id: 'dual', label: tCommand('dual'), group: tCommand('groupElement'), keywords: 'dubbel dialog samtidigt två pratar', shortcut: 'mod+shift+d', run: toggleDual },
       { id: 'quickNote', label: tCommand('quickNote'), group: tCommand('groupScript'), keywords: 'todo anteckning notera påminnelse', shortcut: 'mod+shift+n', run: () => setQuickNoteOpen(true) },
       { id: 'focus', label: tCommand('focus'), group: tCommand('groupView'), keywords: 'fokus lock in zen ostörd', shortcut: 'mod+shift+f', run: () => window.dispatchEvent(new Event(TOGGLE_FOCUS_EVENT)) },
       ...(['paragraph', 'scene', 'off'] as const)
@@ -518,11 +530,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual],
   );
 
   useHotkeys({
     'mod+,': openSettings,
+    'mod+shift+d': () => view === 'script' && toggleDual(),
     'mod+shift+n': () => view === 'script' && setQuickNoteOpen(true),
     // Move the scene the caret is in, without leaving the keyboard.
     'mod+shift+arrowup': () => view === 'script' && moveCaretScene(-1),

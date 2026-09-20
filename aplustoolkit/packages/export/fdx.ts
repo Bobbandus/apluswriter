@@ -137,8 +137,30 @@ function titlePage(fields: TitlePageField[]): string {
   return `  <TitlePage>\n    <Content>\n${lines.join('\n')}\n    </Content>\n  </TitlePage>\n`;
 }
 
+/** Where one speech (a cue and its lines) sits in the list of paragraphs. */
+interface Speech {
+  start: number;
+  end: number;
+  dual: boolean;
+}
+
+/**
+ * Final Draft keeps two speeches that print side by side inside one `DualDialogue` wrapper.
+ * Each pair is folded into a single entry; walking from the end keeps the earlier indexes valid.
+ */
+function foldDual(body: string[], speeches: Speech[]): void {
+  for (let i = speeches.length - 1; i > 0; i--) {
+    const speech = speeches[i]!;
+    const before = speeches[i - 1]!;
+    if (!speech.dual || before.end !== speech.start) continue;
+    const inner = body.slice(before.start, speech.end).join('\n');
+    body.splice(before.start, speech.end - before.start, `    <Paragraph><DualDialogue>\n${inner}\n    </DualDialogue></Paragraph>`);
+  }
+}
+
 export function renderFdx(script: Script): string {
   const body: string[] = [];
+  const speeches: Speech[] = [];
 
   for (const element of script.elements) {
     switch (element.type) {
@@ -149,13 +171,16 @@ export function renderFdx(script: Script): string {
         body.push(...actionLines(element));
         break;
       case 'character':
+        speeches.push({ start: body.length, end: body.length + 1, dual: element.dual });
         body.push(paragraph('Character', oneLine([element.name, ...element.extensions].join(' '))));
         break;
       case 'dialogue':
         body.push(paragraph('Dialogue', oneLineRuns(runsOf(element))));
+        if (speeches.length > 0) speeches[speeches.length - 1]!.end = body.length;
         break;
       case 'parenthetical':
         body.push(paragraph('Parenthetical', oneLineRuns(runsOf(element))));
+        if (speeches.length > 0) speeches[speeches.length - 1]!.end = body.length;
         break;
       case 'transition':
         body.push(paragraph('Transition', oneLine(element.text)));
@@ -171,6 +196,8 @@ export function renderFdx(script: Script): string {
         break;
     }
   }
+
+  foldDual(body, speeches);
 
   return (
     `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n` +

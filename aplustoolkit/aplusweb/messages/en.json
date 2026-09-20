@@ -373,7 +373,8 @@
     },
     "startInFocusOn": "Always open in focus mode",
     "startInFocusOff": "Do not open in focus mode",
-    "plain": "Plain text: toggle the paper"
+    "plain": "Plain text: toggle the paper",
+    "dual": "Dual dialogue: toggle for this speech"
   },
   "settings": {
     "title": "Settings",
@@ -641,5 +642,8 @@
   "quickNote": {
     "placeholder": "A note for the current line … Enter saves",
     "label": "Quick note"
+  },
+  "dual": {
+    "unavailable": "Dual dialogue needs a speech directly before it."
   }
 }

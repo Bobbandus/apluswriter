@@ -32,6 +32,8 @@ interface Para {
   /** The same words with bold, italic and underline written as Fountain markup. */
   styled: string;
   number?: string;
+  /** The second speech of a Final Draft DualDialogue pair. */
+  dual?: boolean;
 }
 
 /**
@@ -60,6 +62,17 @@ function styledRun(text: string, style: string): string {
     .join('\n');
 }
 
+/**
+ * A DualDialogue wrapper holds whole paragraphs inside a paragraph, which would confuse the flat reading below.
+ * It is opened up in place, and the second cue of the pair is marked so it can be written with a `^`.
+ */
+function openDualDialogue(xml: string): string {
+  return xml.replace(/<Paragraph\b[^>]*>\s*<DualDialogue\b[^>]*>([\s\S]*?)<\/DualDialogue>\s*<\/Paragraph>/g, (_, inner: string) => {
+    let cues = 0;
+    return inner.replace(/<Paragraph\b([^>]*\bType="Character"[^>]*)>/g, (whole, attrs: string) => (++cues === 2 ? `<Paragraph${attrs} Dual="1">` : whole));
+  });
+}
+
 /** Every paragraph inside one chunk of the file, with its text runs joined. */
 function paragraphsIn(chunk: string): Para[] {
   const out: Para[] = [];
@@ -76,6 +89,7 @@ function paragraphsIn(chunk: string): Para[] {
       text: runs.map((run) => run.text).join(''),
       styled: runs.map((run) => styledRun(run.text, run.style)).join(''),
       ...(number ? { number: decode(number) } : {}),
+      ...(/\bDual="1"/.test(attrs) ? { dual: true } : {}),
     });
   }
   return out;
@@ -100,7 +114,7 @@ const readsAs = (block: string) => parse(block).elements.find((e) => e.type !== 
 export function fdxToFountain(xml: string): string {
   const titleChunk = /<TitlePage\b[^>]*>([\s\S]*?)<\/TitlePage>/.exec(xml)?.[1] ?? '';
   const body = xml.replace(/<TitlePage\b[\s\S]*?<\/TitlePage>/, '');
-  const paras = paragraphsIn(/<Content\b[^>]*>([\s\S]*)<\/Content>/.exec(body)?.[1] ?? body);
+  const paras = paragraphsIn(openDualDialogue(/<Content\b[^>]*>([\s\S]*)<\/Content>/.exec(body)?.[1] ?? body));
 
   const blocks: string[] = [];
   let dialogue: string[] | null = null;
@@ -116,7 +130,7 @@ export function fdxToFountain(xml: string): string {
       flush();
       if (!text) continue;
       // Mixed case would be read as action, so it is forced with @.
-      dialogue = [text === text.toUpperCase() ? text : `@${text}`];
+      dialogue = [`${text === text.toUpperCase() ? text : `@${text}`}${para.dual ? ' ^' : ''}`];
       continue;
     }
 

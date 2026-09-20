@@ -373,7 +373,8 @@
     },
     "startInFocusOn": "Öppna alltid i fokusläge",
     "startInFocusOff": "Öppna inte i fokusläge",
-    "plain": "Ren text: växla pappersyta av/på"
+    "plain": "Ren text: växla pappersyta av/på",
+    "dual": "Dubbeldialog: växla för repliken"
   },
   "settings": {
     "title": "Inställningar",
@@ -641,5 +642,8 @@
   "quickNote": {
     "placeholder": "Anteckning till nuvarande rad … Enter sparar",
     "label": "Snabbanteckning"
+  },
+  "dual": {
+    "unavailable": "Dubbeldialog kräver en replik direkt före."
   }
 }

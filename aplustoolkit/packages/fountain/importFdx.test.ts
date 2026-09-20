@@ -132,4 +132,21 @@ describe('Final Draft import', () => {
       ]);
     });
   });
+
+  describe('dual dialogue', () => {
+    it('marks the second speech of a DualDialogue with a caret', () => {
+      const speech = (cue: string, line: string) => p('Character', cue) + p('Dialogue', line);
+      const xml = wrap(p('Scene Heading', 'INT. A - DAG') + '<Paragraph><DualDialogue>' + speech('BRICK', 'Ett.') + speech('STEEL', 'Två.') + '</DualDialogue></Paragraph>' + speech('BRICK', 'Tre.'));
+      const out = fdxToFountain(xml);
+      expect(out).toContain('BRICK\nEtt.\n\nSTEEL ^\nTvå.\n\nBRICK\nTre.');
+      expect(parse(out).elements.filter((e) => e.type === 'character').map((e) => e.type === 'character' && e.dual)).toEqual([false, true, false]);
+    });
+
+    it('comes back as dual dialogue after an export and an import', () => {
+      const source = 'INT. A - DAG\n\nBRICK\nScrew retirement.\n\nSTEEL ^\nThey are coming.\n\nBRICK\nNästa.\n';
+      const back = parse(fdxToFountain(renderFdx(parse(source))));
+      expect(back.elements.filter((e) => e.type === 'character').map((e) => e.type === 'character' && e.dual)).toEqual([false, true, false]);
+      expect(back.elements.filter((e) => e.type === 'dialogue').map((e) => e.text)).toEqual(['Screw retirement.', 'They are coming.', 'Nästa.']);
+    });
+  });
 });

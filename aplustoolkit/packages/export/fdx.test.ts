@@ -113,4 +113,22 @@ describe('FDX export', () => {
     const xml = fdx('INT. A - DAG\n\n!DET *REGNAR*.');
     expect(xml).toContain('<Text>DET </Text><Text Style="Italic">REGNAR</Text><Text>.</Text>');
   });
+
+  describe('dual dialogue', () => {
+    const DUAL = 'INT. A - DAG\n\nBRICK\nScrew retirement.\n\nSTEEL ^\nThey are coming.\n\nBRICK\nNästa.\n';
+
+    it('wraps the two speeches that print side by side in a DualDialogue', () => {
+      const xml = fdx(DUAL);
+      expect(xml).toContain('<Paragraph><DualDialogue>');
+      const wrapped = xml.split('<DualDialogue>')[1]!.split('</DualDialogue>')[0]!;
+      expect(wrapped).toContain('BRICK');
+      expect(wrapped).toContain('STEEL');
+      expect(wrapped).not.toContain('Nästa');
+      expect((xml.match(/<DualDialogue>/g) ?? []).length).toBe(1);
+    });
+
+    it('leaves a script without dual dialogue as it was', () => {
+      expect(fdx('INT. A - DAG\n\nBRICK\nEtt.\n\nSTEEL\nTvå.\n')).not.toContain('DualDialogue');
+    });
+  });
 });
