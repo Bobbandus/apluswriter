@@ -67,7 +67,7 @@ function place(position: Position, scale: number): { outer: CSSProperties; inner
 /** The overlay for a board: its design, in its theme's paint, at 1920×1080. Pure drawing, no state of its own. */
 export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winnerLabel = 'Vinnare' }: BoardViewProps) {
   const t = useTranslations('live');
-  const running = kind === 'handball' && (state as HandballState).timer.since !== null;
+  const running = kind === 'handball' && ((state as HandballState).timer.since !== null || (state as HandballState).timeout !== null);
   const now = useNow(running);
   const vars = themeToCss(theme) as CSSProperties;
   // A handball board is drawn as a score, with the match clock as its clock and the suspensions beside it.
@@ -96,7 +96,13 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
     content = <BroadcastScore state={score} />;
   }
 
-  if (view && !full) content = <Penalized penalties={view.penalties}>{content}</Penalized>;
+  if (view && !full) {
+    content = (
+      <Penalized penalties={view.penalties} timeout={view.timeout ? { ...view.timeout, label: t('timeoutChip') } : null}>
+        {content}
+      </Penalized>
+    );
+  }
 
   if (full) {
     return (
@@ -381,13 +387,18 @@ function Ribbon({ item, hidden, animation }: { item: LowerState['items'][number]
 }
 
 /** The suspensions still running, as small chips under a panel. */
-function Penalized({ penalties, children }: { penalties: { a: string[]; b: string[] }; children: ReactNode }) {
+function Penalized({ penalties, timeout, children }: { penalties: { a: string[]; b: string[] }; timeout: { side: Side; left: string; label: string } | null; children: ReactNode }) {
   const chips = ([['a', penalties.a], ['b', penalties.b]] as const).flatMap(([side, list]) => list.map((left, index) => ({ side, left, key: side + index })));
   return (
     <div>
       {children}
-      {chips.length > 0 && (
+      {(chips.length > 0 || timeout) && (
         <div className={styles.penalties}>
+          {timeout && (
+            <span className={styles.penalty} style={{ '--badge': `var(${sideVar(timeout.side)})` } as CSSProperties}>
+              {timeout.label} · {timeout.left}
+            </span>
+          )}
           {chips.map((chip) => (
             <span key={chip.key} className={styles.penalty} style={{ '--badge': `var(${sideVar(chip.side)})` } as CSSProperties}>
               2 min · {chip.left}

@@ -16,7 +16,7 @@ const SIDES = { a: 'a', b: 'b' } as const;
 export const API_NAMES: Record<BoardKind, string[]> = {
   score: ['a-plus', 'a-minus', 'b-plus', 'b-minus', 'swap', 'reset'],
   pingis: ['point-a', 'point-b', 'undo', 'next-game'],
-  handball: ['a-plus', 'a-minus', 'b-plus', 'b-minus', 'clock-start', 'clock-stop', 'suspend-a', 'suspend-b', 'half-1', 'half-2'],
+  handball: ['a-plus', 'a-minus', 'b-plus', 'b-minus', 'clock-start', 'clock-stop', 'suspend-a', 'suspend-b', 'timeout-a', 'timeout-b', 'half-1', 'half-2'],
   ranking: ['reset-points', 'highlight-none', 'highlight-1', 'highlight-2', 'highlight-3'],
   lower: ['show', 'hide', 'next', 'prev', 'show-1', 'show-2', 'show-3'],
 };
@@ -40,6 +40,9 @@ export function actionForName(kind: BoardKind, rawName: string, now: number): Li
     if (name === 'clock-stop') return { type: 'stop', at: now };
     const suspension = /^suspend-([ab])$/.exec(name);
     if (suspension) return { type: 'suspend', side: SIDES[suspension[1] as 'a' | 'b'], at: now };
+    const timeout = /^timeout-([ab])$/.exec(name);
+    if (timeout) return { type: 'timeout', side: SIDES[timeout[1] as 'a' | 'b'], at: now };
+    if (name === 'timeout-end') return { type: 'endTimeout' };
     const half = /^half-([1-4])$/.exec(name);
     if (half) return { type: 'period', period: Number(half[1]) as 1 | 2 | 3 | 4 };
     return null;

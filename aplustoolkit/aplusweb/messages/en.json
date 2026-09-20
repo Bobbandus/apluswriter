@@ -756,7 +756,10 @@
       "removeEntryConfirm": "Remove {name}?",
       "entryName": "New entry",
       "resetPoints": "Reset the points",
-      "resetPointsConfirm": "Reset all points?"
+      "resetPointsConfirm": "Reset all points?",
+      "timeoutA": "Timeout side A",
+      "timeoutB": "Timeout side B",
+      "endTimeout": "End the timeout"
     },
     "owner": {
       "kinds": {
@@ -812,6 +815,7 @@
       "streamDeck": "Stream Deck and other buttons (HTTP)",
       "streamDeckHint": "Every button has its own address. Put it in a Stream Deck \"Website\" action (or any HTTP call, GET or POST). The address contains the control link and must be kept secret."
     },
-    "period": "Half {period}"
+    "period": "Half {period}",
+    "timeoutChip": "Timeout"
   }
 }

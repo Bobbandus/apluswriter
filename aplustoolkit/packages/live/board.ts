@@ -40,8 +40,13 @@ export function normalizeState(kind: BoardKind, raw: unknown): BoardState {
     const since = typeof timer['since'] === 'number' && Number.isFinite(timer['since']) ? timer['since'] : null;
     const penalties = isObject(source['penalties']) ? source['penalties'] : {};
     const list = (value: unknown) => (Array.isArray(value) ? value.filter((n): n is number => typeof n === 'number' && Number.isFinite(n)).slice(0, 3) : []);
+    const rawTimeout = isObject(source['timeout']) ? source['timeout'] : null;
+    const timeout =
+      rawTimeout && (rawTimeout['side'] === 'a' || rawTimeout['side'] === 'b') && typeof rawTimeout['endsAt'] === 'number' && Number.isFinite(rawTimeout['endsAt'])
+        ? { side: rawTimeout['side'] as 'a' | 'b', endsAt: rawTimeout['endsAt'] }
+        : null;
     const period = source['period'] === 2 || source['period'] === 3 || source['period'] === 4 ? source['period'] : 1;
-    return { ...score, period, timer: { base: int(timer['base'], 0, 0, 4 * 30 * 60 * 1000), since }, penalties: { a: list(penalties['a']), b: list(penalties['b']) } } satisfies HandballState;
+    return { ...score, period, timer: { base: int(timer['base'], 0, 0, 4 * 30 * 60 * 1000), since }, penalties: { a: list(penalties['a']), b: list(penalties['b']) }, timeout } satisfies HandballState;
   }
 
   if (kind === 'pingis') {

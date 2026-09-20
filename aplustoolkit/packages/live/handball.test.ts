@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { actionForName } from './api';
 import { applyAction, defaultState, normalizeState } from './board';
-import { HALF_MS, SUSPENSION_MS, applyHandball, clockText, defaultHandball, elapsedMs, handballView, penaltiesLeft, type HandballAction } from './handball';
+import { HALF_MS, SUSPENSION_MS, applyHandball, clockText, defaultHandball, elapsedMs, handballView, penaltiesLeft, timeoutLeft, type HandballAction } from './handball';
 import type { HandballState } from './types';
 
 const SECOND = 1000;
@@ -110,5 +111,38 @@ describe('handball as a scoreboard', () => {
     expect(state.period).toBe(1);
     expect(state.timer).toEqual({ base: 0, since: null });
     expect(state.penalties.a).toEqual([1, 3, 4]);
+  });
+});
+
+describe('team timeout', () => {
+  it('stops the match clock and counts down a minute of real time', () => {
+    const state = run(defaultHandball(), { type: 'start', at: 0 }, { type: 'timeout', side: 'b', at: 20 * SECOND });
+    expect(state.timer).toEqual({ base: 20 * SECOND, since: null });
+    expect(state.timeout).toEqual({ side: 'b', endsAt: 80 * SECOND });
+    expect(timeoutLeft(state, 50 * SECOND)).toEqual({ side: 'b', left: '0:30' });
+    expect(timeoutLeft(state, 80 * SECOND)).toBeNull();
+    expect(handballView(state, 50 * SECOND, () => 'x').timeout).toEqual({ side: 'b', left: '0:30' });
+  });
+
+  it('allows one at a time, and can be ended early', () => {
+    const state = run(defaultHandball(), { type: 'timeout', side: 'a', at: 0 });
+    expect(applyHandball(state, { type: 'timeout', side: 'b', at: 5 * SECOND })).toBe(state);
+    expect(run(state, { type: 'endTimeout' }).timeout).toBeNull();
+    expect(applyHandball(defaultHandball(), { type: 'endTimeout' })).toEqual(defaultHandball());
+  });
+
+  it('does not run the suspensions down, because the clock is stopped', () => {
+    let state = run(defaultHandball(), { type: 'start', at: 0 }, { type: 'suspend', side: 'a', at: 10 * SECOND }, { type: 'timeout', side: 'b', at: 40 * SECOND });
+    expect(penaltiesLeft(state, 100 * SECOND).a).toEqual(['1:30']);
+    state = run(state, { type: 'endTimeout' });
+    expect(state.timeout).toBeNull();
+  });
+
+  it('reads back through storage, and answers to its HTTP names', () => {
+    const state = run(defaultHandball(), { type: 'timeout', side: 'a', at: 1000 });
+    expect(normalizeState('handball', JSON.parse(JSON.stringify(state)))).toEqual(state);
+    expect(normalizeState('handball', { timeout: { side: 'q', endsAt: 5 } })).toMatchObject({ timeout: null });
+    expect(actionForName('handball', 'timeout-b', 7)).toEqual({ type: 'timeout', side: 'b', at: 7 });
+    expect(actionForName('handball', 'timeout-end', 7)).toEqual({ type: 'endTimeout' });
   });
 });

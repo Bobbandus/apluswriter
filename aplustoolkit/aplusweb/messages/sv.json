@@ -756,7 +756,10 @@
       "removeEntryConfirm": "Ta bort {name}?",
       "entryName": "Ny deltagare",
       "resetPoints": "Nollställ poängen",
-      "resetPointsConfirm": "Nollställa alla poäng?"
+      "resetPointsConfirm": "Nollställa alla poäng?",
+      "timeoutA": "Timeout lag A",
+      "timeoutB": "Timeout lag B",
+      "endTimeout": "Avsluta timeouten"
     },
     "owner": {
       "kinds": {
@@ -812,6 +815,7 @@
       "streamDeck": "Stream Deck och andra knappar (HTTP)",
       "streamDeckHint": "Varje knapp har en egen adress. Lägg den i en Stream Decks \"Webbplats\"-åtgärd (eller valfritt HTTP-anrop, GET eller POST). Adressen innehåller kontrollänken och ska hållas hemlig."
     },
-    "period": "{period}:a halvlek"
+    "period": "{period}:a halvlek",
+    "timeoutChip": "Timeout"
   }
 }

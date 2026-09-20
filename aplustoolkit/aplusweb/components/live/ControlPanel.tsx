@@ -326,6 +326,22 @@ function HandballControls({ state, apply }: { state: HandballState; apply: (acti
         {suspensions('a')}
         {suspensions('b')}
       </div>
+      <div className={styles.row}>
+        {state.timeout ? (
+          <button type="button" className={`${styles.btn} ${styles.primary}`} onClick={() => apply({ type: 'endTimeout' })}>
+            {t('endTimeout')}
+          </button>
+        ) : (
+          <>
+            <button type="button" className={styles.btn} onClick={() => apply({ type: 'timeout', side: 'a', at: Date.now() })}>
+              {t('timeoutA')}
+            </button>
+            <button type="button" className={styles.btn} onClick={() => apply({ type: 'timeout', side: 'b', at: Date.now() })}>
+              {t('timeoutB')}
+            </button>
+          </>
+        )}
+      </div>
       <ScoreControls state={state} apply={apply} textClock={false} />
       <p className={styles.hint}>{t('keysHandball')}</p>
     </>

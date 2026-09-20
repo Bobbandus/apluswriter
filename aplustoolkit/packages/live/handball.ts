@@ -13,6 +13,7 @@ import type { HandballState, ScoreState, Side } from './types';
 
 export const HALF_MS = 30 * 60 * 1000;
 export const SUSPENSION_MS = 2 * 60 * 1000;
+export const TIMEOUT_MS = 60 * 1000;
 const MAX_SUSPENSIONS = 3;
 
 export const defaultHandball = (): HandballState => ({
@@ -20,6 +21,7 @@ export const defaultHandball = (): HandballState => ({
   period: 1,
   timer: { base: 0, since: null },
   penalties: { a: [], b: [] },
+  timeout: null,
 });
 
 /** Milliseconds on the match clock at `at`. */
@@ -36,7 +38,9 @@ export type HandballAction =
   | { type: 'adjust'; by: number; at: number }
   | { type: 'period'; period: 1 | 2 | 3 | 4 }
   | { type: 'suspend'; side: Side; at: number }
-  | { type: 'endSuspension'; side: Side; index: number };
+  | { type: 'endSuspension'; side: Side; index: number }
+  | { type: 'timeout'; side: Side; at: number }
+  | { type: 'endTimeout' };
 
 const SCORE_ACTIONS = new Set(['add', 'sub', 'set', 'reset', 'swap', 'rename', 'label', 'clock']);
 
@@ -79,6 +83,16 @@ export function applyHandball(state: HandballState, action: HandballAction): Han
     case 'endSuspension':
       return { ...state, penalties: { ...state.penalties, [action.side]: state.penalties[action.side].filter((_, i) => i !== action.index) } };
 
+    // A team timeout stops the match clock and counts down a minute of real time. Only one at a time.
+    case 'timeout': {
+      if (state.timeout) return state;
+      const stopped = state.timer.since === null ? state : { ...state, timer: { base: elapsedMs(state, action.at), since: null } };
+      return { ...stopped, timeout: { side: action.side, endsAt: action.at + TIMEOUT_MS } };
+    }
+
+    case 'endTimeout':
+      return state.timeout ? { ...state, timeout: null } : state;
+
     default:
       return state;
   }
@@ -108,12 +122,23 @@ export function penaltiesLeft(state: HandballState, at: number): { a: string[]; 
  * A handball board as the ordinary score designs draw it: the match clock is the clock, the period is the label
  * (unless the operator wrote one), and the suspensions still running come along for the design to show.
  */
-export function handballView(state: HandballState, at: number, periodLabel: (period: number) => string): ScoreState & { penalties: { a: string[]; b: string[] } } {
+export function timeoutLeft(state: HandballState, at: number): { side: Side; left: string } | null {
+  if (!state.timeout || state.timeout.endsAt <= at) return null;
+  const seconds = Math.ceil((state.timeout.endsAt - at) / 1000);
+  return { side: state.timeout.side, left: `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` };
+}
+
+export function handballView(
+  state: HandballState,
+  at: number,
+  periodLabel: (period: number) => string,
+): ScoreState & { penalties: { a: string[]; b: string[] }; timeout: { side: Side; left: string } | null } {
   return {
     a: state.a,
     b: state.b,
     label: state.label || periodLabel(state.period),
     clock: clockText(elapsedMs(state, at)),
     penalties: penaltiesLeft(state, at),
+    timeout: timeoutLeft(state, at),
   };
 }

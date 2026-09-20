@@ -44,6 +44,8 @@ export interface HandballState extends ScoreState {
   timer: { base: number; since: number | null };
   /** Per side, the match-clock time at which each running two-minute suspension ends. */
   penalties: { a: number[]; b: number[] };
+  /** A team timeout in progress: who called it and when it ends (wall-clock ms). Null when there is none. */
+  timeout: { side: Side; endsAt: number } | null;
 }
 
 /* ------------------------------------------------------------------ ranking */
