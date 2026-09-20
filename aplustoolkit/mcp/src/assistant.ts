@@ -744,6 +744,47 @@ function registerPrompts(server: McpServer): void {
       ),
   );
 
+  /* ------------------------------------------------ the reading commands
+     These read the script and say what they think. They never write a line
+     of it: what comes back is notes and documents, not replacements. */
+
+  server.registerPrompt(
+    'read_aloud',
+    { title: 'Läs högt', description: 'Hur dialogen låter när den läses högt. Pekar ut problem, skriver inga nya repliker.', argsSchema: sceneArg },
+    ({ scene }) =>
+      msg(
+        `Read the dialogue in ${scene ? `scene "${scene}"` : 'the scene I am in'} as if it were being said aloud by actors. First call get_open_script ` +
+          `(read the styleGuide) and get_current_scene. Find only what a table read would trip on: a line that is hard to say, a speech that ` +
+          `runs long, characters who sound like each other, a line that only explains what we can already see, a rhythm that stalls. ` +
+          `For each problem call suggest_note for the scene, quoting the exact line and saying what the ear catches and why. ` +
+          `Do NOT propose replacement lines. If the dialogue reads fine, say so in the chat and send nothing. ${RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'scene_goals',
+    { title: 'Scenmål', description: 'Vad varje scen vill, vad som står i vägen och vad som förändras.', argsSchema: { scope: z.string().optional().describe('Ett scenintervall som "3-9", annars hela manuset') } },
+    ({ scope }) =>
+      msg(
+        `For ${scope ? `scenes ${scope}` : 'every scene in the script'}, work out three things: what the point-of-view character wants in the scene, ` +
+          `what stands in the way, and what is different at the end. Read with get_open_script, get_structure and get_scene. ` +
+          `Then call suggest_document titled "Scene goals": one short line per scene in that order, and mark plainly the scenes where one of the three is ` +
+          `missing or where nothing changes, with the reason. That is a finding about the script, not a criticism of the writer. ` +
+          `Do not suggest new content and do not rewrite. ${RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'ask_selection',
+    { title: 'Fråga om markeringen', description: 'Ställ en fråga om texten du har markerat. Svaret kommer som ett kort, texten ändras aldrig.', argsSchema: { question: z.string().describe('Din fråga om den markerade texten') } },
+    ({ question }) =>
+      msg(
+        `Call get_selection and get_current_scene, and answer this about the selected text: ${question}. Answer in the chat if it is short. ` +
+          `If it needs more than a paragraph, deliver it with suggest_document. Do not change the text and do not offer rewritten lines unless I ask ` +
+          `for them in a separate message. ${RULES}`,
+      ),
+  );
+
   /* ------------------------------------------------ the writing commands */
 
   server.registerPrompt(

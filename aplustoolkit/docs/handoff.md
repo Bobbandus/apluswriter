@@ -125,7 +125,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 Ordning: **skrivupplevelsen först**, sedan Shoot/Live, molnet (datasynk, delning) sist.
 
-- **Claude (bara kort, aldrig ändring före Använd):** läs högt-feedback (stela repliker, alla låter lika), scenmål-koll (mål, hinder, förändring per scen), fråga-Claude på markering (markera, tangent, skriv fråga, svar som kort). Nej till: kontinuitetskoll, autouse för småsaker (reglerna i ideas.txt står fast).
+- **Claude (bara kort, aldrig ändring före Använd; klart 2026-09-20 som kommandon i Claude Desktop: `read_aloud`, `scene_goals`, `ask_selection` i `mcp/src/assistant.ts`, bygg om med `npm run mcp:build` och starta om Claude Desktop):** läs högt-feedback (stela repliker, alla låter lika), scenmål-koll (mål, hinder, förändring per scen), fråga-Claude på markering (markera, tangent, skriv fråga, svar som kort). Nej till: kontinuitetskoll, autouse för småsaker (reglerna i ideas.txt står fast).
 - **Skriva:** dubbel dialog (`^`, med sidvisning och export), minnesbubblor (taggar i noter, listade i inspektorn). Nej till: snabbtecken `//`, parkeringsruta.
 - **UI:** ren text-tema (läge oberoende av färgtema), mobil skrivvy (text + snabbanteckning), splittvy, egna genvägar (klart: Ctrl+K "genvägar", `lib/shortcuts.ts`, krockskydd och reserverade tangenter; dubbel dialog klar: Ctrl+Skift+D + FDX). **Teman: Ljust, Mörkt, System (auto). Midnatt är borttaget och System finns (klart 2026-09-20; `lib/theme.ts`, `data-theme-pref`).**
 - **Shoot:** klappa och logga tagningar (scen, tagning, anteckning, per dag, export). **Live:** overlay för OBS (webbsida som lager, operatörsvy). Nej för nu: dagens inspelningslista, bordsläsning.
