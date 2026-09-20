@@ -32,7 +32,7 @@ export interface Revision {
   id: string;
   projectId: string;
   kind: 'named' | 'auto';
-  /** What the writer called it. Empty for an automatic snapshot. */
+  /** What the writer called it. Empty for an automatic snapshot, or a draft left unnamed. */
   label: string;
   /** Null for an automatic snapshot: only issued drafts have a colour. */
   color: RevisionColor | null;
@@ -58,7 +58,7 @@ export interface NewRevision {
   projectId: string;
   content: string;
   kind: Revision['kind'];
-  /** Used for a named revision; falls back to the colour's name if left empty. */
+  /** Used for a named revision. Left empty, the interface names it by its colour. */
   label?: string;
   now: number;
 }
@@ -82,7 +82,9 @@ export function createRevision(input: NewRevision, existing: readonly Revision[]
     id: input.id,
     projectId: input.projectId,
     kind: 'named',
-    label: input.label?.trim() || color,
+    // Empty stays empty: the colour's name is a word, and which word depends
+    // on the language, which is the interface's business and not the store's.
+    label: input.label?.trim() ?? '',
     color,
     content: input.content,
     createdAt: input.now,

@@ -20,6 +20,9 @@ import { removeTodo } from '@aplus/fountain/todos';
 import { TodoPanel, type TodoItem } from '@/components/todos/TodoPanel';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
 import { CastSheet } from '@/components/cast/CastSheet';
+import { RevisionMenu } from '@/components/revisions/RevisionMenu';
+import { useRevisions } from '@/lib/storage/useRevisions';
+import type { Revision } from '@aplus/fountain/revisions';
 import { IndexCardBoard } from '@/components/cards/IndexCardBoard';
 import { PageCanvas } from '@/components/editor/PageCanvas';
 import { ScriptEditor, type ScriptEditorHandle } from '@/components/editor/ScriptEditor';
@@ -75,6 +78,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
   const [castOpen, setCastOpen] = useState(false);
+  const [versionsOpen, setVersionsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
@@ -130,6 +134,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [styleGuide, setStyleGuide] = useProjectData<string>(projectId, 'styleGuide', '');
   const [toast, say] = useToast();
   const tAssistant = useTranslations('assistant');
+  const tRevisions = useTranslations('revisions');
   const [element, setElement] = useState<LineType | null>(null);
   const editorRef = useRef<ScriptEditorHandle>(null);
   const [dictionary, setDictionary] = usePersistentState<DictionaryData>(
@@ -211,6 +216,28 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     const result = editsFor(handle.getText(), { kind: 'synopsis', scene: { index, heading: scene.heading }, text });
     if (result.ok) handle.applyChanges(result.edits);
   }, []);
+
+  /* ------------------------------------------------------------- revisions
+     Drafts, and the quiet snapshots taken between them. The hook reads the
+     live document through this function and never keeps a copy of its own. */
+
+  const liveText = useCallback(() => editorRef.current?.getText() ?? sourceRef.current, []);
+  const revisions = useRevisions(projectId, source, liveText, hydrated);
+
+  const restoreRevision = useCallback(
+    async (revision: Revision) => {
+      const handle = editorRef.current;
+      if (!handle) return;
+      // Keep what is here first, so a restore can never be the last copy of
+      // the words it replaces. Then it is one edit: Ctrl+Z is a second way back.
+      await revisions.guard();
+      const current = handle.getText();
+      handle.applyChanges(diffToEdit(current, revision.content));
+      setVersionsOpen(false);
+      say(tRevisions('restored'));
+    },
+    [revisions, say, tRevisions],
+  );
 
   /* --------------------------------------------------------------- to-dos
      The list comes from the parse worker, which is a moment behind the
@@ -369,6 +396,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onExport={() => setExportOpen(true)}
         view={view}
         onViewChange={setView}
+        version={
+          revisions.latestNamed
+            ? revisions.latestNamed.label || tRevisions(`colors.${revisions.latestNamed.color ?? 'white'}`)
+            : tRevisions('noneYet')
+        }
+        onOpenVersionMenu={() => setVersionsOpen(true)}
         onHome={() => router.push('/plan/write')}
         sidebar={
           <Navigator
@@ -492,6 +525,14 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onCardsChange={setCardsEnabled}
         styleGuide={styleGuide}
         onStyleGuideChange={setStyleGuide}
+      />
+      <RevisionMenu
+        open={versionsOpen}
+        onClose={() => setVersionsOpen(false)}
+        revisions={revisions.revisions}
+        current={source}
+        onSave={revisions.saveNamed}
+        onRestore={(revision) => void restoreRevision(revision)}
       />
       <CastSheet
         open={castOpen}

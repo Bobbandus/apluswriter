@@ -58,9 +58,11 @@ describe('createRevision', () => {
     expect(second.color).toBe('blue');
   });
 
-  it('falls back to the colour name when the writer leaves the label empty', () => {
-    expect(createRevision({ ...base, kind: 'named', label: '   ' }, []).label).toBe('white');
-    expect(createRevision({ ...base, kind: 'named' }, []).label).toBe('white');
+  // The colour's name is a word, and which word depends on the language.
+  // That is the interface's job: the store keeps what the writer typed.
+  it('keeps an unnamed draft unnamed and lets the interface say its colour', () => {
+    expect(createRevision({ ...base, kind: 'named', label: '   ' }, [])).toMatchObject({ label: '', color: 'white' });
+    expect(createRevision({ ...base, kind: 'named' }, [])).toMatchObject({ label: '', color: 'white' });
   });
 
   it('gives an automatic snapshot no name and no colour', () => {

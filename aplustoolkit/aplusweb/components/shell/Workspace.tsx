@@ -22,6 +22,7 @@ export interface WorkspaceProps {
   onExport?: () => void;
   view?: 'script' | 'cards';
   onViewChange?: (view: 'script' | 'cards') => void;
+  onOpenVersionMenu?: () => void;
   onHome?: () => void;
 }
 
@@ -43,6 +44,7 @@ export function Workspace({
   onExport,
   view,
   onViewChange,
+  onOpenVersionMenu,
   onHome,
 }: WorkspaceProps) {
   const t = useTranslations('a11y');
@@ -156,6 +158,7 @@ export function Workspace({
         {...(onOpenCommandPalette ? { onOpenCommandPalette } : {})}
         {...(onExport ? { onExport } : {})}
         {...(view && onViewChange ? { view, onViewChange } : {})}
+        {...(onOpenVersionMenu ? { onOpenVersionMenu } : {})}
         {...(onHome ? { onHome } : {})}
       />
 

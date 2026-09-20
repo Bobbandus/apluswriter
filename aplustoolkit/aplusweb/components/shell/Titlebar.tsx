@@ -27,7 +27,7 @@ export interface TitlebarProps {
   /** Back to all projects. */
   onHome?: () => void;
   onOpenProjectMenu?: () => void;
-  onOpenVersionMenu?: () => void;
+  onOpenVersionMenu?: (() => void) | undefined;
 }
 
 /**
@@ -97,7 +97,7 @@ export function Titlebar({
           </span>
         )}
 
-        {version && (
+        {version && onOpenVersionMenu && (
           <button type="button" className={styles.versionPill} onClick={onOpenVersionMenu}>
             {version}
             <Icon name="chevronDown" size={11} />
