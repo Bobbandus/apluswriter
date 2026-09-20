@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { PDFArray, PDFDocument, PDFRawStream, decodePDFRawStream } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { parse } from '../fountain/parse';
+import { serializeSides } from '../fountain/serialize';
 import { paginate } from '../paginator/paginate';
 import { exportFileName, renderPdf, type PdfFonts } from './pdf';
 
@@ -133,5 +134,31 @@ describe('revision marks', () => {
   it('leaves an untouched page unlabelled', async () => {
     const plain = await textDraws(await render(OLD));
     expect(await textDraws(await render(OLD, { revisionBaseline: OLD, revisionLabel: 'Blå revision' }))).toBe(plain);
+  });
+});
+
+describe('sides as PDF', () => {
+  const full = parse(fixture('Big-Fish.fountain'));
+  const role = 'WILL';
+
+  it('is a shorter document than the whole script, with one PDF page per paginated page', async () => {
+    const sides = parse(serializeSides(full, role, { numbered: true }));
+    const wholePages = paginate(full, { pageSize: 'a4' }).pages.length;
+    const pagination = paginate(sides, { pageSize: 'a4', sceneNumbers: true });
+    expect(pagination.pages.length).toBeGreaterThan(0);
+    expect(pagination.pages.length).toBeLessThan(wholePages);
+    const pdf = await PDFDocument.load(await renderPdf(sides, fonts, { pageSize: 'a4', sceneNumbers: true, titlePage: false, pagination }));
+    expect(pdf.getPageCount()).toBe(pagination.pages.length);
+  }, 30_000);
+
+  // The reason sides are numbered up front: an actor reads them next to the
+  // whole script, where these scenes are not 1, 2, 3.
+  it('prints each scene under the number it has in the whole script', () => {
+    const sides = parse(serializeSides(full, role, { numbered: true }));
+    const printed = paginate(sides, { pageSize: 'a4', sceneNumbers: true })
+      .pages.flatMap((page) => page.rows.flat())
+      .flatMap((line) => (line.sceneNumber ? [line.sceneNumber] : []));
+    const expected = full.scenes.flatMap((scene, index) => (scene.speaking.includes(role) ? [scene.sceneNumber ?? String(index + 1)] : []));
+    expect(printed).toEqual(expected);
   });
 });

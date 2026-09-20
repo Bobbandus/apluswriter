@@ -542,6 +542,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         pageCount={script.layout?.pageCount ?? null}
         todoCount={script.todos.length}
         revisions={revisions.revisions}
+        roles={script.characters.map((character) => character.name)}
       />
 
       <SettingsSheet

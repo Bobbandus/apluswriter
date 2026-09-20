@@ -21,6 +21,8 @@ export interface ExportSheetProps {
   todoCount: number;
   /** Drafts the changes can be marked against. Nothing is offered without any. */
   revisions?: Revision[];
+  /** Names of the roles, for exporting one role's sides. */
+  roles?: string[];
 }
 
 /**
@@ -31,7 +33,7 @@ export interface ExportSheetProps {
  * watermark is not remembered — a script sent to one reader must never go
  * out stamped with the previous reader's name.
  */
-export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCount, revisions = [] }: ExportSheetProps) {
+export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCount, revisions = [], roles = [] }: ExportSheetProps) {
   const t = useTranslations('importExport');
   const tSettings = useTranslations('settings');
   const tCommon = useTranslations('common');
@@ -46,6 +48,8 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
   // Not remembered, like the watermark: what to mark against is a choice about
   // this particular export, and last week's draft is the wrong default.
   const [since, setSince] = useState('');
+  // Also not remembered: sides for one actor should never become the default.
+  const [role, setRole] = useState('');
   const [report, setReport] = useState<'scenes' | 'characters' | 'locations'>('scenes');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,10 +73,12 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
         watermark,
         locale,
         report,
+        ...(role ? { role } : {}),
         ...(baseline ? { revision: { baseline: baseline.content, label: t('changesSince', { name: nameOf(baseline) }) } } : {}),
       });
       setWatermark('');
       setSince('');
+      setRole('');
       onClose();
     } catch (cause) {
       // A failed export must say so. Silently producing nothing is the worst
@@ -160,7 +166,22 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
               />
             </label>
 
-            {revisions.length > 0 && (
+            {roles.length > 0 && (
+              <label className={styles.field}>
+                <span className={styles.label}>{t('onlyRole')}</span>
+                <select className={styles.input} value={role} onChange={(event) => setRole(event.target.value)}>
+                  <option value="">{t('onlyRoleNone')}</option>
+                  {roles.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+                {role && <span className={styles.meta}>{t('onlyRoleHint')}</span>}
+              </label>
+            )}
+
+            {revisions.length > 0 && !role && (
               <label className={styles.field}>
                 <span className={styles.label}>{t('markChanges')}</span>
                 <select className={styles.input} value={since} onChange={(event) => setSince(event.target.value)}>

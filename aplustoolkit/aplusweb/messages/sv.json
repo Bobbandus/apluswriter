@@ -244,6 +244,9 @@
     "formatReport": "Rapport (CSV)",
     "markChanges": "Markera ändringar sedan",
     "markChangesNone": "Inget",
+    "onlyRole": "Bara en roll (rollsidor)",
+    "onlyRoleNone": "Hela manuset",
+    "onlyRoleHint": "Scenerna rollen talar i, med manusets egna scennummer. Övriga repliker finns kvar som ledtrådar.",
     "markChangesHint": "En asterisk (*) i högermarginalen vid varje ändrad rad.",
     "changesSince": "Ändringar sedan {name}"
   },

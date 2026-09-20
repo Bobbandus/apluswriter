@@ -95,6 +95,17 @@ describe('sides', () => {
   it('returns nothing for a character who never speaks', () => {
     expect(serializeSides(parse(source), 'NOBODY')).toBe('');
   });
+
+  it('keeps the numbers the scenes have in the whole script, when asked', () => {
+    const three = ['INT. A - DAG', '', 'ERIK', 'Ett.', '', 'INT. B - DAG #7#', '', 'VILDE', 'Två.', '', 'INT. C - DAG', '', 'VILDE', 'Tre.'].join('\n');
+    const sides = serializeSides(parse(three), 'VILDE', { numbered: true });
+    // B keeps its own number, C is the third scene; A is not in the sides.
+    expect(sides).toContain('INT. B - DAG #7#');
+    expect(sides).toContain('INT. C - DAG #3#');
+    expect(sides).not.toContain('INT. A');
+    // Without the option the text is untouched.
+    expect(serializeSides(parse(three), 'VILDE')).not.toContain('#3#');
+  });
 });
 
 /* ========================================================================== */

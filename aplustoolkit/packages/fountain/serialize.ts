@@ -94,7 +94,7 @@ export function serialize(script: Script, options: SerializeOptions = {}): strin
  * Everything between the chosen scene headings is kept, including other
  * characters' lines, because an actor needs their cues.
  */
-export function serializeSides(script: Script, character: string): string {
+export function serializeSides(script: Script, character: string, options: { numbered?: boolean } = {}): string {
   const wanted = new Set(
     script.scenes
       .map((scene, index) => (scene.speaking.includes(character.toUpperCase()) ? index : -1))
@@ -108,7 +108,14 @@ export function serializeSides(script: Script, character: string): string {
     const scene = script.scenes[index];
     if (!scene) continue;
     for (const element of script.elements) {
-      if (element.from >= scene.from && element.to <= scene.to) keep.push(element);
+      if (element.from < scene.from || element.to > scene.to) continue;
+      // Sides are read next to the whole script, so a scene keeps the number it
+      // has there. Left to count from one, an actor's scene 3 would be "scene 1".
+      if (options.numbered && element.type === 'sceneHeading' && !element.sceneNumber) {
+        keep.push({ ...element, raw: `${element.raw.trimEnd()} #${index + 1}#` });
+      } else {
+        keep.push(element);
+      }
     }
   }
 

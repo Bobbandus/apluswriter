@@ -1,7 +1,7 @@
 'use client';
 
 import { parse } from '@aplus/fountain/parse';
-import { serialize } from '@aplus/fountain/serialize';
+import { serialize, serializeSides } from '@aplus/fountain/serialize';
 import type { PageSize } from '@aplus/paginator/geometry';
 import { saveFile } from '@/lib/platform/files';
 
@@ -17,6 +17,8 @@ export interface ExportRequest {
   locale: 'sv' | 'en';
   /** Which report a CSV export holds. */
   report?: 'scenes' | 'characters' | 'locations';
+  /** Only the scenes this role speaks in (their sides), with the scene numbers of the whole script. */
+  role?: string;
   /** An earlier draft to mark changes against, and what to call it on the page. */
   revision?: { baseline: string; label: string };
 }
@@ -78,17 +80,23 @@ export async function runExport(request: ExportRequest): Promise<string> {
     return name;
   }
 
-  const bytes = await renderPdf(script, await loadFonts(), {
+  // Sides are their own small script: the scenes one role speaks in, numbered as
+  // in the whole script, without a title page and without change marks (there is
+  // no earlier version of just these pages to compare with).
+  const sides = request.role ? serializeSides(script, request.role, { numbered: true }) : '';
+  if (request.role && !sides) throw new Error(request.role);
+
+  const bytes = await renderPdf(sides ? parse(sides) : script, await loadFonts(), {
     pageSize: request.pageSize,
-    sceneNumbers: request.sceneNumbers,
-    titlePage: request.titlePage,
+    sceneNumbers: request.sceneNumbers || Boolean(sides),
+    titlePage: sides ? false : request.titlePage,
     ...(request.watermark.trim() ? { watermark: request.watermark.trim() } : {}),
-    ...(request.revision ? { revisionBaseline: request.revision.baseline, revisionLabel: request.revision.label } : {}),
+    ...(request.revision && !sides ? { revisionBaseline: request.revision.baseline, revisionLabel: request.revision.label } : {}),
     moreLabel: request.locale === 'en' ? '(MORE)' : '(MER)',
     contdLabel: request.locale === 'en' ? "(CONT'D)" : '(FORTS.)',
   });
 
-  const name = exportFileName(script, 'pdf');
+  const name = sides ? exportFileName(script, 'pdf').replace(/\.pdf$/, ` - ${request.role}.pdf`) : exportFileName(script, 'pdf');
   await saveFile(name, new Blob([bytes as BlobPart], { type: 'application/pdf' }));
   return name;
 }

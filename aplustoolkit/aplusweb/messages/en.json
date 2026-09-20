@@ -244,6 +244,9 @@
     "formatReport": "Report (CSV)",
     "markChanges": "Mark changes since",
     "markChangesNone": "None",
+    "onlyRole": "One role only (sides)",
+    "onlyRoleNone": "Whole script",
+    "onlyRoleHint": "The scenes the role speaks in, with the scene numbers of the whole script. Other lines stay as cues.",
     "markChangesHint": "An asterisk (*) in the right margin beside each changed line.",
     "changesSince": "Changes since {name}"
   },
