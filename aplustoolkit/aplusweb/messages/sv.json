@@ -740,13 +740,22 @@
       "title": "Namn",
       "subtitle": "Titel eller plats",
       "add": "Lägg till",
-      "keysLower": "Tangenter: Mellanslag visa/nästa, ← → bläddra, H eller Esc dölj."
+      "keysLower": "Tangenter: Mellanslag visa/nästa, ← → bläddra, H eller Esc dölj.",
+      "start": "Starta klockan",
+      "stop": "Stoppa klockan",
+      "periodN": "{period}:a halvlek",
+      "periodConfirm": "Byta till halvlek {period}? Klockan stoppas och sätts till periodens början.",
+      "suspendA": "Utvisning lag A",
+      "suspendB": "Utvisning lag B",
+      "endSuspension": "Avsluta utvisningen",
+      "keysHandball": "Tangenter: Mellanslag start/stopp, S utvisning A, K utvisning B, Q/A och P/L för mål."
     },
     "owner": {
       "kinds": {
         "score": "Poängtavla",
         "pingis": "Pingis",
-        "lower": "Namnskylt"
+        "lower": "Namnskylt",
+        "handball": "Handboll"
       },
       "kind": "Typ",
       "name": "Namn",
@@ -791,6 +800,7 @@
       "flagPlaceholder": "Flagga, t.ex. SE",
       "logo": "Logotyp",
       "logoPlaceholder": "Logotyp-URL (https://…)"
-    }
+    },
+    "period": "{period}:a halvlek"
   }
 }

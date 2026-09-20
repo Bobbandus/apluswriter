@@ -6,9 +6,9 @@
  * lower.ts), so the rules can be tested without a screen and replayed without a server.
  */
 
-export type BoardKind = 'score' | 'pingis' | 'lower';
+export type BoardKind = 'score' | 'pingis' | 'handball' | 'lower';
 
-export const BOARD_KINDS: readonly BoardKind[] = ['score', 'pingis', 'lower'];
+export const BOARD_KINDS: readonly BoardKind[] = ['score', 'pingis', 'handball', 'lower'];
 
 export type Side = 'a' | 'b';
 
@@ -34,6 +34,16 @@ export interface ScoreState {
   label: string;
   /** Text for a clock, set by the operator: "15:00". A running clock comes later. */
   clock: string;
+}
+
+/* ------------------------------------------------------------------ handball */
+
+export interface HandballState extends ScoreState {
+  period: 1 | 2 | 3 | 4;
+  /** The match clock: milliseconds at the last stop, and when it was last started (null while stopped). */
+  timer: { base: number; since: number | null };
+  /** Per side, the match-clock time at which each running two-minute suspension ends. */
+  penalties: { a: number[]; b: number[] };
 }
 
 /* ------------------------------------------------------------------ pingis */
@@ -82,4 +92,4 @@ export interface LowerState {
   visible: boolean;
 }
 
-export type BoardState = ScoreState | PingisState | LowerState;
+export type BoardState = ScoreState | PingisState | HandballState | LowerState;

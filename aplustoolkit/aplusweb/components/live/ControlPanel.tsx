@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { LiveAction } from '@aplus/live/board';
-import type { LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import { clockText, elapsedMs, penaltiesLeft } from '@aplus/live/handball';
+import type { HandballState, LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import { useNow } from '@/lib/live/useNow';
 import { useLiveBoard, type LiveBoard, type LiveStatus } from '@/lib/live/useLiveBoard';
 import { BoardView } from './BoardView';
 import { Canvas } from './Canvas';
@@ -46,6 +48,7 @@ export function ControlPanel({ token }: { token: string }) {
 function Controls({ board, apply }: { board: LiveBoard; apply: (action: LiveAction) => void }) {
   if (board.kind === 'score') return <ScoreControls state={board.state as ScoreState} apply={apply} />;
   if (board.kind === 'pingis') return <PingisControls state={board.state as PingisState} apply={apply} />;
+  if (board.kind === 'handball') return <HandballControls state={board.state as HandballState} apply={apply} />;
   return <LowerControls state={board.state as LowerState} apply={apply} />;
 }
 
@@ -86,7 +89,7 @@ function useKeys(map: Record<string, () => void>) {
 
 /* ------------------------------------------------------------------ score */
 
-function ScoreControls({ state, apply }: { state: ScoreState; apply: (action: LiveAction) => void }) {
+function ScoreControls({ state, apply, textClock = true }: { state: ScoreState; apply: (action: LiveAction) => void; textClock?: boolean }) {
   const t = useTranslations('live.control');
   useKeys({
     q: () => apply({ type: 'add', side: 'a' }),
@@ -115,7 +118,7 @@ function ScoreControls({ state, apply }: { state: ScoreState; apply: (action: Li
       </div>
       <div className={styles.row}>
         <CommitField className={styles.field} value={state.label} placeholder={t('label')} label={t('label')} onCommit={(text) => apply({ type: 'label', text })} />
-        <CommitField className={styles.field} value={state.clock} placeholder={t('clock')} label={t('clock')} onCommit={(text) => apply({ type: 'clock', text })} />
+        {textClock && <CommitField className={styles.field} value={state.clock} placeholder={t('clock')} label={t('clock')} onCommit={(text) => apply({ type: 'clock', text })} />}
       </div>
       <div className={styles.row}>
         <button type="button" className={styles.btn} onClick={() => apply({ type: 'swap' })}>
@@ -262,3 +265,68 @@ function LowerControls({ state, apply }: { state: LowerState; apply: (action: Li
 }
 
 export type { LiveStatus };
+
+/* ------------------------------------------------------------------ handball */
+
+function HandballControls({ state, apply }: { state: HandballState; apply: (action: LiveAction) => void }) {
+  const t = useTranslations('live.control');
+  const running = state.timer.since !== null;
+  const now = useNow(running);
+  const toggle = () => apply(running ? { type: 'stop', at: Date.now() } : { type: 'start', at: Date.now() });
+  useKeys({
+    ' ': toggle,
+    s: () => apply({ type: 'suspend', side: 'a', at: Date.now() }),
+    k: () => apply({ type: 'suspend', side: 'b', at: Date.now() }),
+  });
+  const left = penaltiesLeft(state, now);
+
+  const nudge = (label: string, by: number) => (
+    <button type="button" className={styles.btn} onClick={() => apply({ type: 'adjust', by, at: Date.now() })}>
+      {label}
+    </button>
+  );
+
+  const suspensions = (side: Side) => (
+    <div className={styles.side}>
+      <button type="button" className={styles.btn} onClick={() => apply({ type: 'suspend', side, at: Date.now() })} disabled={state.penalties[side].length >= 3 && left[side].length >= 3}>
+        {t(side === 'a' ? 'suspendA' : 'suspendB')}
+      </button>
+      {left[side].map((remaining, index) => (
+        <button key={index} type="button" className={styles.btn} onClick={() => apply({ type: 'endSuspension', side, index })} aria-label={t('endSuspension')}>
+          {remaining} ×
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      <div className={styles.clockBox}>
+        <span className={styles.clockText}>{clockText(elapsedMs(state, now))}</span>
+        <span className={styles.status}>{t('periodN', { period: state.period })}</span>
+      </div>
+      <div className={styles.row}>
+        <button type="button" className={`${styles.btn} ${styles.primary}`} onClick={toggle}>
+          {running ? t('stop') : t('start')}
+        </button>
+        {nudge('−1 min', -60_000)}
+        {nudge('−10 s', -10_000)}
+        {nudge('+10 s', 10_000)}
+        {nudge('+1 min', 60_000)}
+      </div>
+      <div className={styles.row}>
+        {([1, 2, 3, 4] as const).map((period) => (
+          <button key={period} type="button" className={styles.btn} data-on={state.period === period} onClick={() => window.confirm(t('periodConfirm', { period })) && apply({ type: 'period', period })}>
+            {t('periodN', { period })}
+          </button>
+        ))}
+      </div>
+      <div className={styles.sides}>
+        {suspensions('a')}
+        {suspensions('b')}
+      </div>
+      <ScoreControls state={state} apply={apply} textClock={false} />
+      <p className={styles.hint}>{t('keysHandball')}</p>
+    </>
+  );
+}

@@ -1,17 +1,18 @@
+import { applyHandball, defaultHandball, type HandballAction } from './handball';
 import { applyLower, defaultLower, type LowerAction } from './lower';
 import { applyPingis, defaultPingis, type PingisAction } from './pingis';
 import { applyScore, defaultScore, type ScoreAction } from './score';
-import type { BoardKind, BoardState, LowerState, PingisState, ScoreState } from './types';
+import type { BoardKind, BoardState, HandballState, LowerState, PingisState, ScoreState } from './types';
 
 /**
  * What a board's state is, whatever kind it is. The database holds it as JSON that anyone with the control
  * link could have written, so it is read through `normalizeState`, which never trusts its shape.
  */
 
-export type LiveAction = ScoreAction | PingisAction | LowerAction;
+export type LiveAction = ScoreAction | PingisAction | HandballAction | LowerAction;
 
 export function defaultState(kind: BoardKind): BoardState {
-  return kind === 'pingis' ? defaultPingis() : kind === 'lower' ? defaultLower() : defaultScore();
+  return kind === 'pingis' ? defaultPingis() : kind === 'handball' ? defaultHandball() : kind === 'lower' ? defaultLower() : defaultScore();
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -28,11 +29,18 @@ function side<T extends { name: string; color: string; logo: string; flag: strin
 export function normalizeState(kind: BoardKind, raw: unknown): BoardState {
   const source = isObject(raw) ? raw : {};
 
-  if (kind === 'score') {
+  if (kind === 'score' || kind === 'handball') {
     const base = defaultScore();
     const a = { ...side(source['a'], base.a), score: int(isObject(source['a']) ? source['a']['score'] : 0, 0, 0, 999) };
     const b = { ...side(source['b'], base.b), score: int(isObject(source['b']) ? source['b']['score'] : 0, 0, 0, 999) };
-    return { a, b, label: str(source['label'], '', 60), clock: str(source['clock'], '', 12) } satisfies ScoreState;
+    const score = { a, b, label: str(source['label'], '', 60), clock: str(source['clock'], '', 12) } satisfies ScoreState;
+    if (kind === 'score') return score;
+    const timer = isObject(source['timer']) ? source['timer'] : {};
+    const since = typeof timer['since'] === 'number' && Number.isFinite(timer['since']) ? timer['since'] : null;
+    const penalties = isObject(source['penalties']) ? source['penalties'] : {};
+    const list = (value: unknown) => (Array.isArray(value) ? value.filter((n): n is number => typeof n === 'number' && Number.isFinite(n)).slice(0, 3) : []);
+    const period = source['period'] === 2 || source['period'] === 3 || source['period'] === 4 ? source['period'] : 1;
+    return { ...score, period, timer: { base: int(timer['base'], 0, 0, 4 * 30 * 60 * 1000), since }, penalties: { a: list(penalties['a']), b: list(penalties['b']) } } satisfies HandballState;
   }
 
   if (kind === 'pingis') {
@@ -75,6 +83,7 @@ export function normalizeState(kind: BoardKind, raw: unknown): BoardState {
 /** Applies an action to a board of the given kind. */
 export function applyAction(kind: BoardKind, state: BoardState, action: LiveAction): BoardState {
   if (kind === 'score') return applyScore(state as ScoreState, action as ScoreAction);
+  if (kind === 'handball') return applyHandball(state as HandballState, action as HandballAction);
   if (kind === 'pingis') return applyPingis(state as PingisState, action as PingisAction);
   return applyLower(state as LowerState, action as LowerAction);
 }

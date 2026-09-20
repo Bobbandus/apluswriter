@@ -20,7 +20,7 @@ create table if not exists public.live_boards (
   owner_id      uuid not null references auth.users (id) on delete cascade,
   name          text not null default 'Tavla',
   -- What the board is. The state's shape depends on it; the app knows each one.
-  kind          text not null check (kind in ('score', 'pingis', 'lower')),
+  kind          text not null,
   state         jsonb not null default '{}'::jsonb,
   theme         jsonb not null default '{}'::jsonb,
   -- Goes up by one on every change to state, theme or name, so a page that
@@ -33,6 +33,10 @@ create table if not exists public.live_boards (
   updated_at    timestamptz not null default now(),
   deleted_at    timestamptz
 );
+
+-- The kinds are checked here rather than inline, so a later version can add one and re-run this file.
+alter table public.live_boards drop constraint if exists live_boards_kind_check;
+alter table public.live_boards add constraint live_boards_kind_check check (kind in ('score', 'pingis', 'handball', 'lower'));
 
 create index if not exists live_boards_owner_idx on public.live_boards (owner_id) where deleted_at is null;
 

@@ -3,7 +3,10 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { gamesToWin } from '@aplus/live/pingis';
 import { isColor, themeToCss, type Theme } from '@aplus/live/theme';
-import type { BoardKind, BoardState, LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import { handballView } from '@aplus/live/handball';
+import type { BoardKind, BoardState, HandballState, LowerState, PingisState, ScoreState, Side } from '@aplus/live/types';
+import { useTranslations } from 'next-intl';
+import { useNow } from '@/lib/live/useNow';
 import type { Position } from '@/lib/live/position';
 import styles from './Designs.module.css';
 
@@ -62,7 +65,13 @@ function place(position: Position, scale: number): { outer: CSSProperties; inner
 
 /** The overlay for a board: its design, in its theme's paint, at 1920×1080. Pure drawing, no state of its own. */
 export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winnerLabel = 'Vinnare' }: BoardViewProps) {
+  const t = useTranslations('live');
+  const running = kind === 'handball' && (state as HandballState).timer.since !== null;
+  const now = useNow(running);
   const vars = themeToCss(theme) as CSSProperties;
+  // A handball board is drawn as a score, with the match clock as its clock and the suspensions beside it.
+  const view = kind === 'handball' ? handballView(state as HandballState, now, (period) => t('period', { period })) : null;
+  const score = (view ?? state) as ScoreState;
   let content: ReactNode;
   let full = false;
 
@@ -71,18 +80,20 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
   } else if (kind === 'pingis') {
     content = <BroadcastPingis state={state as PingisState} winnerLabel={winnerLabel} />;
   } else if (theme.design === 'bars') {
-    content = <Bars state={state as ScoreState} />;
+    content = <Bars state={score} />;
     full = true;
   } else if (theme.design === 'pixel') {
-    content = <PixelFrame state={state as ScoreState} />;
+    content = <PixelFrame state={score} />;
     full = true;
   } else if (theme.design === 'league') {
-    content = <League state={state as ScoreState} />;
+    content = <League state={score} />;
   } else if (theme.design === 'college') {
-    content = <College state={state as ScoreState} />;
+    content = <College state={score} />;
   } else {
-    content = <BroadcastScore state={state as ScoreState} />;
+    content = <BroadcastScore state={score} />;
   }
+
+  if (view && !full) content = <Penalized penalties={view.penalties}>{content}</Penalized>;
 
   if (full) {
     return (
@@ -361,6 +372,25 @@ function Ribbon({ item, hidden, animation }: { item: LowerState['items'][number]
         <span className={styles.ribbonSub}>
           <span>{item.subtitle}</span>
         </span>
+      )}
+    </div>
+  );
+}
+
+/** The suspensions still running, as small chips under a panel. */
+function Penalized({ penalties, children }: { penalties: { a: string[]; b: string[] }; children: ReactNode }) {
+  const chips = ([['a', penalties.a], ['b', penalties.b]] as const).flatMap(([side, list]) => list.map((left, index) => ({ side, left, key: side + index })));
+  return (
+    <div>
+      {children}
+      {chips.length > 0 && (
+        <div className={styles.penalties}>
+          {chips.map((chip) => (
+            <span key={chip.key} className={styles.penalty} style={{ '--badge': `var(${sideVar(chip.side)})` } as CSSProperties}>
+              2 min · {chip.left}
+            </span>
+          ))}
+        </div>
       )}
     </div>
   );

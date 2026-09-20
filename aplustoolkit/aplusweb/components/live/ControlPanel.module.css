@@ -225,3 +225,25 @@
     grid-template-columns: 1fr;
   }
 }
+
+.clockBox {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: var(--hairline) solid var(--line);
+}
+
+.clockText {
+  font-family: var(--font-mono);
+  font-size: 3.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn[data-on='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}

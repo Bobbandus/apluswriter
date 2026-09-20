@@ -740,13 +740,22 @@
       "title": "Name",
       "subtitle": "Title or place",
       "add": "Add",
-      "keysLower": "Keys: Space show/next, ← → step, H or Esc hide."
+      "keysLower": "Keys: Space show/next, ← → step, H or Esc hide.",
+      "start": "Start the clock",
+      "stop": "Stop the clock",
+      "periodN": "Half {period}",
+      "periodConfirm": "Switch to half {period}? The clock stops and is set to the start of the period.",
+      "suspendA": "Suspension side A",
+      "suspendB": "Suspension side B",
+      "endSuspension": "End the suspension",
+      "keysHandball": "Keys: Space start/stop, S suspension A, K suspension B, Q/A and P/L for goals."
     },
     "owner": {
       "kinds": {
         "score": "Scoreboard",
         "pingis": "Table tennis",
-        "lower": "Name bar"
+        "lower": "Name bar",
+        "handball": "Handball"
       },
       "kind": "Type",
       "name": "Name",
@@ -791,6 +800,7 @@
       "flagPlaceholder": "Flag, e.g. SE",
       "logo": "Logo",
       "logoPlaceholder": "Logo URL (https://…)"
-    }
+    },
+    "period": "Half {period}"
   }
 }

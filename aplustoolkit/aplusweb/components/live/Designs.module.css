@@ -743,3 +743,23 @@
     background: linear-gradient(180deg, color-mix(in srgb, var(--badge) 88%, #fff), var(--badge) 45%, color-mix(in srgb, var(--badge) 70%, #000));
   }
 }
+
+/* ------------------------------------------------------------------ suspensions (handball) */
+
+.penalties {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.penalty {
+  padding: 3px 14px;
+  background: var(--badge);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
