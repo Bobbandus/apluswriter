@@ -74,6 +74,16 @@ describe('tags and metadata', () => {
     expect(twice.match(/\[\[color:/g)).toHaveLength(1);
   });
 
+  it('sets story day and energy, keeping the spelling the writer already used', () => {
+    const scene = { index: 0, heading: 'INT. KÖK - DAG' };
+    const once = apply({ kind: 'metadata', scene, day: 3, energy: 7 });
+    expect(parse(once).scenes[0]?.meta).toMatchObject({ day: 3, energy: 7 });
+    const swedish = once.replace('[[day: 3]]', '[[dag: 3]]');
+    const again = apply({ kind: 'metadata', scene, day: 4 }, swedish);
+    expect(again).toContain('[[dag: 4]]');
+    expect(again.match(/\[\[(?:day|dag):/g)).toHaveLength(1);
+  });
+
   it('does not touch any line of the script itself', () => {
     const out = apply({ kind: 'metadata', scene: { index: 1, heading: 'EXT. SKOLGÅRD - KVÄLL' }, status: 'locked' });
     const words = (s: string) => parse(s).elements.filter((e) => e.type !== 'note').map((e) => e.raw);

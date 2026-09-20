@@ -348,7 +348,9 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
     'suggest_metadata',
     {
       title: 'Suggest scene metadata',
-      description: 'Deliver a colour, status, story beat or cast list for a scene as a card. Stored as notes under the heading.',
+      description:
+        'Deliver a colour, status, story beat, cast list, story day or energy rating (1 to 10) for a scene as a card. Stored as notes under the heading. ' +
+        'Only rate energy or set days when the writer asked for it; a rating is a judgement, and it is theirs to accept.',
       inputSchema: {
         scene: SCENE.optional(),
         path: PATH,
@@ -356,6 +358,8 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
         status: z.enum(['draft', 'revised', 'locked']).optional(),
         beat: z.string().optional(),
         cast: z.array(z.string()).optional(),
+        day: z.number().int().min(1).optional(),
+        energy: z.number().int().min(1).max(10).optional(),
       },
     },
     async ({ scene: reference, path, ...meta }) => {

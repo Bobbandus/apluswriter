@@ -78,6 +78,10 @@ export type Suggestion =
       status?: 'draft' | 'revised' | 'locked';
       beat?: string;
       cast?: string[];
+      /** The story day the scene takes place on. */
+      day?: number;
+      /** 1 to 10: how hard the scene pushes. */
+      energy?: number;
     }
   | { kind: 'note'; scene: SceneRef | null; text: string; todo?: boolean }
   | {

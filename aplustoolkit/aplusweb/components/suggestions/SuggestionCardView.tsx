@@ -101,6 +101,8 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
             {s.color && <li className={styles.pill}><b>color</b> {s.color}</li>}
             {s.status && <li className={styles.pill}><b>status</b> {s.status}</li>}
             {s.beat && <li className={styles.pill}><b>beat</b> {s.beat}</li>}
+            {s.day && <li className={styles.pill}><b>day</b> {s.day}</li>}
+            {s.energy && <li className={styles.pill}><b>energy</b> {s.energy}</li>}
             {s.cast?.map((name) => <li key={name} className={styles.pill}><b>cast</b> {name}</li>)}
           </ul>
         )}

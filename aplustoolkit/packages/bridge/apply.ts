@@ -73,15 +73,6 @@ function headingBlock(script: Script, scene: SceneIndexEntry): { heading: Elemen
   return { heading, notes, end: last.to };
 }
 
-/** Sets `[[key: value]]` under a heading, replacing an existing one. */
-function setNote(script: Script, scene: SceneIndexEntry, key: string, value: string): TextEdit {
-  const { notes, end } = headingBlock(script, scene);
-  const pattern = new RegExp(`^\\[\\[\\s*${key}\\s*:`, 'i');
-  const existing = notes.find((note) => pattern.test(note.raw.trim()));
-  const text = `[[${key}: ${value}]]`;
-  return existing ? { from: existing.from, to: existing.to, insert: text } : { from: end, to: end, insert: `\n${text}` };
-}
-
 /**
  * The edit that sets, or with `null` removes, one `[[key: value]]` under a scene heading.
  * `keys` lists the spellings that mean the same thing (`day`, `dag`): an existing note in
@@ -146,17 +137,19 @@ export function editsFor(source: string, suggestion: Suggestion, selected?: read
       // One key at a time, re-parsing between: each edit shifts the offsets
       // the next one needs.
       let text = source;
-      const pairs: [string, string][] = [];
-      if (suggestion.color) pairs.push(['color', suggestion.color]);
-      if (suggestion.status) pairs.push(['status', suggestion.status]);
-      if (suggestion.beat) pairs.push(['beat', suggestion.beat]);
-      if (suggestion.cast?.length) pairs.push(['CAST', suggestion.cast.join(', ')]);
-      for (const [key, value] of pairs) {
+      const pairs: [string[], string][] = [];
+      if (suggestion.color) pairs.push([['color', 'colour', 'färg'], suggestion.color]);
+      if (suggestion.status) pairs.push([['status'], suggestion.status]);
+      if (suggestion.beat) pairs.push([['beat'], suggestion.beat]);
+      if (suggestion.cast?.length) pairs.push([['CAST'], suggestion.cast.join(', ')]);
+      if (suggestion.day) pairs.push([['day', 'dag'], String(suggestion.day)]);
+      if (suggestion.energy) pairs.push([['energy', 'energi'], String(suggestion.energy)]);
+      for (const [keys, value] of pairs) {
         const current = parse(text);
         const again = resolveScene(current, suggestion.scene);
         if (!again) return { ok: false, reason: 'sceneNotFound' };
-        const edit = setNote(current, again, key, value);
-        text = text.slice(0, edit.from) + edit.insert + text.slice(edit.to);
+        const edit = sceneNoteEdit(text, current.scenes.indexOf(again), keys, value);
+        if (edit) text = text.slice(0, edit.from) + edit.insert + text.slice(edit.to);
       }
       return { ok: true, edits: diffToEdit(source, text) };
     }
