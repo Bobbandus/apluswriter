@@ -39,6 +39,7 @@
     "toggleSidebar": "Visa eller dölj navigatorn",
     "toggleInspector": "Visa eller dölj inspektorn",
     "focusMode": "Fokusläge",
+    "cards": "Indexkort",
     "commandPalette": "Kommandopalett",
     "export": "Exportera",
     "projects": "Alla projekt"
@@ -71,6 +72,8 @@
     "noScenesHint": "Skriv en scenrubrik, till exempel INT. KÖK – DAG, så dyker den upp här.",
     "acts": "Akter",
     "sequences": "Sekvenser",
+    "collapseSection": "Fäll ihop {title}",
+    "expandSection": "Fäll ut {title}",
     "sceneCount": "{count, plural, =0 {Inga scener} =1 {# scen} other {# scener}}",
     "pageCount": "{count, plural, =1 {# sida} other {# sidor}}",
     "runtime": "Speltid {minutes} min"
@@ -162,6 +165,8 @@
   "cards": {
     "title": "Indexkort",
     "addSynopsis": "Lägg till synopsis",
+    "moveUp": "Flytta {heading} före",
+    "moveDown": "Flytta {heading} efter",
     "synopsisPlaceholder": "Vad händer i scenen?",
     "empty": "Inga kort än",
     "emptyHint": "Varje scen i manuset blir ett kort här. Dra för att flytta om."

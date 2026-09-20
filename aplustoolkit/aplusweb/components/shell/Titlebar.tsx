@@ -21,6 +21,9 @@ export interface TitlebarProps {
   /** Left out until the palette exists; the button is hidden rather than dead. */
   onOpenCommandPalette?: (() => void) | undefined;
   onExport?: () => void;
+  /** The script, or the same scenes as index cards. Left out, the toggle is not drawn. */
+  view?: 'script' | 'cards' | undefined;
+  onViewChange?: ((view: 'script' | 'cards') => void) | undefined;
   /** Back to all projects. */
   onHome?: () => void;
   onOpenProjectMenu?: () => void;
@@ -47,6 +50,8 @@ export function Titlebar({
   onToggleFocus,
   onOpenCommandPalette,
   onExport,
+  view,
+  onViewChange,
   onHome,
   onOpenProjectMenu,
   onOpenVersionMenu,
@@ -103,6 +108,19 @@ export function Titlebar({
       </div>
 
       <div className={styles.side + ' ' + styles.right}>
+        {view && onViewChange && (
+          <Tooltip label={t('cards')}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon="cards"
+              aria-pressed={view === 'cards'}
+              aria-label={t('cards')}
+              onClick={() => onViewChange(view === 'cards' ? 'script' : 'cards')}
+            />
+          </Tooltip>
+        )}
+
         {onExport && (
           <Tooltip label={t('export')} shortcut="mod+e">
             <Button variant="ghost" size="sm" icon="export" aria-label={t('export')} onClick={onExport} />

@@ -4,7 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Compartment, EditorState, type Extension } from '@codemirror/state';
 import { EditorView, drawSelection, keymap, rectangularSelection } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap, redo, undo } from '@codemirror/commands';
 import { searchKeymap } from '@codemirror/search';
 import { fountainTheme } from './fountain/theme';
 import { fountainDecorations } from './fountain/decorations';
@@ -58,6 +58,13 @@ export interface ScriptEditorHandle {
   getText(): string;
   revealOffset(offset: number): void;
   focus(): void;
+  /**
+   * The editor's own history, for the parts of the app that change the text
+   * while it is not focused — the index card board — and so cannot rely on
+   * the keystroke reaching CodeMirror.
+   */
+  undo(): void;
+  redo(): void;
 }
 
 /**
@@ -252,6 +259,12 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
         instance.focus();
       },
       focus: () => view.current?.focus(),
+      undo: () => {
+        if (view.current) undo(view.current);
+      },
+      redo: () => {
+        if (view.current) redo(view.current);
+      },
     }),
     // chooseElement only reads refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps

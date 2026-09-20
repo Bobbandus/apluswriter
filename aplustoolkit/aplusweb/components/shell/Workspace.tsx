@@ -20,6 +20,8 @@ export interface WorkspaceProps {
   children: ReactNode;
   onOpenCommandPalette?: () => void;
   onExport?: () => void;
+  view?: 'script' | 'cards';
+  onViewChange?: (view: 'script' | 'cards') => void;
   onHome?: () => void;
 }
 
@@ -39,6 +41,8 @@ export function Workspace({
   children,
   onOpenCommandPalette,
   onExport,
+  view,
+  onViewChange,
   onHome,
 }: WorkspaceProps) {
   const t = useTranslations('a11y');
@@ -151,6 +155,7 @@ export function Workspace({
         onToggleFocus={toggleFocus}
         {...(onOpenCommandPalette ? { onOpenCommandPalette } : {})}
         {...(onExport ? { onExport } : {})}
+        {...(view && onViewChange ? { view, onViewChange } : {})}
         {...(onHome ? { onHome } : {})}
       />
 

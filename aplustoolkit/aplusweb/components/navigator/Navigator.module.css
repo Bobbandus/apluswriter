@@ -2,12 +2,65 @@
   padding: var(--s-1) var(--s-1) var(--s-4);
 }
 
+/* Acts and sequences. Quieter than a scene on purpose: they are the shape of
+   the script, and the scenes are what the writer came here for. */
+.section {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px var(--s-1) 2px calc(var(--s-1) + var(--indent, 0) * 12px);
+}
+
+.fold {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-xs);
+  color: var(--text-faint);
+}
+
+.fold:hover {
+  color: var(--text);
+  background: var(--bg-raised-hover);
+}
+
+.sectionTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sectionTitle:hover {
+  color: var(--text);
+}
+
+/* How many scenes a folded section is hiding. */
+.folded {
+  flex: none;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--bg-raised-hover);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+}
+
 .scene {
   display: flex;
   align-items: baseline;
   gap: var(--s-2);
   width: 100%;
-  padding: 5px var(--s-2);
+  padding: 5px var(--s-2) 5px calc(var(--s-2) + var(--indent, 0) * 12px);
   border-radius: var(--r-sm);
   text-align: left;
   transition: background var(--dur-fast) var(--ease-out);

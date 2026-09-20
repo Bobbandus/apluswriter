@@ -13,6 +13,10 @@ import { useToast } from '@/components/ui/Toast';
 import { useBridge } from '@/lib/bridge/useBridge';
 import { sceneOffset, useAssistant } from '@/lib/bridge/useAssistant';
 import type { AppState } from '@aplus/bridge/protocol';
+import { diffToEdit, editsFor } from '@aplus/bridge/apply';
+import { reorderScenes } from '@aplus/fountain/structure';
+import type { SceneIndexEntry } from '@aplus/fountain/types';
+import { IndexCardBoard } from '@/components/cards/IndexCardBoard';
 import { PageCanvas } from '@/components/editor/PageCanvas';
 import { ScriptEditor, type ScriptEditorHandle } from '@/components/editor/ScriptEditor';
 import { ElementBar } from '@/components/editor/ElementBar';
@@ -108,6 +112,10 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     DEFAULT_EDITOR_SETTINGS,
   );
 
+  /* The same scenes, drawn as index cards. Not remembered between visits: the
+     writer opens a script to write, and finding it on the board would be a
+     small surprise every time. */
+  const [view, setView] = useState<'script' | 'cards'>('script');
   const [caret, setCaret] = useState(0);
   const [selection, setSelection] = useState({ from: 0, to: 0, text: '' });
   const [tab, setTab] = useState<InspectorTab>('scene');
@@ -179,6 +187,49 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       if (offset !== null) editorRef.current?.revealOffset(offset);
     });
   }, [bridge]);
+  /* ---------------------------------------------------------- index cards
+     Every edit the board makes goes through the editor as one transaction, so
+     a drag is one undo — and the cards redraw from the text that results,
+     never from a copy of their own. */
+
+  const moveScene = useCallback((from: number, to: number) => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const current = handle.getText();
+    const next = reorderScenes(current, from, to);
+    if (next !== current) handle.applyChanges(diffToEdit(current, next));
+  }, []);
+
+  const writeSynopsis = useCallback((scene: SceneIndexEntry, text: string, index: number) => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const result = editsFor(handle.getText(), { kind: 'synopsis', scene: { index, heading: scene.heading }, text });
+    if (result.ok) handle.applyChanges(result.edits);
+  }, []);
+
+  const openScene = useCallback((scene: SceneIndexEntry) => {
+    setView('script');
+    // The editor is hidden, not unmounted, but it can only scroll once it is
+    // laid out again.
+    window.requestAnimationFrame(() => editorRef.current?.revealOffset(scene.from));
+  }, []);
+
+  // With the board showing, the editor is not focused and the keystroke would
+  // never reach its history. Text fields keep their own undo.
+  useEffect(() => {
+    if (view !== 'cards') return;
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT')) return;
+      event.preventDefault();
+      if (event.shiftKey) editorRef.current?.redo();
+      else editorRef.current?.undo();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [view]);
+
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
 
@@ -278,13 +329,17 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // than claiming the work is safe.
         saveState={hydrated ? doc.state : null}
         onExport={() => setExportOpen(true)}
+        view={view}
+        onViewChange={setView}
         onHome={() => router.push('/plan/write')}
         sidebar={
           <Navigator
             scenes={script.scenes}
+            sections={script.sections}
             caret={caret}
             eighths={script.layout?.sceneEighths}
             onSelectScene={(selected) => editorRef.current?.revealOffset(selected.from)}
+            onSelectSection={(selected) => editorRef.current?.revealOffset(selected.from)}
           />
         }
         inspector={
@@ -321,6 +376,11 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
           />
         }
       >
+        {/* Hidden, never unmounted. Taking the editor out of the tree would
+            throw away the caret, the scroll position and — worst — the undo
+            history, and the cards' whole promise is that a drag is one undo
+            away from never having happened. */}
+        <div style={{ display: view === 'cards' ? 'none' : 'contents' }}>
         <PageCanvas
           pageSize={pageSize}
           toolbar={
@@ -354,6 +414,18 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             />
           )}
         </PageCanvas>
+        </div>
+
+        {view === 'cards' && (
+          <IndexCardBoard
+            scenes={script.scenes}
+            eighths={script.layout?.sceneEighths}
+            caret={caret}
+            onMove={moveScene}
+            onOpen={openScene}
+            onSynopsis={writeSynopsis}
+          />
+        )}
       </Workspace>
 
       {toast}

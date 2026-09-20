@@ -73,7 +73,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
 - [~] 2.6 Nedladdningsbannern klar. **▶ NÄSTA:** MCPB-tillägget (`manifest.json`, packas med `mcpb pack`, öppnas med `shell.openPath`)
 
-**Fas 3 — M7 Struktur:** [ ] 3.1 sektioner i navigator · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [ ] 3.3 indexkort med drag · [ ] 3.4 roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel
+**Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [ ] **▶ NÄSTA: 3.4** roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel
 
 **Fas 4 — M8 Revisioner:** [ ] 4.1 lagring · [ ] 4.2 versionsmeny + auto-ögonblicksbilder · [ ] 4.3 PDF-asterisker · [ ] 4.4 scenalternativ · [ ] 4.5 MCP-läsverktyg
 

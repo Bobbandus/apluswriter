@@ -39,6 +39,7 @@
     "toggleSidebar": "Show or hide the navigator",
     "toggleInspector": "Show or hide the inspector",
     "focusMode": "Focus mode",
+    "cards": "Index cards",
     "commandPalette": "Command palette",
     "export": "Export",
     "projects": "All projects"
@@ -71,6 +72,8 @@
     "noScenesHint": "Write a scene heading, such as INT. KITCHEN – DAY, and it will show up here.",
     "acts": "Acts",
     "sequences": "Sequences",
+    "collapseSection": "Collapse {title}",
+    "expandSection": "Expand {title}",
     "sceneCount": "{count, plural, =0 {No scenes} =1 {# scene} other {# scenes}}",
     "pageCount": "{count, plural, =1 {# page} other {# pages}}",
     "runtime": "Runtime {minutes} min"
@@ -162,6 +165,8 @@
   "cards": {
     "title": "Index cards",
     "addSynopsis": "Add a synopsis",
+    "moveUp": "Move {heading} earlier",
+    "moveDown": "Move {heading} later",
     "synopsisPlaceholder": "What happens in this scene?",
     "empty": "No cards yet",
     "emptyHint": "Every scene in the script becomes a card here. Drag to reorder."
