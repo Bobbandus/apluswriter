@@ -213,7 +213,7 @@ export class ProjectRepository {
 
   /** A `.fountain` or `.txt` file becomes a new project. */
   async importFountain(fileName: string, text: string, location: ProjectLocation): Promise<ProjectMeta> {
-    const title = titleFromSource(text) ?? fileName.replace(/\.(fountain|spmd|txt)$/i, '');
+    const title = titleFromSource(text) ?? fileName.replace(/\.(fountain|spmd|txt|fdx)$/i, '');
     return this.create({ title, content: text.replace(/\r\n/g, '\n'), location });
   }
 }

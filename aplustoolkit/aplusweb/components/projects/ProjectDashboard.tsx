@@ -102,12 +102,15 @@ export function ProjectDashboard() {
 
   const importFiles = async (files: FileList | File[]) => {
     for (const file of Array.from(files)) {
-      if (!/\.(fountain|spmd|txt)$/i.test(file.name)) {
+      if (!/\.(fountain|spmd|txt|fdx)$/i.test(file.name)) {
         setNotice(t('importFailed'));
         continue;
       }
       try {
-        await repo.importFountain(file.name, await file.text(), signedIn ? 'cloud' : 'local');
+        const raw = await file.text();
+        // A Final Draft file is read into Fountain first; the project then starts like any other.
+        const text = /\.fdx$/i.test(file.name) ? (await import('@aplus/fountain/importFdx')).fdxToFountain(raw) : raw;
+        await repo.importFountain(file.name, text, signedIn ? 'cloud' : 'local');
       } catch {
         setNotice(t('importFailed'));
       }
@@ -171,7 +174,7 @@ export function ProjectDashboard() {
             <input
               ref={fileInput}
               type="file"
-              accept=".fountain,.spmd,.txt"
+              accept=".fountain,.spmd,.txt,.fdx"
               multiple
               hidden
               onChange={(event) => {
