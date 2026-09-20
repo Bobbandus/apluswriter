@@ -61,6 +61,17 @@ export function Workspace({
   const [inspectorOpen, setInspectorOpen] = usePersistentState('aplus.ui.inspectorOpen', true);
   const [sidebarWidth, setSidebarWidth] = usePersistentState('aplus.ui.sidebarWidth', 268);
   const [focusMode, setFocusMode] = useState(false);
+  // On a phone the panes are overlays, and a script is opened to write: they start closed and
+  // are opened on purpose, without touching what the writer chose for the desktop layout.
+  const [narrow, setNarrow] = useState(false);
+  const [mobilePane, setMobilePane] = useState<'sidebar' | 'inspector' | null>(null);
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 900px)');
+    const update = () => setNarrow(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
   // A writer who wants every script to open in focus mode says so once.
   useEffect(() => {
     if (readFocusPrefs().startInFocus) setFocusMode(true);
@@ -120,8 +131,14 @@ export function Workspace({
 
   /* ------------------------------------------------------------ shortcuts */
 
-  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), [setSidebarOpen]);
-  const toggleInspector = useCallback(() => setInspectorOpen((v) => !v), [setInspectorOpen]);
+  const toggleSidebar = useCallback(
+    () => (narrow ? setMobilePane((pane) => (pane === 'sidebar' ? null : 'sidebar')) : setSidebarOpen((v) => !v)),
+    [narrow, setSidebarOpen],
+  );
+  const toggleInspector = useCallback(
+    () => (narrow ? setMobilePane((pane) => (pane === 'inspector' ? null : 'inspector')) : setInspectorOpen((v) => !v)),
+    [narrow, setInspectorOpen],
+  );
   const toggleFocus = useCallback(() => setFocusMode((v) => !v), []);
 
   const shortcuts = useShortcuts();
@@ -154,8 +171,8 @@ export function Workspace({
 
   /* --------------------------------------------------------------- render */
 
-  const showSidebar = sidebarOpen && !focusMode;
-  const showInspector = inspectorOpen && !focusMode;
+  const showSidebar = (narrow ? mobilePane === 'sidebar' : sidebarOpen) && !focusMode;
+  const showInspector = (narrow ? mobilePane === 'inspector' : inspectorOpen) && !focusMode;
 
   const classes = [
     styles.workspace,
