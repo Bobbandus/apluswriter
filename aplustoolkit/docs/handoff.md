@@ -75,7 +75,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 **Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [x] 3.4 roll-/platspaneler + relationskarta (`components/cast/`, `packages/fountain/relations.ts`) · [x] 3.5 Att göra-panel (`components/todos/`, `packages/fountain/todos.ts`)
 
-**Fas 4 — M8 Revisioner:** [x] 4.1 lagring (`packages/fountain/revisions.ts`, store i `local.ts`; molnsynk av revisioner kvar) · [x] 4.2 versionsmeny + auto-ögonblicksbilder (`components/revisions/`, `lib/storage/useRevisions.ts`) · [x] 4.3 PDF-asterisker (`packages/export/revisionMarks.ts`) · [ ] **▶ NÄSTA: 4.4** scenalternativ · [ ] 4.5 MCP-läsverktyg
+**Fas 4 — M8 Revisioner:** [x] 4.1 lagring (`packages/fountain/revisions.ts`, store i `local.ts`; molnsynk av revisioner kvar) · [x] 4.2 versionsmeny + auto-ögonblicksbilder (`components/revisions/`, `lib/storage/useRevisions.ts`) · [x] 4.3 PDF-asterisker (`packages/export/revisionMarks.ts`) · [x] 4.4 scenalternativ (`packages/fountain/alternatives.ts`, `components/alternatives/`) · [ ] 4.5 MCP-läsverktyg (kräver request/response i bryggan: revisionerna bor i webbläsaren, inte i MCP-servern)
 
 **Fas 5 — M9 Import/export:** [ ] FDX/HTML/sidor/rapporter ut · [ ] FDX/Highland/Word in · [ ] titelsidesformulär
 

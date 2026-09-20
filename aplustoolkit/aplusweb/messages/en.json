@@ -470,6 +470,17 @@
     "mapCaption": "The thicker the line, the more scenes they share. The bigger the circle, the more words.",
     "omitted": "{count, plural, =1 {# more character is not shown.} other {# more characters are not shown.}}"
   },
+  "alternatives": {
+    "title": "Other versions",
+    "unnamed": "Unnamed version",
+    "swapIn": "Swap in",
+    "remove": "Remove {name}",
+    "keepThisVersion": "Keep this version",
+    "namePlaceholder": "Name, e.g. With rain",
+    "save": "Save",
+    "previous": "Previous version",
+    "hint": "Kept in the script as hidden text after the scene, and moves with it."
+  },
   "todos": {
     "title": "To do",
     "tab": "To do",

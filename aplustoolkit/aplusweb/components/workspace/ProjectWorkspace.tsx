@@ -19,6 +19,8 @@ import { reorderScenes } from '@aplus/fountain/structure';
 import { removeTodo } from '@aplus/fountain/todos';
 import { TodoPanel, type TodoItem } from '@/components/todos/TodoPanel';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
+import { SceneAlternatives } from '@/components/alternatives/SceneAlternatives';
+import { alternativesOf, removeAlternative, saveAlternative, swapAlternative } from '@aplus/fountain/alternatives';
 import { CastSheet } from '@/components/cast/CastSheet';
 import { RevisionMenu } from '@/components/revisions/RevisionMenu';
 import { useRevisions } from '@/lib/storage/useRevisions';
@@ -135,6 +137,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [toast, say] = useToast();
   const tAssistant = useTranslations('assistant');
   const tRevisions = useTranslations('revisions');
+  const tAlternatives = useTranslations('alternatives');
   const [element, setElement] = useState<LineType | null>(null);
   const editorRef = useRef<ScriptEditorHandle>(null);
   const [dictionary, setDictionary] = usePersistentState<DictionaryData>(
@@ -238,6 +241,20 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     },
     [revisions, say, tRevisions],
   );
+
+  /* ------------------------------------------------- scene alternatives
+     Every change rewrites the source and goes in as one edit, so a swap is one
+     undo. The scene is the one the caret is in at the moment of the click. */
+
+  const editScene = useCallback((rewrite: (text: string, index: number) => string) => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const text = handle.getText();
+    const caretAt = handle.getSelection().from;
+    const at = parse(text).scenes.findIndex((s) => caretAt >= s.from && caretAt < s.to);
+    const next = rewrite(text, Math.max(0, at));
+    if (next !== text) handle.applyChanges(diffToEdit(text, next));
+  }, []);
 
   /* --------------------------------------------------------------- to-dos
      The list comes from the parse worker, which is a moment behind the
@@ -431,7 +448,19 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
                 extra={(() => {
                   const index = scene ? script.scenes.indexOf(scene) : -1;
                   const list = scene ? assistant.shotlistFor(scene.heading, index) : null;
-                  return list ? <ShotlistBlock shotlist={list} onRemove={() => assistant.removeShotlist(list)} /> : null;
+                  return (
+                    <>
+                      {list ? <ShotlistBlock shotlist={list} onRemove={() => assistant.removeShotlist(list)} /> : null}
+                      {scene && (
+                        <SceneAlternatives
+                          alternatives={alternativesOf(source, index)}
+                          onSave={(label) => editScene((text, i) => saveAlternative(text, i, label))}
+                          onSwap={(n) => editScene((text, i) => swapAlternative(text, i, n, tAlternatives('previous')))}
+                          onRemove={(n) => editScene((text, i) => removeAlternative(text, i, n))}
+                        />
+                      )}
+                    </>
+                  );
                 })()}
               />
             }
