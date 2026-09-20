@@ -209,6 +209,20 @@
 }
 
 /* ==========================================================================
+   Plain text
+   No paper: the script is text in a column on the app background, in any theme.
+   A mode, not a theme, so it sits after them and wins over them.
+   ========================================================================== */
+:root[data-plain='true'] {
+  --bg-canvas: var(--bg-app);
+  --page-bg: var(--bg-app);
+  --page-ink: var(--text);
+  --page-ink-muted: var(--text-muted);
+  --page-edge: var(--line-faint);
+  --page-shadow: none;
+}
+
+/* ==========================================================================
    Production revision colours
    The industry sequence, in order. Used for revision chips and page stock.
    ========================================================================== */

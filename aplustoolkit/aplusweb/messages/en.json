@@ -372,7 +372,8 @@
       "off": "Typewriter scroll: off"
     },
     "startInFocusOn": "Always open in focus mode",
-    "startInFocusOff": "Do not open in focus mode"
+    "startInFocusOff": "Do not open in focus mode",
+    "plain": "Plain text: toggle the paper"
   },
   "settings": {
     "title": "Settings",

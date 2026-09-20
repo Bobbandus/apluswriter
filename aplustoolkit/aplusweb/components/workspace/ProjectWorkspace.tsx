@@ -478,6 +478,23 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         .filter((mode) => mode !== focusPrefs.typewriter)
         .map((mode) => ({ id: `typewriter:${mode}`, label: tCommand(`typewriter.${mode}`), group: tCommand('groupView'), keywords: 'typewriter skrivmaskin mitten scroll', run: () => setFocusPrefs({ typewriter: mode }) })),
       { id: 'startInFocus', label: focusPrefs.startInFocus ? tCommand('startInFocusOff') : tCommand('startInFocusOn'), group: tCommand('groupView'), keywords: 'fokus starta öppna alltid', run: () => setFocusPrefs({ startInFocus: !focusPrefs.startInFocus }) },
+      {
+        id: 'plain',
+        label: tCommand('plain'),
+        group: tCommand('groupView'),
+        keywords: 'ren text papper sida utan kolumn',
+        run: () => {
+          const root = document.documentElement;
+          const on = root.dataset['plain'] !== 'true';
+          if (on) root.dataset['plain'] = 'true';
+          else delete root.dataset['plain'];
+          try {
+            window.localStorage.setItem('aplus.ui.plain', on ? '1' : '0');
+          } catch {
+            // The mode still applies for this visit.
+          }
+        },
+      },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },

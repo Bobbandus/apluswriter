@@ -372,7 +372,8 @@
       "off": "Typewriter-scroll: av"
     },
     "startInFocusOn": "Öppna alltid i fokusläge",
-    "startInFocusOff": "Öppna inte i fokusläge"
+    "startInFocusOff": "Öppna inte i fokusläge",
+    "plain": "Ren text: växla pappersyta av/på"
   },
   "settings": {
     "title": "Inställningar",

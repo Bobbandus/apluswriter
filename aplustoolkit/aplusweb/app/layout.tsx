@@ -62,7 +62,7 @@ export const viewport: Viewport = {
   ],
 };
 
-const THEME_SCRIPT = `(function(){var d=document.documentElement,m=window.matchMedia("(prefers-color-scheme: dark)");function s(){if(d.dataset.themePref==="system")d.dataset.theme=m.matches?"dark":"light"}s();m.addEventListener("change",s)})()`;
+const THEME_SCRIPT = `(function(){var d=document.documentElement,m=window.matchMedia("(prefers-color-scheme: dark)");function s(){if(d.dataset.themePref==="system")d.dataset.theme=m.matches?"dark":"light"}try{if(localStorage.getItem("aplus.ui.plain")==="1")d.dataset.plain="true"}catch(e){}s();m.addEventListener("change",s)})()`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [locale, messages, store] = await Promise.all([getLocale(), getMessages(), cookies()]);
