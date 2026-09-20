@@ -5,7 +5,7 @@ import { serialize } from '@aplus/fountain/serialize';
 import type { PageSize } from '@aplus/paginator/geometry';
 import { saveFile } from '@/lib/platform/files';
 
-export type ExportFormat = 'pdf' | 'fountain';
+export type ExportFormat = 'pdf' | 'fountain' | 'fdx';
 
 export interface ExportRequest {
   source: string;
@@ -47,6 +47,13 @@ function loadFonts() {
 export async function runExport(request: ExportRequest): Promise<string> {
   const script = parse(request.source);
   const { exportFileName, renderPdf } = await import('@aplus/export/pdf');
+
+  if (request.format === 'fdx') {
+    const { renderFdx } = await import('@aplus/export/fdx');
+    const name = exportFileName(script, 'fdx');
+    await saveFile(name, new Blob([renderFdx(script)], { type: 'application/xml;charset=utf-8' }));
+    return name;
+  }
 
   if (request.format === 'fountain') {
     const name = exportFileName(script, 'fountain');

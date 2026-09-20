@@ -107,6 +107,7 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
           options={[
             { value: 'pdf', label: t('formatPdf'), icon: 'export' },
             { value: 'fountain', label: t('formatFountain'), icon: 'write' },
+            { value: 'fdx', label: t('formatFdx'), icon: 'export' },
           ]}
         />
 
