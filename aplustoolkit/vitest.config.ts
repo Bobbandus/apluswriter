@@ -12,6 +12,7 @@ export default defineConfig({
       '@aplus/export': at('./packages/export'),
       '@aplus/bridge': at('./packages/bridge'),
       '@aplus/production': at('./packages/production'),
+      '@aplus/live': at('./packages/live'),
       '@': at('./aplusweb'),
     },
   },

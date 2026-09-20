@@ -289,8 +289,8 @@ describe('live boards', () => {
 
   it('shows an anonymous page the board for either token, and says which one it holds', async () => {
     const board = await newBoard(ALICE, 'pingis');
-    const [viewer] = await as<{ kind: string; name: string; can_control: boolean }>(null, 'select kind, name, can_control from public.get_live_board($1)', [board.output_token]);
-    expect(viewer).toEqual({ kind: 'pingis', name: 'Match', can_control: false });
+    const [viewer] = await as<{ id: string; kind: string; name: string; can_control: boolean }>(null, 'select id, kind, name, can_control from public.get_live_board($1)', [board.output_token]);
+    expect(viewer).toEqual({ id: board.id, kind: 'pingis', name: 'Match', can_control: false });
     const [operator] = await as<{ can_control: boolean }>(null, 'select can_control from public.get_live_board($1)', [board.control_token]);
     expect(operator?.can_control).toBe(true);
   });

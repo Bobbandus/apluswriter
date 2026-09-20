@@ -72,8 +72,14 @@ create policy live_boards_owner_all on public.live_boards for all
 -- p_since_version makes polling cheap: when nothing is newer the answer is no
 -- rows at all. can_control tells the page which of the two tokens it was given.
 -- ----------------------------------------------------------------------------
-create or replace function public.get_live_board(p_token text, p_since_version integer default null)
+-- The id comes back too: it names the Realtime channel that tells a page to look again.
+-- It is not a secret worth guarding (nothing in the channel carries data), only hard to guess.
+-- A changed result type cannot be replaced in place, so the old version is dropped first.
+drop function if exists public.get_live_board(text, integer);
+
+create function public.get_live_board(p_token text, p_since_version integer default null)
 returns table (
+  id uuid,
   kind text,
   name text,
   state jsonb,
@@ -82,7 +88,7 @@ returns table (
   can_control boolean
 )
 language sql stable security definer set search_path = public as $$
-  select b.kind, b.name, b.state, b.theme, b.version, (b.control_token = p_token)
+  select b.id, b.kind, b.name, b.state, b.theme, b.version, (b.control_token = p_token)
   from public.live_boards b
   where (b.output_token = p_token or b.control_token = p_token)
     and b.deleted_at is null

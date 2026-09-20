@@ -22,6 +22,9 @@
       ],
       "@aplus/production/*": [
         "../packages/production/*"
+      ],
+      "@aplus/live/*": [
+        "../packages/live/*"
       ]
     }
   },
