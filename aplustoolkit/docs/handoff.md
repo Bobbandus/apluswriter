@@ -120,3 +120,13 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - `gh` finns inte på datorn. Releaser byggs av GitHub Actions på en `v*`-tagg.
 - Windows Developer Mode är av. Om electron-builder klagar på symlänkar: slå på det (Inställningar → System → För utvecklare) eller sätt `signAndEditExecutable: false`.
 - Osignerad installer ger en SmartScreen-varning första gången ("Mer info" → "Kör ändå"). Okej för internt bruk.
+
+## Beslutat 2026-09-20 (frågeomgång, gör i den här ordningen när usage finns)
+
+Ordning: **skrivupplevelsen först**, sedan Shoot/Live, molnet (datasynk, delning) sist.
+
+- **Claude (bara kort, aldrig ändring före Använd):** läs högt-feedback (stela repliker, alla låter lika), scenmål-koll (mål, hinder, förändring per scen), fråga-Claude på markering (markera, tangent, skriv fråga, svar som kort). Nej till: kontinuitetskoll, autouse för småsaker (reglerna i ideas.txt står fast).
+- **Skriva:** dubbel dialog (`^`, med sidvisning och export), minnesbubblor (taggar i noter, listade i inspektorn). Nej till: snabbtecken `//`, parkeringsruta.
+- **UI:** ren text-tema (läge oberoende av färgtema), mobil skrivvy (text + snabbanteckning), splittvy, egna genvägar i inställningarna. **Teman: Ljust, Mörkt, System (auto). Midnatt tas bort.**
+- **Shoot:** klappa och logga tagningar (scen, tagning, anteckning, per dag, export). **Live:** overlay för OBS (webbsida som lager, operatörsvy). Nej för nu: dagens inspelningslista, bordsläsning.
+- **Release:** jag får tagga v0.1.0 själv när nästa större del är klar och checklistan ovan är grön; be då bara användaren provköra installern.
