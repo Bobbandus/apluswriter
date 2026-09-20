@@ -799,7 +799,9 @@
       "flag": "Flagga",
       "flagPlaceholder": "Flagga, t.ex. SE",
       "logo": "Logotyp",
-      "logoPlaceholder": "Logotyp-URL (https://…)"
+      "logoPlaceholder": "Logotyp-URL (https://…)",
+      "streamDeck": "Stream Deck och andra knappar (HTTP)",
+      "streamDeckHint": "Varje knapp har en egen adress. Lägg den i en Stream Decks \"Webbplats\"-åtgärd (eller valfritt HTTP-anrop, GET eller POST). Adressen innehåller kontrollänken och ska hållas hemlig."
     },
     "period": "{period}:a halvlek"
   }

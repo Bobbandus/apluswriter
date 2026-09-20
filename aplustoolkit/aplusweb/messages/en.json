@@ -799,7 +799,9 @@
       "flag": "Flag",
       "flagPlaceholder": "Flag, e.g. SE",
       "logo": "Logo",
-      "logoPlaceholder": "Logo URL (https://…)"
+      "logoPlaceholder": "Logo URL (https://…)",
+      "streamDeck": "Stream Deck and other buttons (HTTP)",
+      "streamDeckHint": "Every button has its own address. Put it in a Stream Deck \"Website\" action (or any HTTP call, GET or POST). The address contains the control link and must be kept secret."
     },
     "period": "Half {period}"
   }

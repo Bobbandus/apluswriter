@@ -250,3 +250,25 @@
     grid-column: 1 / -1;
   }
 }
+
+.apiList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--s-2);
+  margin: var(--s-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.apiList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+.apiList code {
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  color: var(--text);
+}

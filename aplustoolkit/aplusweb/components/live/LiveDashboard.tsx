@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { API_NAMES } from '@aplus/live/api';
 import { defaultState, normalizeState } from '@aplus/live/board';
 import { DEFAULT_THEMES, THEME_FORMAT, validateTheme } from '@aplus/live/theme';
 import { BOARD_KINDS, type BoardKind, type ScoreState, type Side } from '@aplus/live/types';
@@ -213,6 +214,26 @@ function BoardCard({ board, store, local, onChanged }: { board: OwnedBoard; stor
           </div>
         </details>
       </section>
+
+      {!local && (
+        <details className={styles.details}>
+          <summary>{t('streamDeck')}</summary>
+          <p className={styles.hint}>{t('streamDeckHint')}</p>
+          <ul className={styles.apiList}>
+            {API_NAMES[board.kind].map((button) => {
+              const url = `${origin}/api/live/${board.controlToken}/${button}`;
+              return (
+                <li key={button}>
+                  <code>{button}</code>
+                  <button type="button" className={styles.btn} onClick={() => void copy(`api-${button}`, url)}>
+                    {copied === `api-${button}` ? t('copied') : t('copy')}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
 
       {board.kind !== 'lower' && (
         <section>
