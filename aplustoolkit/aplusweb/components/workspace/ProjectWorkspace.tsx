@@ -227,6 +227,28 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     if (next !== current) handle.applyChanges(diffToEdit(current, next));
   }, []);
 
+  /** Moves the scene the caret is in one step, keeping the caret at the same place inside it. */
+  const moveCaretScene = useCallback(
+    (step: -1 | 1) => {
+      const handle = editorRef.current;
+      if (!handle) return;
+      const text = handle.getText();
+      const at = handle.getSelection().from;
+      const scenes = parse(text).scenes;
+      const index = scenes.findIndex((s) => at >= s.from && at < s.to);
+      const target = index + step;
+      if (index < 0 || target < 0 || target >= scenes.length) return;
+      const inside = at - scenes[index]!.from;
+      moveScene(index, target);
+      const moved = parse(handle.getText()).scenes[target];
+      if (moved) {
+        const place = moved.from + Math.min(inside, Math.max(0, moved.to - moved.from - 1));
+        handle.selectRange(place, place);
+      }
+    },
+    [moveScene],
+  );
+
   const writeSynopsis = useCallback((scene: SceneIndexEntry, text: string, index: number) => {
     const handle = editorRef.current;
     if (!handle) return;
@@ -470,6 +492,9 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
 
   useHotkeys({
     'mod+,': openSettings,
+    // Move the scene the caret is in, without leaving the keyboard.
+    'mod+shift+arrowup': () => view === 'script' && moveCaretScene(-1),
+    'mod+shift+arrowdown': () => view === 'script' && moveCaretScene(1),
     'mod+e': () => setExportOpen(true),
     // Our own panel replaces the editor's, and only makes sense over the script.
     'mod+f': (event) => {
