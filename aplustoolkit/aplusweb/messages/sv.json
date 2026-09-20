@@ -257,6 +257,17 @@
     "startHint": "Starta ett skrivpass",
     "endHint": "Avsluta skrivpasset"
   },
+  "timeline": {
+    "title": "Story-dagar och energi",
+    "hint": "Skriv en siffra för dagen en scen utspelar sig; följande scener ärver den tills en ny anges. Energi 1–10 visar manusets rytm. Båda sparas som anteckningar under scenrubriken och kan tas bort där.",
+    "curve": "Energikurva över scenerna",
+    "scene": "Scen",
+    "day": "Dag",
+    "energy": "Energi",
+    "backwards": "Scen {scene} går tillbaka till dag {day} efter dag {after}. Ett tillbakablick, eller något att titta på?",
+    "dayFor": "Dag för scen {scene}",
+    "energyFor": "Energi för scen {scene}"
+  },
   "importExport": {
     "import": "Importera",
     "export": "Exportera",
@@ -332,6 +343,7 @@
     "groupView": "Visa",
     "groupScript": "Manus",
     "groupProject": "Projekt",
+    "timeline": "Story-dagar och energi",
     "counterOn": "Visa ordräknare",
     "counterOff": "Dölj ordräknare",
     "passStart": "Starta skrivpass",

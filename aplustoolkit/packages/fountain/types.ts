@@ -105,6 +105,10 @@ export interface SceneMeta {
   tags?: SceneTag[];
   /** From `[[todo: fix this line]]`. */
   todos?: string[];
+  /** From `[[day: 3]]`: the story day the scene takes place on. Later scenes inherit it. */
+  day?: number;
+  /** From `[[energy: 7]]`, 1 to 10: how hard the scene pushes, for reading the script's rhythm. */
+  energy?: number;
 }
 
 /* ========================================================================== */

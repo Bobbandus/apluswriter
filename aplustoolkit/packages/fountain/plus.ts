@@ -109,6 +109,18 @@ export function readSceneMeta(source: string): SceneMeta {
       case 'att göra':
         todos.push(value);
         break;
+      case 'day':
+      case 'dag': {
+        const day = /^\d{1,4}$/.test(value) ? Number(value) : NaN;
+        if (day >= 1) meta.day = day;
+        break;
+      }
+      case 'energy':
+      case 'energi': {
+        const energy = /^\d{1,2}$/.test(value) ? Number(value) : NaN;
+        if (energy >= 1 && energy <= 10) meta.energy = energy;
+        break;
+      }
       default:
         // An unrecognised key is a writer's note, not a malformed extension.
         break;

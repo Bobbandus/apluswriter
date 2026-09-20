@@ -257,6 +257,17 @@
     "startHint": "Start a writing session",
     "endHint": "End the writing session"
   },
+  "timeline": {
+    "title": "Story days and energy",
+    "hint": "Type a number for the day a scene takes place on; the scenes after it inherit it until a new one is given. Energy 1–10 shows the script's rhythm. Both are saved as notes under the scene heading and can be removed there.",
+    "curve": "Energy curve across the scenes",
+    "scene": "Scene",
+    "day": "Day",
+    "energy": "Energy",
+    "backwards": "Scene {scene} goes back to day {day} after day {after}. A flashback, or something to look at?",
+    "dayFor": "Day for scene {scene}",
+    "energyFor": "Energy for scene {scene}"
+  },
   "importExport": {
     "import": "Import",
     "export": "Export",
@@ -332,6 +343,7 @@
     "groupView": "View",
     "groupScript": "Script",
     "groupProject": "Project",
+    "timeline": "Story days and energy",
     "counterOn": "Show word counter",
     "counterOff": "Hide word counter",
     "passStart": "Start writing session",

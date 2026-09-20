@@ -83,6 +83,29 @@ function setNote(script: Script, scene: SceneIndexEntry, key: string, value: str
 }
 
 /**
+ * The edit that sets, or with `null` removes, one `[[key: value]]` under a scene heading.
+ * `keys` lists the spellings that mean the same thing (`day`, `dag`): an existing note in
+ * any of them is the one that changes, in the spelling the writer used.
+ */
+export function sceneNoteEdit(source: string, sceneIndex: number, keys: readonly string[], value: string | null): TextEdit | null {
+  const script = parse(source);
+  const scene = script.scenes[sceneIndex];
+  if (!scene || keys.length === 0) return null;
+  const { notes, end } = headingBlock(script, scene);
+  const matching = (key: string) => new RegExp(`^\\[\\[\\s*${key}\\s*:`, 'i');
+  const existing = notes.find((note) => keys.some((key) => matching(key).test(note.raw.trim())));
+  const used = existing ? (keys.find((key) => matching(key).test(existing.raw.trim())) ?? keys[0]!) : keys[0]!;
+
+  if (value === null) {
+    if (!existing) return null;
+    // Take the line break in front of the note with it, so no empty line is left behind.
+    return { from: source[existing.from - 1] === '\n' ? existing.from - 1 : existing.from, to: existing.to, insert: '' };
+  }
+  const text = `[[${used}: ${value}]]`;
+  return existing ? { from: existing.from, to: existing.to, insert: text } : { from: end, to: end, insert: `\n${text}` };
+}
+
+/**
  * @param selected Which parts of a multi-part suggestion to apply, by index.
  *   Omit for all of them; for `alternatives` the first entry is the option
  *   chosen, and omitting it takes the first.

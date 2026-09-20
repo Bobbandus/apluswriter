@@ -35,6 +35,8 @@ import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { TitlePageSheet } from '@/components/export/TitlePageSheet';
 import { WritingPill } from '@/components/writing/WritingPill';
 import { useWritingStats } from '@/lib/hooks/useWritingStats';
+import { TimelineSheet } from '@/components/timeline/TimelineSheet';
+import { sceneNoteEdit } from '@aplus/bridge/apply';
 import { FindReplace } from '@/components/find/FindReplace';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import type { Command } from '@/lib/commands';
@@ -92,6 +94,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
   const [replaceMode, setReplaceMode] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
   const doc = useProjectDocument(projectId, t('untitled'));
@@ -414,6 +417,16 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     }
   }, [writing]);
 
+  const setSceneField = useCallback((sceneIndex: number, field: 'day' | 'energy', value: number | null) => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const text = handle.getText();
+    const keys = field === 'day' ? ['day', 'dag'] : ['energy', 'energi'];
+    const edit = sceneNoteEdit(text, sceneIndex, keys, value === null ? null : String(value));
+    // A field left as it was writes nothing: no empty undo step, no needless save.
+    if (edit && text.slice(edit.from, edit.to) !== edit.insert) handle.applyChanges([edit]);
+  }, []);
+
   const tCommand = useTranslations('command');
   const commands = useMemo<Command[]>(
     () => [
@@ -426,6 +439,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: 'mod+h', run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
       { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
       { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
+      { id: 'timeline', label: tCommand('timeline'), group: tCommand('groupScript'), keywords: 'dag dagar energi kurva rytm story tidslinje', run: () => setTimelineOpen(true) },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
@@ -653,6 +667,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onSelect={(from, to) => editorRef.current?.selectRange(from, to)}
         onApply={(edits) => editorRef.current?.applyChanges(edits)}
       />
+
+      <TimelineSheet open={timelineOpen} onClose={() => setTimelineOpen(false)} scenes={script.scenes} onSet={setSceneField} />
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
 
