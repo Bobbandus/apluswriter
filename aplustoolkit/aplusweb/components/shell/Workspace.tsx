@@ -149,7 +149,7 @@ export function Workspace({
         onToggleSidebar={toggleSidebar}
         onToggleInspector={toggleInspector}
         onToggleFocus={toggleFocus}
-        onOpenCommandPalette={() => onOpenCommandPalette?.()}
+        {...(onOpenCommandPalette ? { onOpenCommandPalette } : {})}
         {...(onExport ? { onExport } : {})}
         {...(onHome ? { onHome } : {})}
       />

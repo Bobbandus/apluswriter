@@ -18,7 +18,8 @@ export interface TitlebarProps {
   onToggleSidebar: () => void;
   onToggleInspector: () => void;
   onToggleFocus: () => void;
-  onOpenCommandPalette: () => void;
+  /** Left out until the palette exists; the button is hidden rather than dead. */
+  onOpenCommandPalette?: (() => void) | undefined;
   onExport?: () => void;
   /** Back to all projects. */
   onHome?: () => void;
@@ -78,10 +79,18 @@ export function Titlebar({
       </div>
 
       <div className={styles.center}>
-        <button type="button" className={styles.project} onClick={onOpenProjectMenu}>
-          <span className={styles.projectTitle}>{projectTitle}</span>
-          <Icon name="chevronDown" size={13} />
-        </button>
+        {/* A chevron promises a menu. Until there is one, the title is just
+            the title — a control that does nothing is worse than no control. */}
+        {onOpenProjectMenu ? (
+          <button type="button" className={styles.project} onClick={onOpenProjectMenu}>
+            <span className={styles.projectTitle}>{projectTitle}</span>
+            <Icon name="chevronDown" size={13} />
+          </button>
+        ) : (
+          <span className={styles.project}>
+            <span className={styles.projectTitle}>{projectTitle}</span>
+          </span>
+        )}
 
         {version && (
           <button type="button" className={styles.versionPill} onClick={onOpenVersionMenu}>
@@ -111,15 +120,17 @@ export function Titlebar({
           />
         </Tooltip>
 
-        <Tooltip label={t('commandPalette')} shortcut="mod+k">
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="command"
-            aria-label={t('commandPalette')}
-            onClick={onOpenCommandPalette}
-          />
-        </Tooltip>
+        {onOpenCommandPalette && (
+          <Tooltip label={t('commandPalette')} shortcut="mod+k">
+            <Button
+              variant="ghost"
+              size="sm"
+              icon="command"
+              aria-label={t('commandPalette')}
+              onClick={onOpenCommandPalette}
+            />
+          </Tooltip>
+        )}
 
         <span className={styles.divider} aria-hidden="true" />
 
