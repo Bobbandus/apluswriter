@@ -92,7 +92,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
    - konto-knappen uppe till höger på `/`, `/plan`, `/plan/write` och att `/login` renderar formuläret;
    - ordboken: skriv en ny roll bokstav för bokstav, radera, och kontrollera att inga halva namn ligger kvar i Manusordlistan (Inspektorn → ikonen Rollfigurer).
 3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd, och det är omstarten som gör att Claude börjar skriva om när du ber om det. Skriv in din stil under Inställningar → Skrivande → Stil & ton, så läser Claude den före varje omskrivning. Prova sedan /rewrite, /alternatives, /new_scene, /polish_dialogue, eller "skriv om dialogen i scen 1 så den blir vassare" (ett kort med en ändring per rad, kryssa i det du vill ha) och "ge mig tre varianter av Vildes sista replik".
-4. Kör `npm run check`, ta sedan nästa delfas.
+4. Kör `npm run check`, ta sedan nästa delfas. Det som är kvar är av den sorten som kräver dig vid datorn: **datasynk** (molnsynk av projektdata/ordlista, kräver att Supabase-stegen ovan är gjorda), **delning/kommentarer/roller** (samma), **4.5 MCP-läsare för revisioner** (revisioner ligger i webbläsarens IndexedDB, så det kräver en fråga/svar-runda över bryggan) och **Fas 7 putsning** (skärmdumpar i Ljust/Mörkt/Midnatt, desktop och mobil).
+5. Provkör det jag inte kunnat: Ctrl+K, Ctrl+F/Ctrl+H, Stavningskontroll (Inställningar → Skrivande) och "Spegla manus till filer" i den installerade appen; öppna en riktig `.fdx`, `.docx` (gissar) och `.highland`; skriv ut rollsidor för en skådespelare (Exportera → Bara en roll).
 
 ## Släppa en version (fas 2.5, kräver dig)
 
