@@ -164,12 +164,12 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
           onElementRef.current?.(effectiveType(update.state, caretLine));
         }
       }),
-      EditorView.contentAttributes.of({
-        // Character names and locations are whitelisted in M4; until then the
-        // browser's own dictionary would underline every cue in the script.
-        spellcheck: 'false',
+      EditorView.contentAttributes.of((editorView) => ({
+        // Off unless the writer turned it on. When it is on, decorations.ts switches it off
+        // again for every line that is not dialogue or action.
+        spellcheck: editorView.state.facet(editorSettings).spellcheck ? 'true' : 'false',
         'aria-label': tEditor('placeholder'),
-      }),
+      })),
     ];
 
     const instance = new EditorView({
@@ -195,7 +195,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
     view.current?.dispatch({
       effects: settingsCompartment.current.reconfigure(editorSettings.of(resolved)),
     });
-  }, [resolved.renderNotes, resolved.autoUppercase, resolved.autoContd, resolved.tabOnCharacter, resolved.locale]);
+  }, [resolved.renderNotes, resolved.autoUppercase, resolved.autoContd, resolved.tabOnCharacter, resolved.locale, resolved.spellcheck]);
 
   useEffect(() => {
     view.current?.dispatch({

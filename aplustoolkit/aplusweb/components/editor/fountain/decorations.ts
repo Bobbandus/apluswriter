@@ -54,7 +54,15 @@ function buildDecorations(view: EditorView): DecorationSet {
       const line = doc.line(n);
       const type: LineType = types.get(n) ?? 'action';
 
-      builder.add(line.from, line.from, Decoration.line({ class: `cm-el-${type}` }));
+      // Headings, cues, transitions and the like are names and conventions, not prose; only
+      // what is spoken and what is described is spell-checked. (The attribute is inherited,
+      // so this overrides the editor-wide switch on the lines that should never be checked.)
+      const prose = type === 'action' || type === 'dialogue' || type === 'parenthetical';
+      builder.add(
+        line.from,
+        line.from,
+        Decoration.line({ class: `cm-el-${type}`, ...(prose ? {} : { attributes: { spellcheck: 'false' } }) }),
+      );
 
       if (type === 'blank' || line.text.length === 0) continue;
 

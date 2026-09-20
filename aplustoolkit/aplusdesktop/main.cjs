@@ -159,9 +159,13 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      spellcheck: false,
+      // Only checks fields that ask for it: the editor turns it on per line when the writer
+      // enables it in Settings, and everything else stays quiet.
+      spellcheck: true,
     },
   });
+
+  setUpSpellcheck(win);
 
   win.once('ready-to-show', () => win.show());
 
@@ -479,6 +483,51 @@ async function checkForUpdatesNow() {
 }
 
 /* ------------------------------------------------------------------- menu */
+
+/**
+ * Spell checking: Swedish and English, and a right-click menu that offers the
+ * checker's suggestions. Electron shows no context menu at all by default, so
+ * without this a flagged word could be seen but never fixed.
+ *
+ * The checker itself only runs where the editor asks for it (see Settings), so
+ * none of this changes anything for a writer who has not turned it on.
+ */
+function setUpSpellcheck(win) {
+  const session = win.webContents.session;
+
+  try {
+    const wanted = ['sv', 'en-US'].filter((code) => session.availableSpellCheckerLanguages.includes(code));
+    if (wanted.length > 0) session.setSpellCheckerLanguages(wanted);
+  } catch {
+    // A missing dictionary is a lost nicety, never a reason for the window not to open.
+  }
+
+  const swedish = app.getLocale().toLowerCase().startsWith('sv');
+
+  win.webContents.on('context-menu', (_event, params) => {
+    const items = [];
+
+    if (params.misspelledWord) {
+      for (const suggestion of params.dictionarySuggestions.slice(0, 5)) {
+        items.push({ label: suggestion, click: () => win.webContents.replaceMisspelling(suggestion) });
+      }
+      if (items.length > 0) items.push({ type: 'separator' });
+      items.push({
+        label: swedish ? 'Lägg till i ordlistan' : 'Add to dictionary',
+        click: () => session.addWordToSpellCheckerDictionary(params.misspelledWord),
+      });
+      items.push({ type: 'separator' });
+    }
+
+    if (params.isEditable) {
+      items.push({ role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' });
+    } else if (params.selectionText) {
+      items.push({ role: 'copy' });
+    }
+
+    if (items.length > 0) Menu.buildFromTemplate(items).popup({ window: win });
+  });
+}
 
 function buildMenu() {
   const mac = process.platform === 'darwin';

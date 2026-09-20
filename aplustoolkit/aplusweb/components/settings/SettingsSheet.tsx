@@ -173,6 +173,13 @@ export function SettingsSheet({
         />
 
         <Toggle
+          label={t('spellcheck')}
+          hint={t('spellcheckHint')}
+          checked={editor.spellcheck}
+          onChange={(spellcheck) => onEditorChange({ ...editor, spellcheck })}
+        />
+
+        <Toggle
           label={t('autoUppercase')}
           hint={t('autoUppercaseHint')}
           checked={editor.autoUppercase}

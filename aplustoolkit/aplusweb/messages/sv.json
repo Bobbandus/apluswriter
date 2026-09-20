@@ -365,7 +365,9 @@
     "spellcheck": "Stavningskontroll",
     "spellcheckHint": "Rollfigurer och platser läggs till automatiskt i ordlistan.",
     "renderNotes": "Visa anteckningar formaterade",
-    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs."
+    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs.",
+    "spellcheck": "Stavningskontroll",
+    "spellcheckHint": "Understryker fel i dialog och beskrivning. Rubriker, rollnamn och övergångar kontrolleras aldrig."
   },
   "auth": {
     "signIn": "Logga in",

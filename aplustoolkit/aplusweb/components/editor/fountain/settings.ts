@@ -29,6 +29,13 @@ export interface EditorSettings {
 
   /** Decides between `(CONT'D)` and `(FORTS.)`. */
   locale: 'sv' | 'en';
+
+  /**
+   * The browser's or the app's own spell checker, on dialogue and action only.
+   * Off by default: a script is full of names and abbreviations, and red
+   * underlines nobody asked for are noise.
+   */
+  spellcheck: boolean;
 }
 
 export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
@@ -37,6 +44,7 @@ export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
   autoContd: true,
   tabOnCharacter: 'parenthetical',
   locale: 'sv',
+  spellcheck: false,
 };
 
 export const editorSettings = Facet.define<EditorSettings, EditorSettings>({
