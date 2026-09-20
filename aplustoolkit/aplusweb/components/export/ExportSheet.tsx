@@ -46,6 +46,7 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
   // Not remembered, like the watermark: what to mark against is a choice about
   // this particular export, and last week's draft is the wrong default.
   const [since, setSince] = useState('');
+  const [report, setReport] = useState<'scenes' | 'characters' | 'locations'>('scenes');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +68,7 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
         titlePage,
         watermark,
         locale,
+        report,
         ...(baseline ? { revision: { baseline: baseline.content, label: t('changesSince', { name: nameOf(baseline) }) } } : {}),
       });
       setWatermark('');
@@ -108,8 +110,25 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
             { value: 'pdf', label: t('formatPdf'), icon: 'export' },
             { value: 'fountain', label: t('formatFountain'), icon: 'write' },
             { value: 'fdx', label: t('formatFdx'), icon: 'export' },
+            { value: 'html', label: t('formatHtml'), icon: 'export' },
+            { value: 'csv', label: t('formatReport'), icon: 'reports' },
           ]}
         />
+
+        {format === 'csv' && (
+          <SegmentedControl<'scenes' | 'characters' | 'locations'>
+            label={t('formatReport')}
+            value={report}
+            onChange={setReport}
+            fullWidth
+            size="sm"
+            options={[
+              { value: 'scenes', label: tRevisions('reportScenes') },
+              { value: 'characters', label: tRevisions('reportCharacters') },
+              { value: 'locations', label: tRevisions('reportLocations') },
+            ]}
+          />
+        )}
 
         {format === 'pdf' && (
           <>

@@ -5,7 +5,7 @@ import { serialize } from '@aplus/fountain/serialize';
 import type { PageSize } from '@aplus/paginator/geometry';
 import { saveFile } from '@/lib/platform/files';
 
-export type ExportFormat = 'pdf' | 'fountain' | 'fdx';
+export type ExportFormat = 'pdf' | 'fountain' | 'fdx' | 'html' | 'csv';
 
 export interface ExportRequest {
   source: string;
@@ -15,6 +15,8 @@ export interface ExportRequest {
   titlePage: boolean;
   watermark: string;
   locale: 'sv' | 'en';
+  /** Which report a CSV export holds. */
+  report?: 'scenes' | 'characters' | 'locations';
   /** An earlier draft to mark changes against, and what to call it on the page. */
   revision?: { baseline: string; label: string };
 }
@@ -47,6 +49,21 @@ function loadFonts() {
 export async function runExport(request: ExportRequest): Promise<string> {
   const script = parse(request.source);
   const { exportFileName, renderPdf } = await import('@aplus/export/pdf');
+
+  if (request.format === 'html') {
+    const { renderHtml } = await import('@aplus/export/html');
+    const name = exportFileName(script, 'html');
+    await saveFile(name, new Blob([renderHtml(script, name.replace(/\.html$/, ''))], { type: 'text/html;charset=utf-8' }));
+    return name;
+  }
+
+  if (request.format === 'csv') {
+    const { renderReport } = await import('@aplus/export/reports');
+    const kind = request.report ?? 'scenes';
+    const name = exportFileName(script, 'csv').replace(/\.csv$/, ` - ${kind}.csv`);
+    await saveFile(name, new Blob([renderReport(kind, script)], { type: 'text/csv;charset=utf-8' }));
+    return name;
+  }
 
   if (request.format === 'fdx') {
     const { renderFdx } = await import('@aplus/export/fdx');

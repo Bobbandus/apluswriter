@@ -191,6 +191,9 @@
     "now": "nu",
     "restored": "Återställt. Ångra med Ctrl+Z.",
     "noneYet": "Ingen version",
+    "reportScenes": "Scener",
+    "reportCharacters": "Roller",
+    "reportLocations": "Platser",
     "colors": {
       "white": "Vit",
       "blue": "Blå",
@@ -238,6 +241,7 @@
     "titlePage": "Titelsida",
     "pageCount": "{count, plural, =1 {# sida} other {# sidor}}",
     "exportFailed": "Exporten misslyckades.",
+    "formatReport": "Rapport (CSV)",
     "markChanges": "Markera ändringar sedan",
     "markChangesNone": "Inget",
     "markChangesHint": "En asterisk (*) i högermarginalen vid varje ändrad rad.",

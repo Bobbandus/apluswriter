@@ -77,7 +77,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 **Fas 4 — M8 Revisioner:** [x] 4.1 lagring (`packages/fountain/revisions.ts`, store i `local.ts`; molnsynk av revisioner kvar) · [x] 4.2 versionsmeny + auto-ögonblicksbilder (`components/revisions/`, `lib/storage/useRevisions.ts`) · [x] 4.3 PDF-asterisker (`packages/export/revisionMarks.ts`) · [x] 4.4 scenalternativ (`packages/fountain/alternatives.ts`, `components/alternatives/`) · [ ] 4.5 MCP-läsverktyg (kräver request/response i bryggan: revisionerna bor i webbläsaren, inte i MCP-servern)
 
-**Fas 5 — M9 Import/export:** [~] FDX ut klar (`packages/export/fdx.ts`, betoning bold/kursiv följer inte med än) · [ ] **▶ NÄSTA:** HTML/sidor/rapporter ut · [ ] FDX/Highland/Word in · [ ] titelsidesformulär
+**Fas 5 — M9 Import/export:** [~] FDX ut klar (`packages/export/fdx.ts`, betoning bold/kursiv följer inte med än) · [x] HTML ut (`html.ts`) · [x] rapporter CSV (`reports.ts`: scener, roller, platser) · [ ] **▶ NÄSTA:** rollsidor som PDF · [ ] FDX/Highland/Word in · [ ] titelsidesformulär
 
 **Fas 6 — M10 Polish:** [ ] kommandopalett · [ ] sök & ersätt · [ ] stavningskontroll · [ ] datasynk · [ ] spegling till filer · [ ] skrivpass + fokus · [ ] delning/kommentarer/roller · [ ] story-dagar + energikurva
 

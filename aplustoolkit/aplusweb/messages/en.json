@@ -191,6 +191,9 @@
     "now": "now",
     "restored": "Restored. Undo with Ctrl+Z.",
     "noneYet": "No version",
+    "reportScenes": "Scenes",
+    "reportCharacters": "Characters",
+    "reportLocations": "Locations",
     "colors": {
       "white": "White",
       "blue": "Blue",
@@ -238,6 +241,7 @@
     "titlePage": "Title page",
     "pageCount": "{count, plural, =1 {# page} other {# pages}}",
     "exportFailed": "The export failed.",
+    "formatReport": "Report (CSV)",
     "markChanges": "Mark changes since",
     "markChangesNone": "None",
     "markChangesHint": "An asterisk (*) in the right margin beside each changed line.",
