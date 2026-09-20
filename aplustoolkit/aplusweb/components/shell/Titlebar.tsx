@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Tooltip } from '@/components/ui/Tooltip';
@@ -28,6 +29,8 @@ export interface TitlebarProps {
   onHome?: () => void;
   onOpenProjectMenu?: () => void;
   onOpenVersionMenu?: (() => void) | undefined;
+  /** Something small next to the save status, like the writing counter. */
+  status?: ReactNode;
 }
 
 /**
@@ -55,6 +58,7 @@ export function Titlebar({
   onHome,
   onOpenProjectMenu,
   onOpenVersionMenu,
+  status,
 }: TitlebarProps) {
   const t = useTranslations('titlebar');
 
@@ -105,6 +109,7 @@ export function Titlebar({
         )}
 
         <SaveStatus state={saveState} />
+        {status}
       </div>
 
       <div className={styles.side + ' ' + styles.right}>

@@ -251,6 +251,12 @@
     "scopeScene": "Nuvarande scen",
     "scopeRole": "Repliker av en roll"
   },
+  "writing": {
+    "today": "Idag +{words}",
+    "result": "Pass: +{words} ord på {minutes} min",
+    "startHint": "Starta ett skrivpass",
+    "endHint": "Avsluta skrivpasset"
+  },
   "importExport": {
     "import": "Importera",
     "export": "Exportera",
@@ -326,6 +332,10 @@
     "groupView": "Visa",
     "groupScript": "Manus",
     "groupProject": "Projekt",
+    "counterOn": "Visa ordräknare",
+    "counterOff": "Dölj ordräknare",
+    "passStart": "Starta skrivpass",
+    "passEnd": "Avsluta skrivpass",
     "find": "Sök i manuset",
     "replace": "Sök och ersätt",
     "export": "Exportera manus",

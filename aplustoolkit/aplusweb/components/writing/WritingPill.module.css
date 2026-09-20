@@ -1,0 +1,28 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  flex: 0 0 auto;
+  height: 19px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  background: var(--glass-bg);
+  border: var(--hairline) solid var(--glass-border);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pill:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.running {
+  color: var(--accent);
+  border-color: var(--accent);
+}

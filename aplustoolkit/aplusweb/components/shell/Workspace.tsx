@@ -24,6 +24,8 @@ export interface WorkspaceProps {
   onViewChange?: (view: 'script' | 'cards') => void;
   onOpenVersionMenu?: () => void;
   onHome?: () => void;
+  /** Passed on to the title bar, next to the save status. */
+  status?: ReactNode;
 }
 
 /**
@@ -46,6 +48,7 @@ export function Workspace({
   onViewChange,
   onOpenVersionMenu,
   onHome,
+  status,
 }: WorkspaceProps) {
   const t = useTranslations('a11y');
   const tNav = useTranslations('navigator');
@@ -160,6 +163,7 @@ export function Workspace({
         {...(view && onViewChange ? { view, onViewChange } : {})}
         {...(onOpenVersionMenu ? { onOpenVersionMenu } : {})}
         {...(onHome ? { onHome } : {})}
+        {...(status ? { status } : {})}
       />
 
       <nav

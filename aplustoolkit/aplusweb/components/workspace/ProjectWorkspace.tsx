@@ -33,6 +33,8 @@ import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { TitlePageSheet } from '@/components/export/TitlePageSheet';
+import { WritingPill } from '@/components/writing/WritingPill';
+import { useWritingStats } from '@/lib/hooks/useWritingStats';
 import { FindReplace } from '@/components/find/FindReplace';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import type { Command } from '@/lib/commands';
@@ -397,6 +399,21 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, pageCount, sceneCount]);
 
+  const writing = useWritingStats(projectId, source, hydrated);
+  const [passResult, setPassResult] = useState<{ minutes: number; words: number } | null>(null);
+  useEffect(() => {
+    if (!passResult) return;
+    const timer = window.setTimeout(() => setPassResult(null), 12_000);
+    return () => window.clearTimeout(timer);
+  }, [passResult]);
+  const togglePass = useCallback(() => {
+    if (writing.pass) setPassResult(writing.endPass());
+    else {
+      setPassResult(null);
+      writing.startPass();
+    }
+  }, [writing]);
+
   const tCommand = useTranslations('command');
   const commands = useMemo<Command[]>(
     () => [
@@ -407,6 +424,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'dictionary', label: tCommand('dictionary'), group: tCommand('groupScript'), keywords: 'ordlista autocomplete', run: () => setDictionaryOpen(true) },
       { id: 'find', label: tCommand('find'), group: tCommand('groupScript'), keywords: 'sök search', shortcut: 'mod+f', run: () => { setView('script'); setReplaceMode(false); setFindOpen(true); } },
       { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: 'mod+h', run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
+      { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
+      { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
@@ -430,7 +449,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass],
   );
 
   useHotkeys({
@@ -472,6 +491,18 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         saveState={hydrated ? doc.state : null}
         onExport={() => setExportOpen(true)}
         onOpenCommandPalette={() => setPaletteOpen(true)}
+        status={
+          writing.enabled ? (
+            <WritingPill
+              today={writing.writtenToday}
+              pass={writing.pass}
+              passWords={writing.passWords}
+              result={passResult}
+              onStart={togglePass}
+              onEnd={togglePass}
+            />
+          ) : null
+        }
         view={view}
         onViewChange={setView}
         version={

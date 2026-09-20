@@ -251,6 +251,12 @@
     "scopeScene": "Current scene",
     "scopeRole": "One role's lines"
   },
+  "writing": {
+    "today": "Today +{words}",
+    "result": "Session: +{words} words in {minutes} min",
+    "startHint": "Start a writing session",
+    "endHint": "End the writing session"
+  },
   "importExport": {
     "import": "Import",
     "export": "Export",
@@ -326,6 +332,10 @@
     "groupView": "View",
     "groupScript": "Script",
     "groupProject": "Project",
+    "counterOn": "Show word counter",
+    "counterOff": "Hide word counter",
+    "passStart": "Start writing session",
+    "passEnd": "End writing session",
     "find": "Find in script",
     "replace": "Find and replace",
     "export": "Export script",
