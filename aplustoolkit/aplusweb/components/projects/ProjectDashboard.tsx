@@ -13,6 +13,7 @@ import { Menu } from '@/components/ui/Menu';
 import { SearchField } from '@/components/ui/SearchField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
+import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useRepository } from '@/lib/storage/hooks';
 import type { ProjectLocation, ProjectMeta } from '@/lib/storage/types';
 import styles from './ProjectDashboard.module.css';
@@ -51,6 +52,7 @@ export function ProjectDashboard() {
   const t = useTranslations('projects');
   const tAuth = useTranslations('auth');
   const tCommon = useTranslations('common');
+  const [bannerDismissed, setBannerDismissed] = usePersistentState('aplus.ui.cloudBanner.dismissed', false);
   const locale = useLocale();
   const router = useRouter();
   const { repo, session } = useRepository();
@@ -184,13 +186,16 @@ export function ProjectDashboard() {
           </div>
         </div>
 
-        {session.configured && session.ready && !signedIn && (
+        {session.configured && session.ready && !signedIn && !bannerDismissed && (
           <div className={styles.banner}>
             <Icon name="cloud" size={16} />
             <span>{t('cloudBanner')}</span>
             <Link href="/login" className={styles.bannerLink}>
               {tAuth('signIn')}
             </Link>
+            <button type="button" className={styles.bannerClose} onClick={() => setBannerDismissed(true)} aria-label={tCommon('close')}>
+              <Icon name="close" size={14} />
+            </button>
           </div>
         )}
 
