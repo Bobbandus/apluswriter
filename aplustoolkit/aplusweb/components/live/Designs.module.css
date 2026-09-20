@@ -603,3 +603,130 @@
   border: 6px solid var(--lv-tertiary);
   color: var(--lv-text);
 }
+
+/* ------------------------------------------------------------------ league bar (our own) */
+
+.league {
+  display: grid;
+  grid-template-columns: 330px 100px minmax(170px, auto) 100px 330px;
+  height: 92px;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+}
+
+.leagueEnd {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 44px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--badge) 88%, #fff), var(--badge) 45%, color-mix(in srgb, var(--badge) 70%, #000));
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.leagueEnd img {
+  height: 60px;
+  width: auto;
+  max-width: 90px;
+  object-fit: contain;
+}
+
+.leagueEndA {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 30px) 100%, 0 100%);
+  justify-content: flex-start;
+}
+
+.leagueEndB {
+  clip-path: polygon(30px 0, 100% 0, 100% 100%, 0 100%);
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+.leagueScore {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, var(--lv-tertiary), var(--lv-primary));
+  font-size: 62px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.14);
+}
+
+.leagueMid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 24px;
+  background: var(--lv-secondary);
+  border-bottom: 4px solid var(--lv-accent);
+  box-shadow: 0 6px 20px -4px var(--lv-accent);
+}
+
+.leagueClock {
+  font-size: 40px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.leagueLabel {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lv-accent);
+}
+
+/* ------------------------------------------------------------------ ribbon (our own) */
+
+.ribbon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+  transition:
+    transform 0.55s cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 0.4s ease-out;
+}
+
+.ribbonName,
+.ribbonSub {
+  display: block;
+  transform: skewX(-14deg);
+}
+
+.ribbonName {
+  padding: 10px 56px 10px 34px;
+  background: linear-gradient(100deg, var(--lv-primary), var(--lv-tertiary));
+  border-left: 14px solid var(--lv-secondary);
+}
+
+.ribbonName span {
+  display: block;
+  transform: skewX(14deg);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.ribbonSub {
+  margin-left: 42px;
+  padding: 4px 40px 4px 22px;
+  background: var(--lv-secondary);
+}
+
+.ribbonSub span {
+  display: block;
+  transform: skewX(14deg);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lv-text);
+}

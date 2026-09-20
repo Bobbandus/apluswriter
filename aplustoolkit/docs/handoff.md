@@ -149,3 +149,14 @@ Bakgrund: scriptade SMP:er (som Unstable Universe) spelas in en gång i spelet o
 - Logik och tester i `packages/production/minecraft.ts`.
 
 Okänt: om flera spelare spelar in samma scen från olika klienter (då behöver en scen flera inspelningar). Inte byggt: breakdown-kategorin för block-överskrivningar, exportförval (upplösning/fps).
+
+## A+ Live (2026-09-20)
+
+Byggt: poängtavla, pingis och namnskylt som OBS-browser source. **Kräver att användaren kört `supabase/05_live.sql`** (README har raden). Utan det visar sidorna "kör 05_live.sql"; tavlor i den lokala webbläsaren (localStorage) fungerar ändå men syns inte i OBS.
+
+- Sidor: `/live` (ägare: skapa, kopiera länkar, tema, sidor), `/live/control/<token>` (operatör, hemlig länk, tangentgenvägar), `/live/out/<token>?pos=bl&scale=1&theme=0&debug=1` (genomskinlig utdata; tyst vid fel).
+- Synk: state i Postgres, Realtime Broadcast-knuff (`live:<board id>`) + poll var 5:e sekund; version-kontrollerade skrivningar (`P0409`, klienten läser om och applicerar åtgärden igen).
+- Logik: `packages/live/` (`score`, `pingis` med ITTF-regler, `lower`, `board`, `theme`), UI i `aplusweb/components/live/`, lager i `aplusweb/lib/live/`.
+- Utseende: användaren tyckte första försöket (glas/gradientkort) var förfärligt och bad om **nära kopior av riktiga sändningsgrafik** (fem referensbilder, inte incheckade: WTT-bordtennispanelen, handbollens slutresultat-staplar, en college-scorebug, Minecrafts guldram från overlays.uno, Uno-namnskylten). Alla ritas i 1920×1080 (`Canvas.tsx`) och skalas. Teman = design + färger; designs: broadcast, college, bars, pixel, block, plus egna: league, ribbon. Typsnitt för live-rutterna laddas i `app/live/layout.tsx`.
+- Claude: kommandot `overlay_theme` och verktyget `design_overlay_theme` (validerar mot samma regler). Bygg om med `npm run mcp:build`.
+- Kvar: handboll (matchklocka, utvisningar), Melodifestival-läge (kö finns i namnskylten), Stream Deck (HTTP per knapp), fler egna designs, skärmdumpar i OBS.

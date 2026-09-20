@@ -13,7 +13,7 @@
  * carry a URL or a stray declaration into the page.
  */
 
-export type ThemeDesign = 'broadcast' | 'college' | 'bars' | 'pixel' | 'block';
+export type ThemeDesign = 'broadcast' | 'college' | 'bars' | 'pixel' | 'block' | 'league' | 'ribbon';
 export type ThemeFont = 'condensed' | 'sans' | 'display' | 'pixel' | 'mono';
 export type ThemeShadow = 'none' | 'soft' | 'deep';
 export type ThemeAnimation = 'pop' | 'slide' | 'flip' | 'none';
@@ -44,7 +44,7 @@ export interface Theme {
 
 /* ------------------------------------------------------------------ validation */
 
-export const DESIGNS: ThemeDesign[] = ['broadcast', 'college', 'bars', 'pixel', 'block'];
+export const DESIGNS: ThemeDesign[] = ['broadcast', 'college', 'bars', 'pixel', 'block', 'league', 'ribbon'];
 const FONTS: ThemeFont[] = ['condensed', 'sans', 'display', 'pixel', 'mono'];
 const SHADOWS: ThemeShadow[] = ['none', 'soft', 'deep'];
 const ANIMATIONS: ThemeAnimation[] = ['pop', 'slide', 'flip', 'none'];
@@ -236,6 +236,38 @@ export const DEFAULT_THEMES: Theme[] = [
     animation: 'none',
   },
   {
+    // Our own: a wide bar with slanted colour ends, the scores in dark boxes and the clock between them.
+    name: 'Arena natt',
+    design: 'league',
+    font: 'condensed',
+    primary: '#150a33',
+    secondary: '#0a0518',
+    tertiary: '#2b1466',
+    text: '#ffffff',
+    accent: '#ff3fd0',
+    sides: ['#ff2f7d', '#1fd1ff'],
+    background: { angle: 180, stops: ['#2b1466', '#150a33'] },
+    radius: 0,
+    shadow: 'deep',
+    animation: 'pop',
+  },
+  {
+    // Our own: two slanted strips, the name over a lighter line for the title or place.
+    name: 'Band, magenta',
+    design: 'ribbon',
+    font: 'sans',
+    primary: '#150a33',
+    secondary: '#ff2f7d',
+    tertiary: '#2b1466',
+    text: '#ffffff',
+    accent: '#ffd1e6',
+    sides: ['#ff2f7d', '#1fd1ff'],
+    background: { angle: 180, stops: ['#2b1466', '#150a33'] },
+    radius: 0,
+    shadow: 'deep',
+    animation: 'slide',
+  },
+  {
     // A chunky name bar with a white stripe at the end.
     name: 'Namnskylt, blå',
     design: 'block',
@@ -260,7 +292,7 @@ export const DEFAULT_THEMES: Theme[] = [
 export const THEME_FORMAT = `A theme is one JSON object. Every key is optional; what is left out takes the default.
 {
   "name": "text, 1-40 characters",
-  "design": "broadcast | college | bars | pixel | block",
+  "design": "broadcast | college | bars | pixel | block | league | ribbon",
   "font": "condensed | sans | display | pixel | mono",
   "primary": "colour: the main panel",
   "secondary": "colour: the boxes that carry numbers",
@@ -276,5 +308,5 @@ export const THEME_FORMAT = `A theme is one JSON object. Every key is optional; 
 The design decides the structure: broadcast is a lower panel with a name row per side, a sets box and a points box
 (table tennis, scores); college is a light row and a dark row with a clock block; bars is a full-width top bar for
 a heading and a bottom bar with the two scores and two logo blocks (handball); pixel is a gold block frame with a
-window for the game; block is a name bar for lower thirds. A colour is #rgb, #rrggbb, #rrggbbaa, rgb(), rgba(),
+window for the game; block is a name bar for lower thirds; league is a wide bar with angled colour ends, the two scores and a clock between them; ribbon is a slanted two-strip name bar. A colour is #rgb, #rrggbb, #rrggbbaa, rgb(), rgba(),
 hsl(), hsla(), transparent, white or black. Nothing else is accepted.`;

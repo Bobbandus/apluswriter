@@ -76,6 +76,8 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
   } else if (theme.design === 'pixel') {
     content = <PixelFrame state={state as ScoreState} />;
     full = true;
+  } else if (theme.design === 'league') {
+    content = <League state={state as ScoreState} />;
   } else if (theme.design === 'college') {
     content = <College state={state as ScoreState} />;
   } else {
@@ -304,6 +306,7 @@ function LowerBlock({ state, theme }: { state: LowerState; theme: Theme }) {
   // Keep drawing the last item while it slides out, so it leaves as what was on air and not as an empty box.
   if (!item) return null;
   const hidden = !state.visible;
+  if (theme.design === 'ribbon') return <Ribbon item={item} hidden={hidden} animation={theme.animation} />;
   return (
     <div className={`${styles.lower} ${hidden ? styles.lowerHidden : ''} ${theme.design === 'pixel' ? styles.lowerPixel : ''}`} data-anim={theme.animation} aria-hidden={hidden}>
       <div className={`${styles.lowerBody} ${theme.design === 'pixel' ? styles.tiles : ''}`}>
@@ -311,6 +314,54 @@ function LowerBlock({ state, theme }: { state: LowerState; theme: Theme }) {
         {item.subtitle && <span className={styles.lowerSub}>{item.subtitle}</span>}
       </div>
       {theme.design !== 'pixel' && <span className={styles.lowerStripe} />}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ league bar (our own)
+   A wide bar: a name in each side's colour on a slanted end, the two scores in dark boxes, the clock between. */
+
+function League({ state }: { state: ScoreState }) {
+  const end = (side: Side, info: ScoreState['a']) => {
+    const url = safeUrl(info.logo);
+    return (
+      <span className={`${styles.leagueEnd} ${side === 'a' ? styles.leagueEndA : styles.leagueEndB}`} style={badge(info.color, sideVar(side))}>
+        {url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" />}
+        <span>{info.name}</span>
+      </span>
+    );
+  };
+  return (
+    <div className={styles.league}>
+      {end('a', state.a)}
+      <span className={styles.leagueScore}>
+        <Num value={state.a.score} />
+      </span>
+      <span className={styles.leagueMid}>
+        {state.clock && <span className={styles.leagueClock}>{state.clock}</span>}
+        {state.label && <span className={styles.leagueLabel}>{state.label}</span>}
+      </span>
+      <span className={styles.leagueScore}>
+        <Num value={state.b.score} />
+      </span>
+      {end('b', state.b)}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ ribbon (our own) */
+
+function Ribbon({ item, hidden, animation }: { item: LowerState['items'][number]; hidden: boolean; animation: string }) {
+  return (
+    <div className={`${styles.ribbon} ${hidden ? styles.lowerHidden : ''}`} data-anim={animation} aria-hidden={hidden}>
+      <span className={styles.ribbonName}>
+        <span>{item.title}</span>
+      </span>
+      {item.subtitle && (
+        <span className={styles.ribbonSub}>
+          <span>{item.subtitle}</span>
+        </span>
+      )}
     </div>
   );
 }

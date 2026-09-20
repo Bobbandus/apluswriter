@@ -4,6 +4,7 @@ import { parse } from '../../packages/fountain/parse';
 import type { Script, SceneIndexEntry } from '../../packages/fountain/types';
 import { onlyFormattingChanged, type SceneRef, type Suggestion } from '../../packages/bridge/protocol';
 import { lintScript } from '../../packages/production/lint';
+import { DEFAULT_THEMES, THEME_FORMAT, validateTheme } from '../../packages/live/theme';
 import {
   characterLines,
   elementsOf,
@@ -613,6 +614,26 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
     },
   );
 
+  /* ------------------------------------------------------------ A+ Live themes
+     Nothing here touches a script or the app: it checks a theme against the same rules the overlay page uses, so a
+     theme Claude proposes is known to be valid before it is pasted in. */
+
+  server.registerTool(
+    'design_overlay_theme',
+    {
+      title: 'Check an A+ Live overlay theme',
+      description:
+        'Validate an overlay theme (JSON) for A+ Live scoreboards and name bars, and return either the theme as it will be used or every ' +
+        'problem at once so it can be fixed and sent again. Call it before giving the writer a theme. It changes nothing anywhere. ' +
+        `Format:\n${THEME_FORMAT}`,
+      inputSchema: { theme: z.record(z.string(), z.unknown()) },
+    },
+    async ({ theme }) => {
+      const result = validateTheme(theme);
+      return json(result.ok ? { valid: true, theme: result.theme, paste: 'Paste this JSON under "Importera tema" on the board in A+ Live.' } : { valid: false, errors: result.errors });
+    },
+  );
+
   registerPrompts(server);
 }
 
@@ -758,6 +779,24 @@ function registerPrompts(server: McpServer): void {
         `Call get_character_lines for "${character}" and read the scenes they are in. Call suggest_character_profile with what the script shows, ` +
           `including evidence quotes. Then call suggest_document with a casting call: the role described by who they are and what the part demands ` +
           `(age range, physicality, emotional range, language), not by a named actor. ${RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'overlay_theme',
+    {
+      title: 'Designa ett overlay-tema (A+ Live)',
+      description: 'Ett tema för en poängtavla eller namnskylt i A+ Live, som du klistrar in på tavlan.',
+      argsSchema: { feeling: z.string().describe('Vilken känsla eller förebild: "som en TV-sändning av handboll", "neon", "Minecraft"') },
+    },
+    ({ feeling }) =>
+      msg(
+        `Design an A+ Live overlay theme: ${feeling}. Start from the design (broadcast, college, bars, pixel or block) that is closest to what is wanted, ` +
+          `because the design decides the structure and the theme only paints it. Make it look like real television graphics: colour blocked panels, ` +
+          `a clear pair of colours for the two sides, bold readable numbers, no flat pastel or olive tones and nothing decorative that hurts legibility. ` +
+          `Check contrast: the text must read against primary, and the numbers against secondary. Call design_overlay_theme with the JSON, fix every error it lists ` +
+          `and call it again until it is valid. Then show the writer the final JSON in a code block and say where to paste it: ` +
+          `the board's "Importera tema" box in A+ Live. The built-in themes, for reference: ${DEFAULT_THEMES.map((theme) => `${theme.name} (${theme.design})`).join(', ')}.`,
       ),
   );
 
