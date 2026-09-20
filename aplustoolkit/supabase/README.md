@@ -37,25 +37,41 @@ samma fil igen.
 
 ## 3. Inloggning
 
+Man loggar in med **magic link**: skriv din e-postadress, klicka på länken i
+mejlet, klart. Knappen **Logga in** sitter uppe till höger på alla sidor, och
+den syns först när nycklarna i steg 4 är inlästa.
+
 **Authentication → Sign In / Providers**
 
 - **Email** — på som standard. Magic link (inloggningslänk på mejl) fungerar
   direkt, inget lösenord behövs.
-- **Google** (valfritt):
+- **User Signups → stäng av *Allow new users to sign up*.** Sajten är för
+  A+ Studios eget bruk. Med den här avstängd kan ingen främling skapa ett
+  konto och fylla din databas. Appen ber dessutom aldrig Supabase att skapa
+  konton (`shouldCreateUser: false`), men det är den här strömbrytaren som är
+  själva låset.
+- **Google** (valfritt, kan vänta):
   1. I [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
      *Create credentials → OAuth client ID → Web application*.
   2. Under *Authorized redirect URIs*, lägg till
      `https://<ditt-projekt>.supabase.co/auth/v1/callback`
      (exakt adress står i Supabase på Google-sidan).
   3. Klistra in Client ID och Client Secret i Supabase och slå på Google.
+  4. Sätt `NEXT_PUBLIC_ENABLE_GOOGLE_LOGIN=1` (steg 4). Utan den visas ingen
+     Google-knapp.
+
+**Authentication → Users → Add user → Send invitation** (heter *Invite user* i
+äldre gränssnitt): bjud in varje kollega med e-postadress. Det är så nya
+personer får ett konto när nyregistrering är avstängd. Den inbjudne loggar sedan
+in med magic link som vanligt.
 
 **Authentication → URL Configuration**
 
-- **Site URL**: din riktiga adress, t.ex. `https://write.aplusfilm.se`
+- **Site URL**: `https://toolkit.aplusfilm.se`
   (lokalt: `http://localhost:3000`).
 - **Redirect URLs**: lägg till alla ställen appen körs från:
   - `http://localhost:3000/auth/callback`
-  - `https://<din-vercel-adress>/auth/callback`
+  - `https://toolkit.aplusfilm.se/auth/callback`
 
 ## 4. Nycklarna
 
@@ -65,17 +81,22 @@ samma fil igen.
 - **Publishable key** (heter *anon key* i äldre projekt)
 
 Skapa filen **`aplusweb/.env.local`** — observera: i `aplusweb/`, inte i
-repots rot, eftersom det är där Next.js letar:
+`aplustoolkit/` eller repots rot. `npm run dev` kör `next dev aplusweb`, och
+Next.js läser bara env-filer från den mappen. (Det var därför ingen Logga
+in-knapp syntes när filen låg fel.)
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxx
 ```
 
-Starta om `npm run dev`. På projektsidan dyker **Logga in** upp.
+Namnet `NEXT_PUBLIC_SUPABASE_ANON_KEY` fungerar också. Starta om `npm run dev`
+(env-filer läses bara vid start). **Logga in** dyker upp uppe till höger.
 
-På Vercel lägger du in samma två variabler under
-*Project → Settings → Environment Variables*.
+På Vercel lägger du in samma variabler under
+*Project → Settings → Environment Variables* och gör sedan en **redeploy**.
+`NEXT_PUBLIC_*` bakas in när sajten byggs, så en ny variabel gör ingenting
+förrän nästa bygge.
 
 > Den publika nyckeln är gjord för att ligga i webbläsaren. Det är
 > radsäkerheten i `02_rls.sql` som skyddar datan, inte att nyckeln är hemlig.
@@ -83,7 +104,7 @@ På Vercel lägger du in samma två variabler under
 
 ## 5. Prova
 
-1. Logga in på projektsidan.
+1. Klicka **Logga in** uppe till höger och skriv en adress du har bjudit in.
 2. **Nytt projekt** → välj **I molnet**.
 3. Skriv något. Statusen i titelraden går från *Sparar …* till *Sparat*.
 4. Öppna samma adress i ett annat webbläsarfönster och skriv i båda. Det andra

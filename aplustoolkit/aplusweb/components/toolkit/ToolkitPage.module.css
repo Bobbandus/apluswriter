@@ -14,6 +14,7 @@
   z-index: var(--z-sticky);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: 52px;
   padding: 0 var(--s-6);
   background: color-mix(in srgb, var(--bg-app) 80%, transparent);

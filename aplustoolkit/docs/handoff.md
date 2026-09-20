@@ -54,8 +54,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 **Fas 0 — Lås upp**
 - [x] 0.0 Minne, `handoff.md`, `ideas.txt`, `PLAN.md`
 - [x] 0.1 Bygget grönt (`sections` i `Script`)
-- [ ] 0.2 Inloggning (env-mapp, konto-knapp på alla sidor, Supabase-guide)
-- [ ] 0.3 Ordboken: spara först när färdig (E-buggen)
+- [x] 0.2 Inloggning (env-mapp, konto-knapp på alla sidor, Supabase-guide)
+- [ ] **▶ NÄSTA: 0.3** Ordboken: spara först när färdig (E-buggen)
 - [ ] 0.4 MCP-instruktioner + craft-regler
 
 **Fas 1 — Claude får skriva**
@@ -84,6 +84,12 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 **Fas 7 — Putsning** efter varje fas (skärmdumpar Ljust/Mörkt/Midnatt, desktop + mobil).
 
 **Därefter:** Plan → Produktion, Casting, Live, realtid. Beredskapsanalysen ("Are we ready?") står i `PLAN.md` §5c.
+
+## Imorgon, först
+
+1. **Starta om dev-servern** (Ctrl+C, sedan `npm run dev` i `aplustoolkit/`). En server som körde på port 3000 fick sin `.next`-mapp överskriven av ett `npm run build` och svarar 500 tills den startas om. Kontroller och bygg ska köras med `APLUS_DIST_DIR=.next-verify` (se `aplusweb/next.config.mjs`) så att de aldrig delar mapp med en dev-server.
+2. **Ögna igenom `/login`, `/plan` och `/plan/write`**: konto-knappen uppe till höger. Verifierat i webbläsaren på `/` och `/plan/write` (knapp + banner syns med nycklarna inlästa). `/login` hann inte kontrolleras efter krocken, men bygget och alla 306 tester är gröna.
+3. Kör `npm run check`, sedan **0.3** (ordboken, E-buggen).
 
 ## Det du måste göra själv
 

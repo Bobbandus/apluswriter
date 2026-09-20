@@ -4,13 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { AccountButton } from '@/components/auth/AccountButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/icons/Icon';
 import { Menu } from '@/components/ui/Menu';
 import { SearchField } from '@/components/ui/SearchField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
-import { signOut, useRepository } from '@/lib/storage/hooks';
+import { useRepository } from '@/lib/storage/hooks';
 import type { ProjectLocation, ProjectMeta } from '@/lib/storage/types';
 import styles from './ProjectDashboard.module.css';
 
@@ -150,26 +151,7 @@ export function ProjectDashboard() {
           <span>{t('breadcrumbWrite')}</span>
         </nav>
 
-        <div className={styles.account}>
-          {session.configured && session.ready && (
-            signedIn ? (
-              <Menu
-                items={[{ label: tAuth('signOut'), icon: 'user', onSelect: () => void signOut() }]}
-                trigger={(props) => (
-                  <button type="button" className={styles.accountButton} {...props}>
-                    <Icon name="user" size={15} />
-                    <span className={styles.email}>{session.email}</span>
-                  </button>
-                )}
-              />
-            ) : (
-              <Link href="/login" className={styles.accountButton}>
-                <Icon name="user" size={15} />
-                {tAuth('signIn')}
-              </Link>
-            )
-          )}
-        </div>
+        <AccountButton />
       </header>
 
       <main className={styles.main}>

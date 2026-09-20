@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { AccountButton } from '@/components/auth/AccountButton';
 import styles from './ToolkitPage.module.css';
 
 export interface Crumb {
@@ -37,6 +38,7 @@ export function ToolkitPage({ crumbs = [], eyebrow, title, lead, children }: Too
             </span>
           ))}
         </nav>
+        <AccountButton />
       </header>
 
       <main className={styles.main}>
