@@ -71,7 +71,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
 - [x] 2.4 Auto-uppdatering + bevis A (lokalt, 0.1.0 → 0.1.1 bevisat)
 - [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
-- [ ] **▶ NÄSTA: 2.6** MCPB-tillägg + nedladdningsbanner
+- [~] 2.6 Nedladdningsbannern klar. **▶ NÄSTA:** MCPB-tillägget (`manifest.json`, packas med `mcpb pack`, öppnas med `shell.openPath`)
 
 **Fas 3 — M7 Struktur:** [ ] 3.1 sektioner i navigator · [ ] 3.2 `reorderScenes` · [ ] 3.3 indexkort med drag · [ ] 3.4 roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel
 

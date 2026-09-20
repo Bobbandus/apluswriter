@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { AccountButton } from '@/components/auth/AccountButton';
+import { DesktopDownloadBanner } from '@/components/desktop/DesktopDownloadBanner';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/icons/Icon';
 import { Menu } from '@/components/ui/Menu';
@@ -190,6 +191,8 @@ export function ProjectDashboard() {
             </Link>
           </div>
         )}
+
+        <DesktopDownloadBanner />
 
         {projects && projects.length > 0 && (
           <div className={styles.toolbar}>

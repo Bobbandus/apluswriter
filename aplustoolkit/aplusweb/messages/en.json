@@ -433,6 +433,12 @@
     "connectClaudeHint": "Adds A+ Write to Claude's tools. Asks first, keeps a backup and leaves other servers alone.",
     "connectClaudeButton": "Connect …"
   },
+  "desktop": {
+    "bannerTitle": "There is an app for Windows.",
+    "bannerBody": "The same thing as here, in its own window, offline, and wired to Claude Desktop.",
+    "bannerDownload": "Download",
+    "bannerDismiss": "Hide"
+  },
   "toolkit": {
     "name": "A+ Toolkit",
     "tagline": "Everything a production needs, in one place.",

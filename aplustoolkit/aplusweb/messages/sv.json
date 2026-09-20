@@ -433,6 +433,12 @@
     "connectClaudeHint": "Lägger till A+ Write bland Claudes verktyg. Frågar först, sparar en säkerhetskopia och rör inga andra servrar.",
     "connectClaudeButton": "Koppla in …"
   },
+  "desktop": {
+    "bannerTitle": "Det finns en app för Windows.",
+    "bannerBody": "Samma sak som här, fast i ett eget fönster, utan internet och kopplad till Claude Desktop.",
+    "bannerDownload": "Ladda ner",
+    "bannerDismiss": "Dölj"
+  },
   "toolkit": {
     "name": "A+ Toolkit",
     "tagline": "Allt en produktion behöver, på ett ställe.",
