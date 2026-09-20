@@ -16,7 +16,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
  * project, a viewer cannot edit, a stale save cannot overwrite.
  */
 
-const SCRIPTS = ['01_schema.sql', '02_rls.sql', '03_functions.sql', '04_storage.sql'];
+const SCRIPTS = ['01_schema.sql', '02_rls.sql', '03_functions.sql', '04_storage.sql', '05_live.sql'];
 const read = (name: string) => readFileSync(join(process.cwd(), 'supabase', name), 'utf8');
 
 const SUPABASE_STUBS = `
@@ -253,5 +253,117 @@ describe('storage', () => {
     expect(await errorCode(ALICE, "insert into storage.objects (bucket_id, name) values ('media', $1)", [`${project}/frame.png`])).toBeNull();
     expect(await errorCode(BOB, "insert into storage.objects (bucket_id, name) values ('media', $1)", [`${project}/evil.png`])).not.toBeNull();
     expect(await as(BOB, "select name from storage.objects where bucket_id = 'media'")).toEqual([]);
+  });
+});
+
+describe('live boards', () => {
+  interface Board {
+    id: string;
+    output_token: string;
+    control_token: string;
+    version: number;
+  }
+
+  async function newBoard(user: string, kind = 'score'): Promise<Board> {
+    const [board] = await as<Board>(
+      user,
+      "insert into public.live_boards (owner_id, name, kind, state, theme) values ($1, 'Match', $2, '{\"a\":0}', '{\"name\":\"Neon\"}') returning id, output_token, control_token, version",
+      [user, kind],
+    );
+    return board!;
+  }
+
+  it('lets the owner see a board, and nobody else, and never lists boards to an anonymous visitor', async () => {
+    const board = await newBoard(ALICE);
+    expect(await as(ALICE, 'select id from public.live_boards where id = $1', [board.id])).toHaveLength(1);
+    expect(await as(BOB, 'select id from public.live_boards where id = $1', [board.id])).toEqual([]);
+    expect(await as(null, 'select id from public.live_boards')).toEqual([]);
+  });
+
+  it('gives tokens that are safe in a URL path', async () => {
+    const board = await newBoard(ALICE);
+    expect(board.output_token).toMatch(/^[0-9a-f]{24}$/);
+    expect(board.control_token).toMatch(/^[0-9a-f]{24}$/);
+    expect(board.output_token).not.toBe(board.control_token);
+  });
+
+  it('shows an anonymous page the board for either token, and says which one it holds', async () => {
+    const board = await newBoard(ALICE, 'pingis');
+    const [viewer] = await as<{ kind: string; name: string; can_control: boolean }>(null, 'select kind, name, can_control from public.get_live_board($1)', [board.output_token]);
+    expect(viewer).toEqual({ kind: 'pingis', name: 'Match', can_control: false });
+    const [operator] = await as<{ can_control: boolean }>(null, 'select can_control from public.get_live_board($1)', [board.control_token]);
+    expect(operator?.can_control).toBe(true);
+  });
+
+  it('answers a made-up token with nothing, and a removed board with nothing', async () => {
+    const board = await newBoard(ALICE);
+    expect(await as(null, "select * from public.get_live_board('nonsense')")).toEqual([]);
+    await as(ALICE, 'update public.live_boards set deleted_at = now() where id = $1', [board.id]);
+    expect(await as(null, 'select * from public.get_live_board($1)', [board.output_token])).toEqual([]);
+  });
+
+  it('answers a poll with nothing when nothing is newer', async () => {
+    const board = await newBoard(ALICE);
+    expect(await as(null, 'select * from public.get_live_board($1, $2)', [board.output_token, board.version])).toEqual([]);
+    expect(await as(null, 'select * from public.get_live_board($1, $2)', [board.output_token, board.version - 1])).toHaveLength(1);
+  });
+
+  it('lets the control link change the state and bump the version, and the output link cannot', async () => {
+    const board = await newBoard(ALICE);
+    const [result] = await as<{ update_live_state: number }>(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '{"a":1}', board.version]);
+    expect(result?.update_live_state).toBe(board.version + 1);
+    const [seen] = await as<{ state: { a: number } }>(null, 'select state from public.get_live_board($1)', [board.output_token]);
+    expect(seen?.state).toEqual({ a: 1 });
+    expect(await errorCode(null, 'select public.update_live_state($1, $2, $3)', [board.output_token, '{"a":2}', board.version + 1])).toBe('42501');
+  });
+
+  it('refuses a write from a stale version and says what the current one is', async () => {
+    const board = await newBoard(ALICE);
+    await as(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '{"a":1}', board.version]);
+    let detail = '';
+    try {
+      await as(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '{"a":9}', board.version]);
+    } catch (error) {
+      expect((error as { code?: string }).code).toBe('P0409');
+      detail = (error as { detail?: string }).detail ?? '';
+    }
+    expect(detail).toBe(String(board.version + 1));
+  });
+
+  it('refuses a state that is not an object or is far too large', async () => {
+    const board = await newBoard(ALICE);
+    expect(await errorCode(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '[1,2]', board.version])).toBe('22023');
+    const huge = JSON.stringify({ x: 'a'.repeat(40_000) });
+    expect(await errorCode(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, huge, board.version])).toBe('22023');
+  });
+
+  it('cannot reach the theme or the name through the control link, and a theme change by the owner is a new version', async () => {
+    const board = await newBoard(ALICE);
+    await as(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '{"a":5}', board.version]);
+    const [before] = await as<{ theme: { name: string }; version: number }>(null, 'select theme, version from public.get_live_board($1)', [board.output_token]);
+    expect(before?.theme).toEqual({ name: 'Neon' });
+
+    await as(ALICE, 'update public.live_boards set theme = $2 where id = $1', [board.id, '{"name":"Guld"}']);
+    const [after] = await as<{ theme: { name: string }; version: number }>(null, 'select theme, version from public.get_live_board($1)', [board.output_token]);
+    expect(after?.theme).toEqual({ name: 'Guld' });
+    expect(after!.version).toBe(before!.version + 1);
+  });
+
+  it('does not let another user change or remove a board', async () => {
+    const board = await newBoard(ALICE);
+    await as(BOB, "update public.live_boards set name = 'Mine' where id = $1", [board.id]);
+    await as(BOB, 'delete from public.live_boards where id = $1', [board.id]);
+    const [row] = await as<{ name: string }>(ALICE, 'select name from public.live_boards where id = $1', [board.id]);
+    expect(row?.name).toBe('Match');
+  });
+
+  it('lets the owner rotate a link, after which the old one stops working', async () => {
+    const board = await newBoard(ALICE);
+    await as(ALICE, "update public.live_boards set control_token = encode(gen_random_bytes(12), 'hex') where id = $1", [board.id]);
+    expect(await errorCode(null, 'select public.update_live_state($1, $2, $3)', [board.control_token, '{"a":1}', board.version])).toBe('42501');
+  });
+
+  it('refuses a kind it does not know', async () => {
+    expect(await errorCode(ALICE, "insert into public.live_boards (owner_id, kind) values ($1, 'roulette')", [ALICE])).not.toBeNull();
   });
 });

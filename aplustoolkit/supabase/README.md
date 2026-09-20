@@ -26,6 +26,7 @@ Gör så för varje fil, i ordning:
 | 2 | `02_rls.sql` | Radsäkerhet — vem får se och ändra vad |
 | 3 | `03_functions.sql` | `save_script`, `create_revision`, `get_shared_script`, `duplicate_project` |
 | 4 | `04_storage.sql` | Två privata buckets: `exports` och `media` |
+| 5 | `05_live.sql` | A+ Live: poängtavlor och overlays (`live_boards`, `get_live_board`, `update_live_state`) |
 
 Alla skript går att köra om. Om något går fel halvvägs kan du rätta och köra
 samma fil igen.
