@@ -51,4 +51,4 @@ export const WRITING_RULES = `${RULES} ${CRAFT}`;
  * `craft.test.ts` checks that each one exists and carries the reminder, so a
  * tool added later cannot quietly ship without it.
  */
-export const WRITING_TOOLS = ['suggest_rewrite'] as const;
+export const WRITING_TOOLS = ['suggest_rewrite', 'suggest_alternatives'] as const;

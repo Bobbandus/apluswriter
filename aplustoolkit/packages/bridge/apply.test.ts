@@ -130,6 +130,93 @@ describe('notes', () => {
   });
 });
 
+describe('rewrites', () => {
+  const scene = { index: 1, heading: 'EXT. SKOLGÅRD - KVÄLL' };
+  const rewrite = (hunks: { before: string; after: string }[]): Suggestion => ({
+    kind: 'rewrite',
+    scene,
+    title: 'Vassare',
+    explanation: '',
+    hunks,
+  });
+
+  it('applies every change in one go', () => {
+    const out = apply(rewrite([
+      { before: 'Hej.', after: 'Hej själv.' },
+      { before: 'Erik lagar mat.', after: 'Erik bränner vidbränd mat.' },
+    ]));
+    expect(out).toContain('Hej själv.');
+    expect(out).toContain('Erik bränner vidbränd mat.');
+  });
+
+  it('applies only the changes the writer ticked', () => {
+    const result = editsFor(SCRIPT, rewrite([
+      { before: 'Hej.', after: 'Hej själv.' },
+      { before: 'Erik lagar mat.', after: 'Erik bränner maten.' },
+    ]), [1]);
+    if (!result.ok) throw new Error(result.reason);
+    const out = applyEdits(SCRIPT, result.edits);
+    expect(out).toContain('Erik bränner maten.');
+    expect(out).toContain('Hej.');
+    expect(out).not.toContain('Hej själv.');
+  });
+
+  // Two changes to lines that read the same must not both grab the first one.
+  it('gives two identical excerpts two different places in the text', () => {
+    const source = 'INT. KÖK - DAG\n\nVILDE\nHej.\n\nERIK\nHej.\n';
+    const result = editsFor(source, {
+      kind: 'rewrite',
+      title: '',
+      explanation: '',
+      hunks: [
+        { before: 'Hej.', after: 'Tja.' },
+        { before: 'Hej.', after: 'Hejsan.' },
+      ],
+    });
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.edits.map((edit) => edit.from).sort((a, b) => a - b)).toHaveLength(2);
+    expect(new Set(result.edits.map((edit) => edit.from)).size).toBe(2);
+    expect(applyEdits(source, result.edits)).toBe('INT. KÖK - DAG\n\nVILDE\nTja.\n\nERIK\nHejsan.\n');
+  });
+
+  it('keeps the changes it can still place, and names the ones it cannot', () => {
+    const result = editsFor(SCRIPT, rewrite([
+      { before: 'Hej.', after: 'Hej själv.' },
+      { before: 'En replik som inte finns.', after: 'Spelar ingen roll.' },
+    ]));
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.stale).toEqual([1]);
+    expect(applyEdits(SCRIPT, result.edits)).toContain('Hej själv.');
+  });
+
+  it('is stale only when nothing at all can be placed', () => {
+    expect(editsFor(SCRIPT, rewrite([{ before: 'Finns inte.', after: 'Nej.' }]))).toEqual({
+      ok: false,
+      reason: 'stale',
+    });
+  });
+});
+
+describe('alternatives', () => {
+  const suggestion: Suggestion = {
+    kind: 'alternatives',
+    scene: { index: 1, heading: 'EXT. SKOLGÅRD - KVÄLL' },
+    title: 'Tre sätt',
+    before: 'Hej.',
+    options: [{ label: 'kortare', after: 'Tja.' }, { label: 'undvikande', after: 'Mm.' }],
+  };
+
+  it('applies the option the writer chose', () => {
+    const result = editsFor(SCRIPT, suggestion, [1]);
+    if (!result.ok) throw new Error(result.reason);
+    expect(applyEdits(SCRIPT, result.edits)).toContain('Mm.');
+  });
+
+  it('takes the first option when none was named', () => {
+    expect(apply(suggestion)).toContain('Tja.');
+  });
+});
+
 describe('applying several fixes as one edit', () => {
   // "Use all format fixes" must be a single Ctrl+Z. The batch is resolved fix
   // by fix against the evolving text, then handed to the editor as one edit;

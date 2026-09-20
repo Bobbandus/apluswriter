@@ -412,30 +412,100 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
       title: 'Suggest a rewrite',
       description:
         'Deliver a rewrite as a +/− diff card. Unlike suggest_format_fix this tool CAN change words: it is for the dialogue and action ' +
-        'rewrites the writer explicitly asked for. `before` must be an EXACT excerpt copied verbatim from the script — read the scene ' +
-        'with get_current_scene first. The writer sees both versions in a red/green diff and must click "Use" before anything changes. ' +
-        'Never call this speculatively, and never to "improve" something they did not ask about. ' +
+        'rewrites the writer explicitly asked for. Send one entry per change: "make the scene more emotional" is a dozen separate ' +
+        'decisions, and the writer ticks the ones they want. Each `before` must be an EXACT excerpt copied verbatim from the script — ' +
+        'read the scene with get_current_scene first. They see every change as a red/green diff and must click "Use" before anything ' +
+        'changes. Never call this speculatively, and never to "improve" something they did not ask about. ' +
         CRAFT_SHORT,
       inputSchema: {
         path: PATH,
         scene: SCENE.optional(),
-        title: z.string().describe('Short label, e.g. "Omskriv Vilas replik"'),
-        explanation: z.string().describe('One sentence explaining what changed and why'),
-        before: z.string().describe('Exact text from the script to replace'),
-        after: z.string().describe('The rewritten replacement text'),
+        title: z.string().describe('Short label, e.g. "Vassare slut på Vildes replik"'),
+        explanation: z.string().describe('One sentence on what the rewrite is after, as a whole'),
+        hunks: z
+          .array(
+            z.object({
+              before: z.string().describe('Exact text from the script, copied verbatim'),
+              after: z.string().describe('What replaces it'),
+              note: z.string().optional().describe('What this one change does, in a few words'),
+            }),
+          )
+          .min(1)
+          .describe(
+            'One entry per change. Keep them small and separate — one line, one speech, one beat — so the writer can take ' +
+              'some and leave others. Do not send the whole scene as a single entry.',
+          ),
       },
     },
-    async ({ path, scene: sceneRef, title, explanation, before, after }) => {
+    async ({ path, scene: sceneRef, title, explanation, hunks }) => {
+      const { source, script } = await open(path);
+
+      const missing = hunks.filter((hunk) => !source.includes(hunk.before));
+      if (missing.length > 0) {
+        throw new Error(
+          `${missing.length} of ${hunks.length} excerpts are not in the current script, so they cannot be placed. ` +
+            'Copy each `before` verbatim from get_current_scene or get_scene — including its line breaks and capitals. ' +
+            `First one that does not match: ${JSON.stringify(missing[0]?.before.slice(0, 80))}`,
+        );
+      }
+
+      let ref: SceneRef | undefined;
+      if (sceneRef) {
+        const { scene, index } = pick(script, sceneRef);
+        ref = refOf(scene, index);
+      }
+      return deliver({ kind: 'rewrite', ...(ref ? { scene: ref } : {}), title, explanation, hunks }, title);
+    },
+  );
+
+  server.registerTool(
+    'suggest_alternatives',
+    {
+      title: 'Offer a few versions of a line',
+      description:
+        'Deliver two to five versions of the same passage as a card. The writer picks one, or none; the rest are discarded. ' +
+        'Use when they ask for options rather than a rewrite ("ge mig några varianter"). Make the versions genuinely different ' +
+        'in approach — shorter, more evasive, funnier — not three shades of the same sentence, and label each one with the angle. ' +
+        '`before` must be an EXACT excerpt copied verbatim from the script. ' +
+        CRAFT_SHORT,
+      inputSchema: {
+        path: PATH,
+        scene: SCENE.optional(),
+        title: z.string().describe('Short label, e.g. "Tre sätt att säga nej"'),
+        explanation: z.string().optional().describe('One sentence on what separates the options'),
+        before: z.string().describe('Exact text from the script that every option replaces'),
+        options: z
+          .array(
+            z.object({
+              label: z.string().optional().describe('The angle in a few words: "kortare", "mer undvikande"'),
+              after: z.string(),
+            }),
+          )
+          .min(2)
+          .max(5),
+      },
+    },
+    async ({ path, scene: sceneRef, title, explanation, before, options }) => {
       const { source, script } = await open(path);
       if (!source.includes(before)) {
-        throw new Error('`before` is not found in the current script. Copy it verbatim from get_current_scene or get_scene.');
+        throw new Error('`before` is not an exact excerpt of the current script. Copy it verbatim from get_current_scene.');
       }
       let ref: SceneRef | undefined;
       if (sceneRef) {
         const { scene, index } = pick(script, sceneRef);
         ref = refOf(scene, index);
       }
-      return deliver({ kind: 'rewrite', scene: ref, title, explanation, before, after }, title);
+      return deliver(
+        {
+          kind: 'alternatives',
+          ...(ref ? { scene: ref } : {}),
+          title,
+          ...(explanation ? { explanation } : {}),
+          before,
+          options,
+        },
+        title,
+      );
     },
   );
 

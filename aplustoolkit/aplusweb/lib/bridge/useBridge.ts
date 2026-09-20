@@ -21,7 +21,12 @@ import {
  * is not running, and that must never look like an error.
  */
 
-const CARDS_KEY = 'aplus.suggestionCards';
+/**
+ * Versioned: a card written by an older build can have a shape this one does
+ * not understand, and a suggestion panel that throws is worse than one that
+ * starts empty. Bump this whenever `Suggestion` changes shape.
+ */
+const CARDS_KEY = 'aplus.suggestionCards.v2';
 
 export type BridgeStatus = 'off' | 'connecting' | 'connected';
 

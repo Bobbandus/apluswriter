@@ -19,7 +19,17 @@ export interface TextEdit {
 }
 
 export type ApplyResult =
-  | { ok: true; edits: TextEdit[] }
+  | {
+      ok: true;
+      edits: TextEdit[];
+      /**
+       * Parts of a multi-part suggestion whose text could not be found any
+       * more, by index. The rest still applies: losing nine good changes
+       * because the tenth landed in a line the writer has since deleted
+       * would be the wrong trade.
+       */
+      stale?: number[];
+    }
   | { ok: false; reason: 'sceneNotFound' | 'stale' | 'notFormatting' };
 
 const normalise = (heading: string) => heading.replace(/\s+/g, ' ').trim().toUpperCase();
@@ -72,10 +82,18 @@ function setNote(script: Script, scene: SceneIndexEntry, key: string, value: str
   return existing ? { from: existing.from, to: existing.to, insert: text } : { from: end, to: end, insert: `\n${text}` };
 }
 
-export function editsFor(source: string, suggestion: Suggestion): ApplyResult {
+/**
+ * @param selected Which parts of a multi-part suggestion to apply, by index.
+ *   Omit for all of them; for `alternatives` the first entry is the option
+ *   chosen, and omitting it takes the first.
+ */
+export function editsFor(source: string, suggestion: Suggestion, selected?: readonly number[]): ApplyResult {
   const script = parse(source);
 
   const sceneFor = (ref: SceneRef): SceneIndexEntry | null => resolveScene(script, ref);
+
+  /** Where in the text to start looking for a suggestion's own words. */
+  const hintFor = (ref: SceneRef | undefined): number => (ref ? (sceneFor(ref)?.from ?? 0) : 0);
 
   switch (suggestion.kind) {
     case 'synopsis': {
@@ -139,14 +157,36 @@ export function editsFor(source: string, suggestion: Suggestion): ApplyResult {
     }
 
     case 'rewrite': {
-      let near = 0;
-      if (suggestion.scene) {
-        const scene = sceneFor(suggestion.scene);
-        if (scene) near = scene.from;
-      }
-      const at = nearest(source, suggestion.before, near);
+      const near = hintFor(suggestion.scene);
+      const claimed: { from: number; to: number }[] = [];
+      const edits: TextEdit[] = [];
+      const stale: number[] = [];
+
+      suggestion.hunks.forEach((hunk, index) => {
+        if (selected && !selected.includes(index)) return;
+        // Each change claims its own stretch of text. Two changes to the same
+        // line — or to two lines that read identically — would otherwise both
+        // resolve to the first match and corrupt each other.
+        const at = nearestFree(source, hunk.before, near, claimed);
+        if (at < 0) {
+          stale.push(index);
+          return;
+        }
+        const to = at + hunk.before.length;
+        claimed.push({ from: at, to });
+        edits.push({ from: at, to, insert: hunk.after });
+      });
+
+      if (edits.length === 0) return { ok: false, reason: 'stale' };
+      return stale.length > 0 ? { ok: true, edits, stale } : { ok: true, edits };
+    }
+
+    case 'alternatives': {
+      const choice = suggestion.options[selected?.[0] ?? 0];
+      if (!choice) return { ok: false, reason: 'stale' };
+      const at = nearest(source, suggestion.before, hintFor(suggestion.scene));
       if (at < 0) return { ok: false, reason: 'stale' };
-      return { ok: true, edits: [{ from: at, to: at + suggestion.before.length, insert: suggestion.after }] };
+      return { ok: true, edits: [{ from: at, to: at + suggestion.before.length, insert: choice.after }] };
     }
 
     // Production data, not script text: stored by the app, no edits here.
@@ -162,13 +202,25 @@ export function editsFor(source: string, suggestion: Suggestion): ApplyResult {
 
 /** The occurrence of `needle` closest to `near`, or -1. */
 function nearest(haystack: string, needle: string, near: number): number {
+  return nearestFree(haystack, needle, near, []);
+}
+
+/** The same, ignoring occurrences that overlap a range already spoken for. */
+function nearestFree(
+  haystack: string,
+  needle: string,
+  near: number,
+  claimed: readonly { from: number; to: number }[],
+): number {
   if (!needle) return -1;
   let best = -1;
   let from = 0;
   for (;;) {
     const at = haystack.indexOf(needle, from);
     if (at < 0) break;
-    if (best < 0 || Math.abs(at - near) < Math.abs(best - near)) best = at;
+    const to = at + needle.length;
+    const free = !claimed.some((range) => at < range.to && to > range.from);
+    if (free && (best < 0 || Math.abs(at - near) < Math.abs(best - near))) best = at;
     from = at + 1;
   }
   return best;

@@ -20,7 +20,7 @@ export interface SuggestionsPanelProps {
   cards: SuggestionCard[];
   documents: SavedDocument[];
   status: BridgeStatus;
-  onUse: (card: SuggestionCard) => void;
+  onUse: (card: SuggestionCard, selected?: readonly number[]) => void;
   onDiscard: (card: SuggestionCard) => void;
   onUseAllFormat: () => void;
   onRemoveDocument: (id: string) => void;
@@ -57,7 +57,12 @@ export function SuggestionsPanel({
         <EmptyState icon="sparkle" title={t('empty')} hint={status === 'off' ? t('offHint') : t('emptyHint')} />
       ) : (
         cards.map((card) => (
-          <SuggestionCardView key={card.id} card={card} onUse={() => onUse(card)} onDiscard={() => onDiscard(card)} />
+          <SuggestionCardView
+            key={card.id}
+            card={card}
+            onUse={(selected) => onUse(card, selected)}
+            onDiscard={() => onDiscard(card)}
+          />
         ))
       )}
 

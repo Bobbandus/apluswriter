@@ -59,9 +59,9 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 0.4 MCP-instruktioner + craft-regler (`mcp/src/craft.ts`)
 
 **Fas 1 — Claude får skriva**
-- [ ] **▶ NÄSTA: 1.1** `suggest_rewrite` med flera ändringar per kort
-- [ ] 1.2 `suggest_alternatives`
-- [ ] 1.3 `suggest_insert`
+- [x] 1.1 `suggest_rewrite` med flera ändringar per kort
+- [x] 1.2 `suggest_alternatives`
+- [ ] **▶ NÄSTA: 1.3** `suggest_insert` (ny scen som grön diff)
 - [ ] 1.4 Stil & ton per projekt
 - [ ] 1.5 Nya kommandon i Claude Desktop
 
@@ -91,7 +91,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 2. **Ögna i webbläsaren när du är vid datorn** (inget av det blockerar arbetet):
    - konto-knappen uppe till höger på `/`, `/plan`, `/plan/write` och att `/login` renderar formuläret;
    - ordboken: skriv en ny roll bokstav för bokstav, radera, och kontrollera att inga halva namn ligger kvar i Manusordlistan (Inspektorn → ikonen Rollfigurer).
-3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd (0.4), och det är omstarten som gör att Claude börjar skriva om när du ber om det. Prova med "skriv om dialogen i scen 1 så den blir vassare".
+3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd, och det är omstarten som gör att Claude börjar skriva om när du ber om det. Prova "skriv om dialogen i scen 1 så den blir vassare" (ett kort med en ändring per rad, kryssa i det du vill ha) och "ge mig tre varianter av Vildes sista replik".
 4. Kör `npm run check`, ta sedan **1.1**.
 
 ## Det du måste göra själv

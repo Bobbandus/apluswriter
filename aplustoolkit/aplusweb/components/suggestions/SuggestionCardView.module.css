@@ -39,6 +39,14 @@
   white-space: nowrap;
 }
 
+.count {
+  margin-left: auto;
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  color: var(--text-faint);
+}
+
 .body {
   padding: var(--s-3);
   font-size: var(--t-small);
@@ -134,6 +142,54 @@
 
 .fact dd {
   margin: 0;
+}
+
+/* One change, or one version of a line, inside a card. */
+.parts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.part {
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+/* Unticked stays legible: it is still the writer's own text. */
+.part[data-dropped] {
+  opacity: 0.45;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-1);
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.check input {
+  accent-color: var(--accent);
+}
+
+.optionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-bottom: var(--s-1);
+}
+
+.optionLabel {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
 }
 
 .footer {

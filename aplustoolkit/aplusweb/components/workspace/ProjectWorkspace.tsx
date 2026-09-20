@@ -155,6 +155,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const bridge = useBridge(bridgeState);
   const assistant = useAssistant(projectId, editorRef, bridge, say, {
     applied: tAssistant('applied'),
+    partlyStale: tAssistant('partlyStale'),
     stale: tAssistant('stale'),
     sceneGone: tAssistant('sceneGone'),
     notFormatting: tAssistant('notFormatting'),

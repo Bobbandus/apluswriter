@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { DiffView } from '@/components/ui/DiffView';
@@ -10,28 +11,56 @@ import styles from './SuggestionCardView.module.css';
 
 export interface SuggestionCardViewProps {
   card: SuggestionCard;
-  onUse: () => void;
+  /** Which parts of a multi-part suggestion to apply, by index. */
+  onUse: (selected?: readonly number[]) => void;
   onDiscard: () => void;
 }
 
 /** Kinds that end up in the script text; the rest are saved beside it. */
-const EDITS_SCRIPT = new Set<Suggestion['kind']>(['synopsis', 'tags', 'metadata', 'note', 'format', 'rewrite']);
+const EDITS_SCRIPT = new Set<Suggestion['kind']>([
+  'synopsis',
+  'tags',
+  'metadata',
+  'note',
+  'format',
+  'rewrite',
+  'alternatives',
+]);
 
 /**
  * One suggestion, with the two choices the writer always has.
  *
  * Every card says what *would* happen and does nothing until Use is clicked.
- * A format fix shows the exact diff, so "use" is never a leap of faith.
+ * A format fix or a rewrite shows the exact diff, so "use" is never a leap of
+ * faith — and a rewrite with several changes is ticked apart, because "make
+ * the scene more emotional" is a dozen decisions and eleven of them being
+ * right should not cost the writer the whole card.
  */
 export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardViewProps) {
   const t = useTranslations('assistant');
   const s = card.suggestion;
+
+  /* Everything starts ticked: the common case is taking the lot, and a card
+     that arrives with nothing selected reads as an argument to be won. */
+  const [dropped, setDropped] = useState<ReadonlySet<number>>(() => new Set<number>());
+  const toggle = (index: number) =>
+    setDropped((current) => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+
+  const chosen = s.kind === 'rewrite' ? s.hunks.map((_, index) => index).filter((index) => !dropped.has(index)) : [];
 
   return (
     <article className={styles.card} aria-label={card.label}>
       <header className={styles.header}>
         <Icon name="sparkle" size={14} />
         <h3 className={styles.title}>{card.label}</h3>
+        {s.kind === 'rewrite' && s.hunks.length > 1 && (
+          <span className={styles.count}>{t('changes', { count: s.hunks.length })}</span>
+        )}
       </header>
 
       <div className={styles.body}>
@@ -90,8 +119,41 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
 
         {s.kind === 'rewrite' && (
           <>
-            <p className={styles.text}>{s.explanation}</p>
-            <DiffView before={s.before} after={s.after} context={1} />
+            {s.explanation && <p className={styles.lead}>{s.explanation}</p>}
+            {s.hunks.length === 1 ? (
+              <DiffView before={s.hunks[0]?.before ?? ''} after={s.hunks[0]?.after ?? ''} context={1} />
+            ) : (
+              <ul className={styles.parts}>
+                {s.hunks.map((hunk, index) => (
+                  <li key={index} className={styles.part} data-dropped={dropped.has(index) || undefined}>
+                    <label className={styles.check}>
+                      <input type="checkbox" checked={!dropped.has(index)} onChange={() => toggle(index)} />
+                      <span>{hunk.note ?? t('changeNumber', { number: index + 1 })}</span>
+                    </label>
+                    <DiffView before={hunk.before} after={hunk.after} context={1} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
+        {s.kind === 'alternatives' && (
+          <>
+            {s.explanation && <p className={styles.lead}>{s.explanation}</p>}
+            <ul className={styles.parts}>
+              {s.options.map((option, index) => (
+                <li key={index} className={styles.part}>
+                  <div className={styles.optionHead}>
+                    <span className={styles.optionLabel}>{option.label ?? String(index + 1)}</span>
+                    <Button size="sm" variant="secondary" onClick={() => onUse([index])}>
+                      {t('chooseThis')}
+                    </Button>
+                  </div>
+                  <DiffView before={s.before} after={option.after} context={1} />
+                </li>
+              ))}
+            </ul>
           </>
         )}
 
@@ -115,9 +177,18 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
         <Button variant="ghost" size="sm" onClick={onDiscard}>
           {t('discard')}
         </Button>
-        <Button variant="primary" size="sm" onClick={onUse}>
-          {EDITS_SCRIPT.has(s.kind) ? t('use') : t('save')}
-        </Button>
+        {/* Alternatives are chosen one by one above; a second Use here would
+            only raise the question of which one it meant. */}
+        {s.kind !== 'alternatives' && (
+          <Button
+            variant="primary"
+            size="sm"
+            disabled={s.kind === 'rewrite' && chosen.length === 0}
+            onClick={() => onUse(s.kind === 'rewrite' ? chosen : undefined)}
+          >
+            {EDITS_SCRIPT.has(s.kind) ? t('use') : t('save')}
+          </Button>
+        )}
       </footer>
     </article>
   );

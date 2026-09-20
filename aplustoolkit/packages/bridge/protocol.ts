@@ -11,9 +11,10 @@
  *
  * - Suggestions are **structured data** the app renders with its own UI.
  *   There is no "insert this prose" message.
- * - Nothing here can rewrite action or dialogue. The one suggestion that
- *   edits text, `format`, is checked on both ends to change only formatting —
- *   see `onlyFormattingChanged`.
+ * - Nothing changes without the writer clicking Use, and one undo takes it
+ *   back. `format` is checked on both ends to change only formatting (see
+ *   `onlyFormattingChanged`); `rewrite` and `alternatives` may change words,
+ *   which is why they are shown as a diff the writer accepts part by part.
  */
 
 export const BRIDGE_VERSION = 1;
@@ -94,12 +95,45 @@ export type Suggestion =
       kind: 'rewrite';
       scene?: SceneRef;
       title: string;
+      /** What the rewrite is after, as a whole. */
       explanation: string;
+      hunks: RewriteHunk[];
+    }
+  | {
+      kind: 'alternatives';
+      scene?: SceneRef;
+      title: string;
+      explanation?: string;
+      /** The passage as it stands, which every option replaces. */
       before: string;
-      after: string;
+      options: RewriteOption[];
     }
   | { kind: 'character'; name: string; profile: CharacterProfile }
   | { kind: 'document'; title: string; body: string };
+
+/**
+ * One change inside a rewrite.
+ *
+ * A rewrite is a list of these rather than one big before/after, because
+ * "make the scene more emotional" is a dozen separate decisions and the
+ * writer should be able to take nine of them and leave three. Each one is
+ * found again in the current text on its own, and they are applied together
+ * as a single edit, so one undo takes back the whole lot.
+ */
+export interface RewriteHunk {
+  /** Exact text from the script, copied verbatim. */
+  before: string;
+  after: string;
+  /** What this one change does, in a few words. */
+  note?: string;
+}
+
+/** One version of a line, for a writer choosing between them. */
+export interface RewriteOption {
+  /** A few words on the angle: "kortare", "mer undvikande". */
+  label?: string;
+  after: string;
+}
 
 export interface CharacterProfile {
   age?: string;

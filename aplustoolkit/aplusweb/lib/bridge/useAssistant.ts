@@ -29,7 +29,8 @@ export interface UseAssistant {
   shotlists: Shotlist[];
   documents: SavedDocument[];
   profiles: CharacterProfileRecord[];
-  use: (card: SuggestionCard) => void;
+  /** `selected` names the parts of a multi-part suggestion the writer kept. */
+  use: (card: SuggestionCard, selected?: readonly number[]) => void;
   discard: (card: SuggestionCard) => void;
   useAllFormat: () => void;
   removeDocument: (id: string) => void;
@@ -45,29 +46,32 @@ export function useAssistant(
   editor: RefObject<ScriptEditorHandle | null>,
   bridge: UseBridge,
   say: (message: string) => void,
-  messages: Record<'applied' | 'stale' | 'sceneGone' | 'notFormatting' | 'saved', string>,
+  messages: Record<'applied' | 'partlyStale' | 'stale' | 'sceneGone' | 'notFormatting' | 'saved', string>,
 ): UseAssistant {
   const [shotlists, setShotlists] = useProjectData<Shotlist[]>(projectId, 'shotlists', []);
   const [documents, setDocuments] = useProjectData<SavedDocument[]>(projectId, 'documents', []);
   const [profiles, setProfiles] = useProjectData<CharacterProfileRecord[]>(projectId, 'characterProfiles', []);
 
   const apply = useCallback(
-    (card: SuggestionCard): boolean => {
+    (card: SuggestionCard, selected?: readonly number[]): { ok: false } | { ok: true; partial: boolean } => {
       const handle = editor.current;
-      if (!handle) return false;
-      const result = editsFor(handle.getText(), card.suggestion);
+      if (!handle) return { ok: false };
+      // Resolved against the live document, not the text the suggestion was
+      // made for: the writer kept typing while Claude was thinking.
+      const result = editsFor(handle.getText(), card.suggestion, selected);
       if (!result.ok) {
         say(result.reason === 'stale' ? messages.stale : result.reason === 'sceneNotFound' ? messages.sceneGone : messages.notFormatting);
-        return false;
+        return { ok: false };
       }
+      // Every change in one transaction, so one undo takes back the lot.
       handle.applyChanges(result.edits);
-      return true;
+      return { ok: true, partial: (result.stale?.length ?? 0) > 0 };
     },
     [editor, say, messages],
   );
 
   const use = useCallback(
-    (card: SuggestionCard) => {
+    (card: SuggestionCard, selected?: readonly number[]) => {
       const s = card.suggestion;
 
       if (s.kind === 'shotlist') {
@@ -87,8 +91,9 @@ export function useAssistant(
         ]);
         say(messages.saved);
       } else {
-        if (!apply(card)) return; // Leave the card in place so the writer can see why.
-        say(messages.applied);
+        const outcome = apply(card, selected);
+        if (!outcome.ok) return; // Leave the card in place so the writer can see why.
+        say(outcome.partial ? messages.partlyStale : messages.applied);
       }
 
       bridge.decide(card.id, true);
@@ -108,7 +113,7 @@ export function useAssistant(
     let text = original;
     const done: SuggestionCard[] = [];
     for (const card of bridge.cards.filter((c) => c.suggestion.kind === 'format')) {
-      const result = editsFor(text, card.suggestion);
+      const result = editsFor(text, card.suggestion, undefined);
       if (!result.ok) continue;
       text = applyEdits(text, result.edits);
       done.push(card);
