@@ -15,10 +15,8 @@ export interface TitlebarProps {
   saveState: SaveState | null;
   sidebarOpen: boolean;
   inspectorOpen: boolean;
-  focusMode: boolean;
   onToggleSidebar: () => void;
   onToggleInspector: () => void;
-  onToggleFocus: () => void;
   /** Left out until the palette exists; the button is hidden rather than dead. */
   onOpenCommandPalette?: (() => void) | undefined;
   onExport?: () => void;
@@ -47,10 +45,8 @@ export function Titlebar({
   saveState,
   sidebarOpen,
   inspectorOpen,
-  focusMode,
   onToggleSidebar,
   onToggleInspector,
-  onToggleFocus,
   onOpenCommandPalette,
   onExport,
   view,
@@ -131,17 +127,6 @@ export function Titlebar({
             <Button variant="ghost" size="sm" icon="export" aria-label={t('export')} onClick={onExport} />
           </Tooltip>
         )}
-
-        <Tooltip label={t('focusMode')} shortcut="mod+shift+f">
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="focus"
-            aria-pressed={focusMode}
-            aria-label={t('focusMode')}
-            onClick={onToggleFocus}
-          />
-        </Tooltip>
 
         {onOpenCommandPalette && (
           <Tooltip label={t('commandPalette')} shortcut="mod+k">

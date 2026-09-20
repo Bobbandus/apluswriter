@@ -154,10 +154,8 @@ export function Workspace({
         saveState={saveState}
         sidebarOpen={showSidebar}
         inspectorOpen={showInspector}
-        focusMode={focusMode}
         onToggleSidebar={toggleSidebar}
         onToggleInspector={toggleInspector}
-        onToggleFocus={toggleFocus}
         {...(onOpenCommandPalette ? { onOpenCommandPalette } : {})}
         {...(onExport ? { onExport } : {})}
         {...(view && onViewChange ? { view, onViewChange } : {})}

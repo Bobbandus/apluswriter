@@ -12,29 +12,11 @@
   overflow-wrap: anywhere;
 }
 
-.facts {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--s-2) var(--s-3);
-  margin: var(--s-4) 0 0;
-  padding: var(--s-3);
-  border-radius: var(--r-md);
-  background: var(--bg-sunken);
-  border: var(--hairline) solid var(--line-faint);
-}
-
-.fact dt {
-  font-family: var(--font-mono);
-  font-size: var(--t-micro);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.summary {
+  margin-top: var(--s-2);
+  font-size: var(--t-small);
+  line-height: 1.5;
   color: var(--text-faint);
-}
-
-.fact dd {
-  margin: 2px 0 0;
-  font-size: var(--t-body);
-  color: var(--text);
 }
 
 .section {

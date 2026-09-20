@@ -22,11 +22,13 @@ export function SaveStatus({ state }: SaveStatusProps) {
       className={[styles.status, styles[state]].join(' ')}
       // Save state changes matter but must not interrupt typing, so they are
       // announced politely rather than assertively.
+      title={t(state)}
       role="status"
       aria-live="polite"
     >
       <span className={styles.dot} aria-hidden="true" />
-      {t(state)}
+      {/* Saved is the normal state and says nothing; anything else is worth a word. */}
+      {state === 'saved' || state === 'local' ? <span className={styles.visuallyHidden}>{t(state)}</span> : t(state)}
     </span>
   );
 }

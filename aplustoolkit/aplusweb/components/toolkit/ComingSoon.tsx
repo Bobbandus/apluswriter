@@ -22,7 +22,7 @@ export async function ComingSoon({ tool, image, crumbs, planned }: ComingSoonPro
   const style = { ['--hero' as string]: `url(/media/hero/${image})` } as CSSProperties;
 
   return (
-    <ToolkitPage crumbs={crumbs} eyebrow={t('soon')} title={t(`${tool}.title`)} lead={t(`${tool}.lead`)}>
+    <ToolkitPage crumbs={crumbs} tool={tool} eyebrow={t('soon')} title={t(`${tool}.title`)} lead={t(`${tool}.lead`)}>
       <div className={styles.split}>
         <section>
           <h2 className={styles.plannedTitle}>{t('plannedTitle')}</h2>

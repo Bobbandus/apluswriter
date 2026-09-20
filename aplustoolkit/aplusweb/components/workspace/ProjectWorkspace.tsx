@@ -521,11 +521,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         }
         view={view}
         onViewChange={setView}
-        version={
-          revisions.latestNamed
-            ? revisions.latestNamed.label || tRevisions(`colors.${revisions.latestNamed.color ?? 'white'}`)
-            : tRevisions('noneYet')
-        }
+        version={revisions.latestNamed ? revisions.latestNamed.label || tRevisions(`colors.${revisions.latestNamed.color ?? 'white'}`) : undefined}
         onOpenVersionMenu={() => setVersionsOpen(true)}
         onHome={() => router.push('/plan/write')}
         sidebar={
@@ -550,7 +546,6 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             scene={
               <Inspector
                 onOpenSettings={openSettings}
-                onOpenCast={openCast}
                 scene={scene}
                 script={script}
                 extra={(() => {

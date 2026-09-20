@@ -12,8 +12,6 @@ import styles from './Inspector.module.css';
 
 export interface InspectorProps {
   onOpenSettings: () => void;
-  /** Who is in the script and where it takes place. */
-  onOpenCast: () => void;
   scene?: SceneIndexEntry | undefined;
   script: ScriptSummary;
   /** Extra sections for the scene, such as its shotlist. */
@@ -27,7 +25,7 @@ export interface InspectorProps {
  * tags. With nothing selected it falls back to the shape of the whole script,
  * which is the number a writer actually wants at a glance.
  */
-export function Inspector({ onOpenSettings, onOpenCast, scene, script, extra }: InspectorProps) {
+export function Inspector({ onOpenSettings, scene, script, extra }: InspectorProps) {
   const t = useTranslations('common');
   const tSettings = useTranslations('settings');
   const tNav = useTranslations('navigator');
@@ -35,20 +33,9 @@ export function Inspector({ onOpenSettings, onOpenCast, scene, script, extra }: 
   const tLocs = useTranslations('locations');
 
   const settingsButton = (
-    <>
-    <Tooltip label={tChars('title')} placement="left">
-      <Button variant="ghost" size="sm" icon="characters" aria-label={tChars('title')} onClick={onOpenCast} />
-    </Tooltip>
     <Tooltip label={tSettings('title')} shortcut="mod+," placement="left">
-      <Button
-        variant="ghost"
-        size="sm"
-        icon="settings"
-        aria-label={tSettings('title')}
-        onClick={onOpenSettings}
-      />
+      <Button variant="ghost" size="sm" icon="settings" aria-label={tSettings('title')} onClick={onOpenSettings} />
     </Tooltip>
-    </>
   );
 
   if (!scene) {
@@ -64,31 +51,18 @@ export function Inspector({ onOpenSettings, onOpenCast, scene, script, extra }: 
       <div className={styles.body}>
         <h3 className={styles.heading}>{scene.heading}</h3>
 
-        <dl className={styles.facts}>
-          <div className={styles.fact}>
-            <dt>{tNav('title')}</dt>
-            <dd>{tNav('sceneCount', { count: script.scenes.length })}</dd>
-          </div>
-          <div className={styles.fact}>
-            <dt>{tChars('title')}</dt>
-            <dd>{script.characters.length}</dd>
-          </div>
-          <div className={styles.fact}>
-            <dt>{tLocs('title')}</dt>
-            <dd>{script.locations.length}</dd>
-          </div>
-          <div className={styles.fact}>
-            <dt>{tNav('runtime', { minutes: '' }).trim()}</dt>
-            {/* One page ≈ one minute is a rule of thumb, so it is shown as an
-                estimate — but from the real page count, which comes from the
-                same paginator as the PDF. */}
-            <dd>
-              {script.layout
-                ? `${script.layout.pageCount} s · ≈ ${estimateMinutes(script.layout.pageCount)} min`
-                : '—'}
-            </dd>
-          </div>
-        </dl>
+        {/* The whole script in one quiet line. One page is about a minute, so the
+            runtime is an estimate, from the real page count the PDF uses too. */}
+        <p className={styles.summary}>
+          {[
+            tNav('sceneCount', { count: script.scenes.length }),
+            `${script.characters.length} ${tChars('title').toLowerCase()}`,
+            `${script.locations.length} ${tLocs('title').toLowerCase()}`,
+            script.layout ? `${script.layout.pageCount} s · ≈ ${estimateMinutes(script.layout.pageCount)} min` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
 
         {scene.speaking.length > 0 && (
           <section className={styles.section}>

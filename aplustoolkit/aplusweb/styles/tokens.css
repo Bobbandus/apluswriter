@@ -14,9 +14,12 @@
 
 :root {
   /* ---------- Brand constants (identical in every theme) ---------- */
-  --brand-green: #3be389; /* studio green — the accent */
-  --brand-green-deep: #1f9a61; /* accessible green for text on light */
-  --brand-green-ink: #05130c; /* text sitting on top of green */
+  --brand-blue: #5cb4f2; /* sky blue — the accent */
+  --brand-blue-deep: #1b73b8; /* accessible blue for text on light */
+  --brand-blue-ink: #04131f; /* text sitting on top of blue */
+  --brand-wine: #b0233f; /* wine red — the accent of Shoot and Live */
+  --brand-wine-soft: #e0607a; /* wine, lifted for text on dark */
+  --brand-wine-ink: #fff3f5;
   --brand-flare: #ff4b3e; /* REC red — revisions, errors, recording */
   --brand-gold: #ffce3f; /* tags, scene numbers, sticky notes */
 
@@ -114,11 +117,11 @@
   --line-strong: #34343c;
   --line-faint: #1e1e24;
 
-  --accent: var(--brand-green);
-  --accent-text: var(--brand-green); /* readable on dark as-is */
-  --accent-ink: var(--brand-green-ink);
-  --accent-soft: rgba(59, 227, 137, 0.14);
-  --accent-ring: rgba(59, 227, 137, 0.5);
+  --accent: var(--brand-blue);
+  --accent-text: var(--brand-blue); /* readable on dark as-is */
+  --accent-ink: var(--brand-blue-ink);
+  --accent-soft: rgba(92, 180, 242, 0.14);
+  --accent-ring: rgba(92, 180, 242, 0.5);
 
   --flare: var(--brand-flare);
   --flare-soft: rgba(255, 75, 62, 0.14);
@@ -144,7 +147,7 @@
   --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4), 0 20px 50px rgba(0, 0, 0, 0.45);
 
-  --selection-bg: rgba(59, 227, 137, 0.28);
+  --selection-bg: rgba(92, 180, 242, 0.28);
   --grain-opacity: 0.035;
 }
 
@@ -172,13 +175,13 @@
   --line-strong: #c4c4cc;
   --line-faint: #e8e8ec;
 
-  --accent: var(--brand-green);
-  /* #3be389 on white is ~1.6:1 — unreadable as text. Deep green for anything
-     the eye has to read; the bright green stays for fills and rings. */
-  --accent-text: #0d7a46;
-  --accent-ink: var(--brand-green-ink);
-  --accent-soft: rgba(31, 154, 97, 0.12);
-  --accent-ring: rgba(31, 154, 97, 0.55);
+  --accent: var(--brand-blue);
+  /* #5cb4f2 on white is ~2.2:1 — unreadable as text. Deep blue for anything
+     the eye has to read; the bright blue stays for fills and rings. */
+  --accent-text: var(--brand-blue-deep);
+  --accent-ink: var(--brand-blue-ink);
+  --accent-soft: rgba(27, 115, 184, 0.12);
+  --accent-ring: rgba(27, 115, 184, 0.55);
 
   --flare: #d6362a;
   --flare-soft: rgba(214, 54, 42, 0.1);
@@ -201,7 +204,7 @@
   --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1), 0 20px 50px rgba(0, 0, 0, 0.14);
 
-  --selection-bg: rgba(31, 154, 97, 0.22);
+  --selection-bg: rgba(27, 115, 184, 0.22);
   --grain-opacity: 0;
 }
 
@@ -230,11 +233,11 @@
   --line-strong: #2a2a32;
   --line-faint: #121218;
 
-  --accent: var(--brand-green);
-  --accent-text: var(--brand-green);
-  --accent-ink: var(--brand-green-ink);
-  --accent-soft: rgba(59, 227, 137, 0.12);
-  --accent-ring: rgba(59, 227, 137, 0.45);
+  --accent: var(--brand-blue);
+  --accent-text: var(--brand-blue);
+  --accent-ink: var(--brand-blue-ink);
+  --accent-soft: rgba(92, 180, 242, 0.12);
+  --accent-ring: rgba(92, 180, 242, 0.45);
 
   --flare: var(--brand-flare);
   --flare-soft: rgba(255, 75, 62, 0.12);
@@ -258,7 +261,7 @@
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.7);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.9);
 
-  --selection-bg: rgba(59, 227, 137, 0.24);
+  --selection-bg: rgba(92, 180, 242, 0.24);
   --grain-opacity: 0;
 }
 
@@ -307,4 +310,27 @@
   --el-synopsis: var(--text-faint);
   --el-note: var(--gold);
   --el-lyrics: #b47cff;
+}
+
+/* ==========================================================================
+   Tool accents
+   Write is sky blue. Shoot and Live are wine red, so the two sides of a
+   production never look like the same room. Set with data-tool on a page root.
+   ========================================================================== */
+[data-tool='shoot'],
+[data-tool='live'] {
+  --accent: var(--brand-wine);
+  --accent-text: var(--brand-wine-soft);
+  --accent-ink: var(--brand-wine-ink);
+  --accent-soft: rgba(176, 35, 63, 0.2);
+  --accent-ring: rgba(224, 96, 122, 0.55);
+  --selection-bg: rgba(176, 35, 63, 0.3);
+}
+
+[data-theme='light'] [data-tool='shoot'],
+[data-theme='light'] [data-tool='live'] {
+  --accent-text: var(--brand-wine);
+  --accent-soft: rgba(176, 35, 63, 0.1);
+  --accent-ring: rgba(176, 35, 63, 0.5);
+  --selection-bg: rgba(176, 35, 63, 0.2);
 }

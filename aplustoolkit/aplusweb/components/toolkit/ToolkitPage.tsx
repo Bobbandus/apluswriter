@@ -11,6 +11,8 @@ export interface Crumb {
 export interface ToolkitPageProps {
   /** Where this page sits, shown in the top bar. The last one is the page itself. */
   crumbs?: Crumb[];
+  /** Which tool this page belongs to; Shoot and Live carry the wine accent. */
+  tool?: string;
   eyebrow?: string;
   title: string;
   lead?: string;
@@ -21,9 +23,9 @@ export interface ToolkitPageProps {
  * The frame every Toolkit page shares: a slim top bar with the way back, a big
  * title, and room below. Server-rendered — these pages are just navigation.
  */
-export function ToolkitPage({ crumbs = [], eyebrow, title, lead, children }: ToolkitPageProps) {
+export function ToolkitPage({ crumbs = [], tool, eyebrow, title, lead, children }: ToolkitPageProps) {
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-tool={tool}>
       <header className={styles.bar}>
         <nav aria-label="Breadcrumb" className={styles.crumbs}>
           <Link href="/" className={styles.brand}>
