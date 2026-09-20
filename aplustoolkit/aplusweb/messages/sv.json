@@ -215,6 +215,20 @@
     "exportPdf": "Exportera som PDF",
     "exportCsv": "Exportera som CSV"
   },
+  "titlePageForm": {
+    "title": "Titelsida",
+    "fields": {
+      "title": "Titel",
+      "credit": "Skriven av (text)",
+      "author": "Författare",
+      "source": "Baserad på",
+      "draftdate": "Utkastdatum",
+      "contact": "Kontakt",
+      "copyright": "Upphovsrätt",
+      "notes": "Anteckningar"
+    },
+    "hint": "Tomma fält lämnas bort. Andra rader i titelsidan, som Revision, ligger kvar som de är."
+  },
   "importExport": {
     "import": "Importera",
     "export": "Exportera",
@@ -242,6 +256,7 @@
     "pageCount": "{count, plural, =1 {# sida} other {# sidor}}",
     "exportFailed": "Exporten misslyckades.",
     "formatReport": "Rapport (CSV)",
+    "editTitlePage": "Redigera titelsida",
     "markChanges": "Markera ändringar sedan",
     "markChangesNone": "Inget",
     "onlyRole": "Bara en roll (rollsidor)",

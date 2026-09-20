@@ -1,0 +1,51 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.label {
+  font-size: var(--t-body);
+  color: var(--text);
+}
+
+.input,
+.area {
+  padding: 0 var(--s-3);
+  border-radius: var(--r-sm);
+  border: var(--hairline) solid var(--line-strong);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-size: var(--t-body);
+  font-family: inherit;
+}
+
+.input {
+  height: 32px;
+}
+
+.area {
+  padding: var(--s-2) var(--s-3);
+  min-height: 64px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.input:focus,
+.area:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-raised);
+}
+
+.hint {
+  font-size: var(--t-small);
+  color: var(--text-faint);
+  line-height: 1.5;
+}

@@ -215,6 +215,20 @@
     "exportPdf": "Export as PDF",
     "exportCsv": "Export as CSV"
   },
+  "titlePageForm": {
+    "title": "Title page",
+    "fields": {
+      "title": "Title",
+      "credit": "Credit",
+      "author": "Author",
+      "source": "Based on",
+      "draftdate": "Draft date",
+      "contact": "Contact",
+      "copyright": "Copyright",
+      "notes": "Notes"
+    },
+    "hint": "Empty fields are left out. Other lines on the title page, like Revision, stay as they are."
+  },
   "importExport": {
     "import": "Import",
     "export": "Export",
@@ -242,6 +256,7 @@
     "pageCount": "{count, plural, =1 {# page} other {# pages}}",
     "exportFailed": "The export failed.",
     "formatReport": "Report (CSV)",
+    "editTitlePage": "Edit title page",
     "markChanges": "Mark changes since",
     "markChangesNone": "None",
     "onlyRole": "One role only (sides)",

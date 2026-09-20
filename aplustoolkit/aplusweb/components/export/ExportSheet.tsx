@@ -23,6 +23,8 @@ export interface ExportSheetProps {
   revisions?: Revision[];
   /** Names of the roles, for exporting one role's sides. */
   roles?: string[];
+  /** Opens the title page form. Shown next to the title page switch. */
+  onEditTitlePage?: () => void;
 }
 
 /**
@@ -33,7 +35,7 @@ export interface ExportSheetProps {
  * watermark is not remembered — a script sent to one reader must never go
  * out stamped with the previous reader's name.
  */
-export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCount, revisions = [], roles = [] }: ExportSheetProps) {
+export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCount, revisions = [], roles = [], onEditTitlePage }: ExportSheetProps) {
   const t = useTranslations('importExport');
   const tSettings = useTranslations('settings');
   const tCommon = useTranslations('common');
@@ -154,6 +156,11 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
 
             <Toggle label={t('sceneNumbers')} checked={sceneNumbers} onChange={setSceneNumbers} />
             <Toggle label={t('titlePage')} checked={titlePage} onChange={setTitlePage} />
+            {titlePage && onEditTitlePage && (
+              <Button variant="ghost" size="sm" onClick={onEditTitlePage}>
+                {t('editTitlePage')}
+              </Button>
+            )}
 
             <label className={styles.field}>
               <span className={styles.label}>{t('watermark')}</span>

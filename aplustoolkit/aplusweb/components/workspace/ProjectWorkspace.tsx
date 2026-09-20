@@ -32,6 +32,7 @@ import { ElementBar } from '@/components/editor/ElementBar';
 import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
+import { TitlePageSheet } from '@/components/export/TitlePageSheet';
 import { ExportSheet } from '@/components/export/ExportSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
@@ -82,6 +83,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [castOpen, setCastOpen] = useState(false);
   const [versionsOpen, setVersionsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [titleOpen, setTitleOpen] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
   const doc = useProjectDocument(projectId, t('untitled'));
@@ -543,6 +545,14 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         todoCount={script.todos.length}
         revisions={revisions.revisions}
         roles={script.characters.map((character) => character.name)}
+        onEditTitlePage={() => setTitleOpen(true)}
+      />
+
+      <TitlePageSheet
+        open={titleOpen}
+        onClose={() => setTitleOpen(false)}
+        source={source}
+        onApply={(edit) => editorRef.current?.applyChanges([edit])}
       />
 
       <SettingsSheet
