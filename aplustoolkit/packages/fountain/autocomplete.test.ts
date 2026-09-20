@@ -9,6 +9,7 @@ import {
   mergeDictionary,
   predictSpeaker,
   suggestionsFor,
+  liveDictionary,
   type DictionaryData,
 } from './autocomplete';
 
@@ -178,5 +179,20 @@ describe('addLearned', () => {
       locations: ['KÖK'],
       tags: ['prop Revolver'],
     });
+  });
+});
+
+describe('liveDictionary', () => {
+  const stored = { characters: ['ERIK'], locations: ['KÖK'], tags: [] };
+  const fromScript = { characters: ['ERIK', 'VILDE'], locations: ['KÖK', 'PLATS'], tags: [] };
+
+  it('marks what only the script lists, and nothing the writer has saved', () => {
+    const live = liveDictionary(stored, fromScript);
+    expect(live.locations).toEqual(['KÖK', 'PLATS']);
+    expect(live.scriptOnly).toEqual({ characters: ['VILDE'], locations: ['PLATS'] });
+  });
+
+  it('marks nothing when the stored dictionary already knows every one of them', () => {
+    expect(liveDictionary({ characters: ['ERIK', 'VILDE'], locations: ['KÖK', 'PLATS'], tags: [] }, fromScript).scriptOnly).toEqual({ characters: [], locations: [] });
   });
 });

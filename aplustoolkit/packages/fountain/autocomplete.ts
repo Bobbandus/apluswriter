@@ -14,6 +14,12 @@ export interface DictionaryData {
    * JONATHAN are just two equally valid strings.
    */
   characterCues?: Record<string, number>;
+  /**
+   * Values that are here only because the script's own parse lists them, not because the
+   * writer ever saved them. The parse runs a moment behind the keystrokes, so such a value can
+   * be text that has already been deleted. The editor checks these against the live document.
+   */
+  scriptOnly?: { characters: string[]; locations: string[] };
 }
 
 export interface Suggestion {
@@ -182,6 +188,23 @@ export function mergeDictionary(...dictionaries: DictionaryData[]): DictionaryDa
     locations: unique(dictionaries.flatMap((dictionary) => dictionary.locations)),
     tags: unique(dictionaries.flatMap((dictionary) => dictionary.tags)),
     characterCues: cues,
+  };
+}
+
+/**
+ * The stored dictionary and what the script says, merged, with the script-only values marked.
+ * See `DictionaryData.scriptOnly`.
+ */
+export function liveDictionary(stored: DictionaryData, fromScript: DictionaryData): DictionaryData {
+  const known = (values: string[]) => new Set(values.map((value) => value.trim().toLocaleUpperCase()));
+  const storedCharacters = known(stored.characters);
+  const storedLocations = known(stored.locations);
+  return {
+    ...mergeDictionary(stored, fromScript),
+    scriptOnly: {
+      characters: fromScript.characters.filter((value) => !storedCharacters.has(value.trim().toLocaleUpperCase())),
+      locations: fromScript.locations.filter((value) => !storedLocations.has(value.trim().toLocaleUpperCase())),
+    },
   };
 }
 

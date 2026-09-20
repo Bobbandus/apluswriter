@@ -93,3 +93,35 @@ describe('capitals', () => {
     expect(completion('INT. KÖK - DAG\n\nA')).toBeNull();
   });
 });
+
+// The dictionary follows the script through a parse that runs a moment behind the keystrokes.
+// Type PLATS and delete the S: for an instant PLATS is still listed, and used to come back as a
+// completion of the half-word the writer was in the middle of deleting.
+describe('a word that has just been deleted', () => {
+  const lagging = {
+    ...dictionary,
+    locations: [...dictionary.locations, 'PLATS'],
+    scriptOnly: { characters: [], locations: ['PLATS'] },
+  };
+
+  const completionWith = (doc: string, dict: typeof lagging) =>
+    EditorState.create({
+      doc,
+      selection: EditorSelection.cursor(doc.length),
+      extensions: [editorSettings.of(DEFAULT_EDITOR_SETTINGS), elementFlow(), fountainAutocomplete({ dictionary: dict, labels: {} })],
+    }).field(completionField);
+
+  it('is not offered back when the only place it was written is the line being edited', () => {
+    expect(completionWith('INT. PLAT', lagging)).toBeNull();
+  });
+
+  it('is still offered when the script writes it on another line', () => {
+    const state = completionWith('INT. PLATS - DAG\n\nEtt.\n\nINT. PLAT', lagging);
+    expect(state?.items.map((item) => item.value)).toEqual(['PLATS']);
+  });
+
+  it('is still offered when the writer saved it, even if no scene uses it yet', () => {
+    const saved = { ...lagging, scriptOnly: { characters: [], locations: [] } };
+    expect(completionWith('INT. PLAT', saved)?.items.map((item) => item.value)).toEqual(['PLATS']);
+  });
+});

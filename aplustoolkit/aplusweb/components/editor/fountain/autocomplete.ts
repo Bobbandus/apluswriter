@@ -108,6 +108,30 @@ function followsDialogue(state: EditorState, lineNumber: number): boolean {
   return false;
 }
 
+/**
+ * Drops a suggestion that is only the writer's own half-typed word coming back.
+ *
+ * The dictionary is kept in step with the script by a parse that runs a moment behind the
+ * keystrokes. Type PLATS, delete the S, and for an instant PLATS is still listed as a
+ * location, offered back as a completion of PLAT. A value that comes only from the script is
+ * therefore trusted only if it is written on some other line of the document as it is now.
+ */
+function stillWritten(state: EditorState, lineNumber: number, kind: 'character' | 'location', items: Suggestion[]): Suggestion[] {
+  const { dictionary } = state.facet(autocompleteConfig);
+  const only = new Set((dictionary.scriptOnly?.[kind === 'character' ? 'characters' : 'locations'] ?? []).map((value) => value.toLocaleUpperCase()));
+  if (only.size === 0) return items;
+  const candidates = items.filter((item) => only.has(item.value.toLocaleUpperCase()));
+  if (candidates.length === 0) return items;
+
+  const found = new Set<string>();
+  for (let n = 1; n <= state.doc.lines && found.size < candidates.length; n += 1) {
+    if (n === lineNumber) continue;
+    const text = state.doc.line(n).text.toLocaleUpperCase();
+    for (const item of candidates) if (text.includes(item.value.toLocaleUpperCase())) found.add(item.value);
+  }
+  return items.filter((item) => !only.has(item.value.toLocaleUpperCase()) || found.has(item.value));
+}
+
 function without(items: Suggestion[], typed: string): Suggestion[] {
   const upper = typed.trim().toLocaleUpperCase();
   return items.filter((item) => item.value.toLocaleUpperCase() !== upper);
@@ -144,7 +168,8 @@ function contextAt(state: EditorState): Omit<CompletionState, 'selected' | 'navi
     const divider = Math.max(tail.lastIndexOf(' - '), tail.lastIndexOf(' – '), tail.lastIndexOf(' — '));
     const kind = divider >= 0 ? 'time' : 'location';
     const query = divider >= 0 ? tail.slice(divider + 3) : tail;
-    const items = without(suggestionsFor(kind, query, dictionary), query);
+    const matches = without(suggestionsFor(kind, query, dictionary), query);
+    const items = kind === 'location' ? stillWritten(state, line.number, 'location', matches) : matches;
     return items.length ? { from: head - query.length, to: head, items, mode: 'list' } : null;
   }
 
@@ -187,9 +212,11 @@ function contextAt(state: EditorState): Omit<CompletionState, 'selected' | 'navi
     // shouted action line starts with "A", and the box would chase the
     // writer through every capitalised sentence.
     const needle = typed.replace(/^@/, '').toLocaleUpperCase();
-    const items = without(
-      suggestionsFor('character', typed, dictionary, recentSpeakers(state, line.number).reverse()),
-      typed,
+    const items = stillWritten(
+      state,
+      line.number,
+      'character',
+      without(suggestionsFor('character', typed, dictionary, recentSpeakers(state, line.number).reverse()), typed),
     ).filter((item) => item.value.toLocaleUpperCase().startsWith(needle));
     return items.length ? { from, to: head, items, mode: 'list' } : null;
   }

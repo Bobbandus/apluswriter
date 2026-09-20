@@ -62,6 +62,7 @@ import {
   addLearned,
   dictionaryFromScript,
   learnFromSource,
+  liveDictionary,
   learnedFrom,
   mergeDictionary,
   type DictionaryData,
@@ -437,7 +438,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const rebuildDictionary = useCallback(() => {
     setDictionary(learnFromSource(sourceRef.current));
   }, [setDictionary]);
-  const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
+  const autocompleteDictionary = useMemo(() => liveDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
   // Page and scene counts for the dashboard, from the same pagination as the PDF.
   const pageCount = script.layout?.pageCount;
