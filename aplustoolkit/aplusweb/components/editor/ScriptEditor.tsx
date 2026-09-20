@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Compartment, EditorState, type Extension } from '@codemirror/state';
 import { EditorView, drawSelection, keymap, rectangularSelection } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, redo, undo } from '@codemirror/commands';
-import { searchKeymap } from '@codemirror/search';
 import { fountainTheme } from './fountain/theme';
 import { fountainDecorations } from './fountain/decorations';
 import { elementFlow, switchElement } from './fountain/elementFlow';
@@ -57,6 +56,8 @@ export interface ScriptEditorHandle {
   /** The live document. Suggestions are resolved against this, never a stale copy. */
   getText(): string;
   revealOffset(offset: number): void;
+  /** Selects a stretch and scrolls it into view, without taking focus from wherever the writer is typing. */
+  selectRange(from: number, to: number): void;
   focus(): void;
   /**
    * The editor's own history, for the parts of the app that change the text
@@ -154,7 +155,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
       pageView(),
       elementPicker(elementLabels, tEditor('elementPickerHint'), switchElement),
       elementFlow(),
-      keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
+      keymap.of([...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) onChangeRef.current(update.state.doc.toString());
         if (update.selectionSet || update.docChanged) {
@@ -257,6 +258,15 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
           effects: EditorView.scrollIntoView(anchor, { y: 'start', yMargin: 80 }),
         });
         instance.focus();
+      },
+      selectRange: (from, to) => {
+        const instance = view.current;
+        if (!instance) return;
+        const max = instance.state.doc.length;
+        instance.dispatch({
+          selection: { anchor: Math.max(0, Math.min(from, max)), head: Math.max(0, Math.min(to, max)) },
+          effects: EditorView.scrollIntoView(Math.max(0, Math.min(from, max)), { y: 'center' }),
+        });
       },
       focus: () => view.current?.focus(),
       undo: () => {

@@ -33,6 +33,7 @@ import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { TitlePageSheet } from '@/components/export/TitlePageSheet';
+import { FindReplace } from '@/components/find/FindReplace';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import type { Command } from '@/lib/commands';
 import { ExportSheet } from '@/components/export/ExportSheet';
@@ -87,6 +88,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [exportOpen, setExportOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [findOpen, setFindOpen] = useState(false);
+  const [replaceMode, setReplaceMode] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
   const doc = useProjectDocument(projectId, t('untitled'));
@@ -402,6 +405,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'versions', label: tCommand('versions'), group: tCommand('groupScript'), keywords: 'revision utkast ögonblicksbild historik', run: () => setVersionsOpen(true) },
       { id: 'cast', label: tCommand('cast'), group: tCommand('groupScript'), keywords: 'roller platser relationer karaktärer', run: () => setCastOpen(true) },
       { id: 'dictionary', label: tCommand('dictionary'), group: tCommand('groupScript'), keywords: 'ordlista autocomplete', run: () => setDictionaryOpen(true) },
+      { id: 'find', label: tCommand('find'), group: tCommand('groupScript'), keywords: 'sök search', shortcut: 'mod+f', run: () => { setView('script'); setReplaceMode(false); setFindOpen(true); } },
+      { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: 'mod+h', run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
@@ -428,7 +433,23 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     [tCommand, script.sections, script.scenes, router],
   );
 
-  useHotkeys({ 'mod+,': openSettings, 'mod+e': () => setExportOpen(true) });
+  useHotkeys({
+    'mod+,': openSettings,
+    'mod+e': () => setExportOpen(true),
+    // Our own panel replaces the editor's, and only makes sense over the script.
+    'mod+f': (event) => {
+      if (view !== 'script') return;
+      event.preventDefault();
+      setReplaceMode(false);
+      setFindOpen(true);
+    },
+    'mod+h': (event) => {
+      if (view !== 'script') return;
+      event.preventDefault();
+      setReplaceMode(true);
+      setFindOpen(true);
+    },
+  });
 
   // The scene the caret is in, so the navigator and inspector follow along.
   const scene =
@@ -584,6 +605,22 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         revisions={revisions.revisions}
         roles={script.characters.map((character) => character.name)}
         onEditTitlePage={() => setTitleOpen(true)}
+      />
+
+      <FindReplace
+        open={findOpen && view === 'script'}
+        replaceMode={replaceMode}
+        onReplaceMode={setReplaceMode}
+        onClose={() => {
+          setFindOpen(false);
+          editorRef.current?.focus();
+        }}
+        source={source}
+        caret={caret}
+        sceneIndex={scene ? script.scenes.indexOf(scene) : 0}
+        roles={script.characters.map((character) => character.name)}
+        onSelect={(from, to) => editorRef.current?.selectRange(from, to)}
+        onApply={(edits) => editorRef.current?.applyChanges(edits)}
       />
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />

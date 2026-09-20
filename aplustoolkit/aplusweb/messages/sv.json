@@ -229,6 +229,28 @@
     },
     "hint": "Tomma fält lämnas bort. Andra rader i titelsidan, som Revision, ligger kvar som de är."
   },
+  "find": {
+    "title": "Sök och ersätt",
+    "placeholder": "Sök",
+    "replacePlaceholder": "Ersätt med",
+    "matches": "{count, plural, =1 {# träff} other {# träffar}}",
+    "none": "Inga träffar",
+    "badRegex": "Ogiltigt uttryck",
+    "previous": "Föregående träff",
+    "next": "Nästa träff",
+    "caseSensitive": "Skiftlägeskänslig",
+    "wholeWord": "Hela ord",
+    "regex": "Reguljärt uttryck",
+    "close": "Stäng",
+    "replace": "Ersätt",
+    "replaceAll": "Ersätt alla",
+    "replaced": "{count, plural, =1 {# ersatt} other {# ersatta}}",
+    "showReplace": "Ersätt …",
+    "scope": "Omfång",
+    "scopeAll": "Hela manuset",
+    "scopeScene": "Nuvarande scen",
+    "scopeRole": "Repliker av en roll"
+  },
   "importExport": {
     "import": "Importera",
     "export": "Exportera",
@@ -295,19 +317,6 @@
     "streak": "{count, plural, =1 {# dag i rad} other {# dagar i rad}}",
     "finished": "Klart. {words} ord på {minutes} minuter."
   },
-  "find": {
-    "title": "Sök och ersätt",
-    "find": "Sök",
-    "replace": "Ersätt",
-    "replaceAll": "Ersätt alla",
-    "regex": "Reguljärt uttryck",
-    "matchCase": "Skilj på stora och små bokstäver",
-    "scope": "Omfattning",
-    "scopeAll": "Hela manuset",
-    "scopeScene": "Den här scenen",
-    "scopeCharacter": "Repliker av {name}",
-    "results": "{count, plural, =0 {Inga träffar} =1 {# träff} other {# träffar}}"
-  },
   "command": {
     "placeholder": "Skriv ett kommando eller sök …",
     "noResults": "Inget matchar",
@@ -317,6 +326,8 @@
     "groupView": "Visa",
     "groupScript": "Manus",
     "groupProject": "Projekt",
+    "find": "Sök i manuset",
+    "replace": "Sök och ersätt",
     "export": "Exportera manus",
     "titlePage": "Redigera titelsida",
     "versions": "Versioner",

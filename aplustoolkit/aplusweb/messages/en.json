@@ -229,6 +229,28 @@
     },
     "hint": "Empty fields are left out. Other lines on the title page, like Revision, stay as they are."
   },
+  "find": {
+    "title": "Find and replace",
+    "placeholder": "Find",
+    "replacePlaceholder": "Replace with",
+    "matches": "{count, plural, =1 {# match} other {# matches}}",
+    "none": "No matches",
+    "badRegex": "Invalid pattern",
+    "previous": "Previous match",
+    "next": "Next match",
+    "caseSensitive": "Match case",
+    "wholeWord": "Whole words",
+    "regex": "Regular expression",
+    "close": "Close",
+    "replace": "Replace",
+    "replaceAll": "Replace all",
+    "replaced": "{count, plural, =1 {# replaced} other {# replaced}}",
+    "showReplace": "Replace …",
+    "scope": "Scope",
+    "scopeAll": "Whole script",
+    "scopeScene": "Current scene",
+    "scopeRole": "One role's lines"
+  },
   "importExport": {
     "import": "Import",
     "export": "Export",
@@ -295,19 +317,6 @@
     "streak": "{count, plural, =1 {# day in a row} other {# days in a row}}",
     "finished": "Done. {words} words in {minutes} minutes."
   },
-  "find": {
-    "title": "Find and replace",
-    "find": "Find",
-    "replace": "Replace",
-    "replaceAll": "Replace all",
-    "regex": "Regular expression",
-    "matchCase": "Match case",
-    "scope": "Scope",
-    "scopeAll": "Whole script",
-    "scopeScene": "This scene",
-    "scopeCharacter": "Lines by {name}",
-    "results": "{count, plural, =0 {No matches} =1 {# match} other {# matches}}"
-  },
   "command": {
     "placeholder": "Type a command or search …",
     "noResults": "Nothing matches",
@@ -317,6 +326,8 @@
     "groupView": "View",
     "groupScript": "Script",
     "groupProject": "Project",
+    "find": "Find in script",
+    "replace": "Find and replace",
     "export": "Export script",
     "titlePage": "Edit title page",
     "versions": "Versions",
