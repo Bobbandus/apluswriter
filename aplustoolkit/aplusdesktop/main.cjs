@@ -16,17 +16,103 @@
  */
 
 const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
+const { spawn } = require('node:child_process');
 const fs = require('node:fs');
+const http = require('node:http');
+const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const claude = require('./claudeConfig.cjs');
 
-const isDev = !app.isPackaged;
-const START_URL = process.env.APLUS_URL || 'http://localhost:3000';
 const sv = (app.getLocale() || 'en').toLowerCase().startsWith('sv');
 const say = (swedish, english) => (sv ? swedish : english);
 
 let win = null;
+let server = null;
+/** Where the app is being served from. Set before the window opens. */
+let appUrl = process.env.APLUS_URL || 'http://localhost:3000';
+
+/* ------------------------------------------------------------ the server */
+
+/**
+ * The web app that ships inside the installer, if it is there.
+ *
+ * Built by `npm run desktop:build` into aplusdesktop/bundle, and copied into
+ * the installer's resources. Missing in a checkout that has not built it,
+ * which is the normal case while developing: then the shell points at the dev
+ * server instead.
+ */
+function bundle() {
+  const base = app.isPackaged ? path.join(process.resourcesPath, 'bundle') : path.join(__dirname, 'bundle');
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(base, 'aplus-app.json'), 'utf8'));
+    const entry = path.join(base, manifest.server);
+    return fs.existsSync(entry) ? { base, entry, mcp: path.join(base, manifest.mcp) } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** A port the OS says is free right now. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = net.createServer();
+    probe.once('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+function reachable(url) {
+  return new Promise((resolve) => {
+    const request = http.get(url, (response) => {
+      response.resume();
+      resolve(true);
+    });
+    request.setTimeout(1000, () => request.destroy());
+    request.once('error', () => resolve(false));
+  });
+}
+
+/**
+ * Starts the bundled Next server on a loopback port.
+ *
+ * Run through Electron's own binary with ELECTRON_RUN_AS_NODE, so the writer
+ * does not need Node installed — the whole point of shipping an installer.
+ */
+async function startServer(found) {
+  const port = await freePort();
+  const url = `http://127.0.0.1:${port}`;
+
+  server = spawn(process.execPath, [found.entry], {
+    cwd: path.dirname(found.entry),
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: '1', NODE_ENV: 'production', PORT: String(port), HOSTNAME: '127.0.0.1' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
+  server.on('exit', () => {
+    server = null;
+  });
+
+  // Next is ready in well under a second, but a cold disk on a slow machine
+  // is a different story. Give it room rather than showing an error page.
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    if (!server) throw new Error('the bundled server stopped while starting');
+    if (await reachable(url)) return url;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  throw new Error('the bundled server did not answer in time');
+}
+
+function stopServer() {
+  if (!server) return;
+  const running = server;
+  server = null;
+  running.kill();
+}
 
 /* ------------------------------------------------------------------ window */
 
@@ -63,13 +149,13 @@ function createWindow() {
     return { action: 'deny' };
   });
   win.webContents.on('will-navigate', (event, url) => {
-    if (new URL(url).origin !== new URL(START_URL).origin) {
+    if (new URL(url).origin !== new URL(appUrl).origin) {
       event.preventDefault();
       if (/^https?:/i.test(url)) void shell.openExternal(url);
     }
   });
 
-  void win.loadURL(START_URL).catch(() => {
+  void win.loadURL(appUrl).catch(() => {
     void win.loadURL(
       'data:text/html;charset=utf-8,' +
         encodeURIComponent(
@@ -78,7 +164,7 @@ function createWindow() {
             `<p style="color:#9a9aa4;line-height:1.5">${say(
               'Starta webbappen med <code>npm run dev</code> och försök igen.',
               'Start the web app with <code>npm run dev</code> and try again.',
-            )}</p><p style="color:#6a6a74">${START_URL}</p></div></body>`,
+            )}</p><p style="color:#6a6a74">${appUrl}</p></div></body>`,
         ),
     );
   });
@@ -110,11 +196,11 @@ function bridgeInfo() {
   }
 }
 
-/** Where the built MCP server lives, in development and once packaged. */
+/** Where the built MCP server lives: in the bundle if there is one, else the checkout. */
 function serverPath() {
-  return app.isPackaged
-    ? path.join(process.resourcesPath, 'mcp', 'server.mjs')
-    : path.join(__dirname, '..', 'mcp', 'dist', 'server.mjs');
+  const found = bundle();
+  if (found && fs.existsSync(found.mcp)) return found.mcp;
+  return path.join(__dirname, '..', 'mcp', 'dist', 'server.mjs');
 }
 
 async function saveFile(name, bytes) {
@@ -238,18 +324,38 @@ if (!app.requestSingleInstanceLock()) {
   ipcMain.handle('aplus:saveFile', (_event, name, bytes) => saveFile(String(name), bytes));
   ipcMain.handle('aplus:setupClaude', () => setupClaude());
 
-  app.whenReady().then(() => {
+  app.on('before-quit', stopServer);
+  app.on('will-quit', stopServer);
+  process.on('exit', stopServer);
+
+  app.whenReady().then(async () => {
     buildMenu();
+
+    /* A bundled app serves itself, so the window works with no dev server and
+       no internet. APLUS_URL always wins, because that is how you point the
+       shell at something you are working on. */
+    if (!process.env.APLUS_URL) {
+      const found = bundle();
+      if (found) {
+        try {
+          appUrl = await startServer(found);
+        } catch (error) {
+          console.error('could not start the bundled server:', error && error.message);
+        }
+      }
+    }
+
     createWindow();
 
     // `APLUS_SMOKE=1` is for checking the shell without a person: load the
-    // page, report what the preload exposed, and quit.
+    // page, report what it found and what the preload exposed, and quit.
     if (process.env.APLUS_SMOKE) {
       win.webContents.once('did-finish-load', async () => {
-        const report = await win.webContents.executeJavaScript(
-          `JSON.stringify({ title: document.title, desktop: window.__APLUS_DESKTOP__ === true, api: Object.keys(window.aplusDesktop || {}), platform: window.aplusDesktop && window.aplusDesktop.platform })`,
+        const page = await win.webContents.executeJavaScript(
+          `JSON.stringify({ title: document.title, desktop: window.__APLUS_DESKTOP__ === true, api: Object.keys(window.aplusDesktop || {}), platform: window.aplusDesktop && window.aplusDesktop.platform, headings: [...document.querySelectorAll('h1,h2')].map((h) => h.textContent).slice(0, 3) })`,
         );
-        process.stdout.write(`SMOKE ${report}\n`);
+        const report = { ...JSON.parse(page), url: appUrl, bundled: server !== null, mcp: fs.existsSync(serverPath()) };
+        process.stdout.write(`SMOKE ${JSON.stringify(report)}\n`);
         app.quit();
       });
     }
@@ -263,5 +369,3 @@ if (!app.requestSingleInstanceLock()) {
     if (process.platform !== 'darwin') app.quit();
   });
 }
-
-void isDev;

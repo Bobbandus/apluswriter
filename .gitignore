@@ -55,3 +55,7 @@ api/
 .api/
 api.txt
 *.key
+
+# The desktop bundle: 75 MB of build output, rebuilt by npm run desktop:build
+aplustoolkit/aplusdesktop/bundle/
+aplustoolkit/aplusdesktop/release/
