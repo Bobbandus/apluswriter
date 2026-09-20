@@ -18,6 +18,11 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done
 4. **Export must interoperate.** Anything we write opens correctly in Highland,
    Beat and Final Draft. All A+ extensions hide inside Fountain notes.
 5. **Swedish is a first-class language**, not a translation afterthought.
+6. **Minimalism (added 2026-09-20).** The writing surface stays calm. Anything
+   beyond writing (curves, maps, word counts, timelines) is off by default and
+   opened with a button that remembers the choice. No wall of open fields.
+   Every phase ends with a screenshot review in Light, Dark and Midnight, on
+   desktop and phone width.
 
 ---
 
@@ -180,10 +185,13 @@ Commit and push at the end of each milestone.
 Decided with the user through two yes/no rounds. Deferred ideas and rejected
 features are listed in `ideas.txt` — read it before proposing anything new.
 
-**The AI rule.** Claude assists when asked. It never writes the script.
-Everything it produces arrives as a *suggestion* (a card with Use / Discard, or
-a +/- diff) or as an answer in the chat. It never edits action or dialogue on
-its own.
+**The AI rule (updated 2026-09-20).** Claude assists when asked. It rewrites or
+drafts text **only when the writer explicitly asks**, and everything it
+produces arrives as a *suggestion* (a card with Use / Discard, or a +/- diff)
+or as an answer in the chat. Nothing changes until the writer clicks Use, and
+one Ctrl+Z takes it back. It never edits action or dialogue on its own, and it
+follows the craft rules in `docs/handoff.md` (no dark mood without resolution,
+no stock AI lines, the writer's own voice, the project's "Stil & ton" note).
 
 **How Claude and the app talk.** Claude Desktop starts the MCP server. The MCP
 server also listens on a local bridge (127.0.0.1, with an origin allowlist
@@ -204,6 +212,39 @@ Claude conversation by itself; MCP only works in the other direction. Direct
 | M8 | Revisions | Colour snapshots in a **submenu** under the version pill, not permanently on screen. Element-level compare, revision asterisks in PDF, restore |
 | M8.5 | Storyboard | One image slot per shot in the shotlist. Behind a "Show storyboard" toggle. An empty slot is a thin row, not a big box |
 | M9–M11 | Unchanged | Import/export, polish, ship |
+
+---
+
+## 5c. Roadmap v3 (decided 2026-09-20)
+
+Priority 1 is finishing screenwriting. Work goes in **small phases**; each phase
+ends green (`npm run check`, plus `npm run build` when the web app changed), is
+committed and pushed to `main` (which deploys toolkit.aplusfilm.se). Tags and
+GitHub Releases only when the owner says so. The phase checklist lives in
+`docs/handoff.md`.
+
+| Phase | Scope |
+|---|---|
+| 0 | Unblock: green build (`Script.sections`), login (env folder, account button on every page, invite-only sign-ups), dictionary saves only finished names, MCP instructions + craft rules |
+| 1 | Claude may write on request: multi-hunk rewrite cards, alternatives, insert-scene, per-project "Stil & ton", new slash commands |
+| 2 | Windows installer (NSIS, per user, bundled Next server), auto-update *proven* locally and against GitHub Releases, MCPB extension for Claude Desktop, download banner (hidden in desktop) |
+| 3 | M7: sections in the navigator, `reorderScenes`, index-card board with drag, character/location panels, relationship map (opt-in), to-do panel |
+| 4 | M8: revisions, automatic snapshots, PDF revision asterisks, scene alternatives (A/B, stored as boneyard in the text), MCP revision readers |
+| 5 | M9: FDX/HTML/sides/report export, FDX/Highland/Word import, title-page form |
+| 6 | M10: command palette, find & replace, spellcheck (dialogue/action only), cloud sync of project data, mirror to `.fountain` files, sprints, share/comments/roles, story days, energy curve (opt-in) |
+| 7 | Polish after every phase |
+| Next | Plan → Produktion (shotlist, stripboard, callsheet, props), then Casting, then Live and real-time co-writing |
+
+### Are we ready? (readiness, 2026-09-20)
+
+| Idea | Ready? | Already there | Missing | Proposal |
+|---|---|---|---|---|
+| Roles and permissions | Almost | `project_role`, RLS (`02_rls.sql`), `project_members`, `share_links` | invite function (SQL), member UI, read-only editor mode | Built in phase 6 |
+| Produktion (stripboard, callsheet, day-out-of-days, props) | Yes, the data exists | `scheduleGroups`, `sceneDifficulty`, cast per scene, length in eighths | shooting-day data model, UI | After phase 6 |
+| A+ Casting | Partly | character profiles, `casting_call` command, `characters` table, `media` bucket | candidates, notes, audition booking, the page | After Produktion |
+| Real-time co-writing | **No** | the script is a raw text buffer (good for Yjs) | Yjs, a transport (Supabase Realtime or `y-websocket`), persistence of Y-state; `save_script` optimistic concurrency (`P0409`) conflicts with CRDT merging; IndexedDB cache must be reconciled with the Y.Doc | Wait until M7–M10 and roles are done, then a two-day spike |
+| A+ Live | **No** | nothing | its own product: a realtime channel (Vercel serverless holds no sockets), an overlay renderer (browser source for OBS/vMix), operator view, data sources | Own spec and spike after Produktion, in its own folder |
+| Discord bot/webhook | Yes, simple | — | — | Parked in `ideas.txt` |
 
 ---
 

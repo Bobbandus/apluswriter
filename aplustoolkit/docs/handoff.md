@@ -1,0 +1,100 @@
+# Överlämning till ny chatt
+
+Skriven 2026-09-20. Uppdateras när en fas är klar. Klistra in prompten nedan i en ny chatt som öppnas i samma mapp.
+
+## Prompt att klistra in
+
+```
+Du fortsätter på A+ Toolkit (mappen aplustoolkit/). Jag skriver svenska, svara på svenska.
+
+Gör så här innan du gör något annat:
+1. Läs aplustoolkit/docs/handoff.md, aplustoolkit/PLAN.md och aplustoolkit/ideas.txt. Föreslå aldrig något som redan står där.
+2. Kör `git status`, `git log --oneline -10` och `npm run check` (i aplustoolkit/) och berätta kort vad som är grönt eller rött. Det kan ligga halvfärdigt arbete från andra AI-verktyg i trädet.
+3. Ta första delfas som inte är ikryssad i listan "Faser" i handoff.md. Bygg en delfas i taget: tester först, sedan koden, sedan `npm run check` (och `npm run build` om webben rörts), commit, push till main. En push till main deployar toolkit.aplusfilm.se, så håll bygget grönt.
+4. Innan nytt större arbete: ställ många ja/nej-frågor i omgångar (max fyra per omgång, kryssrutor för funktionslistor, rekommenderat val först). Hellre för många än för få. Du får överklaga ett avslag, men bara en gång och med en konkret anledning.
+5. Håll det minimalistiskt: extra funktioner är av som standard bakom en knapp. Inga taggar eller releaser utan att jag säger till.
+
+Claude får skriva om min text bara när jag ber om det, alltid som diff-kort jag måste godkänna, och aldrig med typiska AI-klyschor (se "Craft-regler" i handoff.md).
+```
+
+## Recap (kort)
+
+**Vad det är.** A+ Toolkit är A+ Studios verktygslåda: **Plan** (Write finns, Shotlist/Casting är Kommer-sidor), **Shoot** och **Live** (inget byggt). Allt ligger i `aplustoolkit/`. Next.js-webbapp i `aplusweb/`, delad logik i `packages/`, MCP-server för Claude Desktop i `mcp/`, Electron-skal i `aplusdesktop/`, Supabase-SQL i `supabase/`. Sajten: https://toolkit.aplusfilm.se (Vercel ← GitHub `Bobbandus/apluswriter`). **En push till `main` deployar.**
+
+**Grundprinciper (PLAN.md).** Texten är sanningen (ren Fountain). Förlora aldrig ett ord. Tangentbord först. Export ska funka i Highland/Beat/Final Draft. Svenska är förstaspråk. Nytt: **minimalism**, extra är av som standard.
+
+**Läget vid överlämningen.**
+- Gemini lämnade halvfärdigt: `suggest_rewrite` (MCP + protocol + apply + kort), en buggig ordboks-effekt, och `sections` i `indexes.ts` som inte kompilerade.
+- `.env.local` låg i fel mapp. Next läser env från `aplusweb/`, inte `aplustoolkit/`. Därför syntes ingen inloggning.
+- MCP-serverns instruktioner sa fortfarande "skriv aldrig om", vilket är varför Claude vägrade skriva om dialog.
+- Desktop-skalet laddar bara `http://localhost:3000` och saknar installer.
+
+**Beslut.**
+- Claude får skriva om/skriva nytt **på begäran**, alltid som diff-kort; inget ändras före **Använd**, Ctrl+Z tar tillbaka.
+- Ordlistan sparar en roll/plats **först när den är färdig**: roll = färdig replik under + markören har lämnat raden; plats = rubrik med tid på dygnet + markören har lämnat raden. "E" som halvskriven plats ska aldrig hänga kvar.
+- Installer: Windows `.exe` (NSIS), Next-servern bundlad, **auto-uppdatering som bevisas** (lokalt test + riktig release), nedladdning via GitHub Releases, knapp/banner på sajten (dold i desktop).
+- Claude-koppling via **MCPB-tillägg** (dubbelklick, Claude Desktops egen Node), config-metoden kvar som reserv.
+- Konton: magic link, konto-knapp på alla sidor, **nyregistrering stängd** i Supabase, inbjudan manuellt.
+- Med i screenwriting: kommandopalett, stavningskontroll, sök & ersätt, Att göra-panel, auto-ögonblicksbilder, synk av shotlists/profiler/ordlista, spegling till `.fountain`-filer, skrivpass, import FDX/Highland/Word, export FDX/HTML/rapporter, titelsidesformulär, delning + kommentarer + roller, scenalternativ (A/B), rollrelationskarta, story-dagar, ton- & energikurva (dold), M7 (indexkort, sektioner), M8 (revisioner).
+- Efter screenwriting: **Plan → Produktion** (shotlist, stripboard, callsheet, rekvisita). Shoot behåller on-set-verktyg.
+- Senare, endast i `ideas.txt`: bordsläsning/replikträning, pitch-PDF, Discord-bot/webhook, filmklappa, Casting, Live, realtidsskrivning.
+- Avslagna: inline-diff i texten, beat-tavla, Fråga-Claude-meny, Google Kalender.
+
+**Craft-regler (Claude ska följa vid omskrivning).**
+- Skriv i skribentens röst, ordförråd och genre. Komedi förblir komedi. Gör inte en lätt scen mörkare eller "djupare" om det inte efterfrågats.
+- Ingen olycksbådande förkänsla eller mörker utan upplösning som standard. En scen ska landa.
+- Förbjudet: "Han vet mer än han ska", "De borde inte vara så här stora", "Något är fel", "Det är aldrig bara X", "Tystnad." som utfyllnad, karaktärer som deklarerar sina känslor, samma putsade terapispråk hos alla, snygga tretal, "inte X utan Y", scenslut på en tyst blick eller en sensmoral.
+- Föredra subtext, konkreta saker och avbrott framför abstraktioner. Behåll namn, handling, kontinuitet.
+- Läs projektets "Stil & ton" innan varje omskrivning.
+
+## Faser
+
+Ta en delfas i taget. Markera `[x]` här när den är pushad.
+
+**Fas 0 — Lås upp**
+- [x] 0.0 Minne, `handoff.md`, `ideas.txt`, `PLAN.md`
+- [ ] 0.1 Bygget grönt (`sections` i `Script`)
+- [ ] 0.2 Inloggning (env-mapp, konto-knapp på alla sidor, Supabase-guide)
+- [ ] 0.3 Ordboken: spara först när färdig (E-buggen)
+- [ ] 0.4 MCP-instruktioner + craft-regler
+
+**Fas 1 — Claude får skriva**
+- [ ] 1.1 `suggest_rewrite` med flera ändringar per kort
+- [ ] 1.2 `suggest_alternatives`
+- [ ] 1.3 `suggest_insert`
+- [ ] 1.4 Stil & ton per projekt
+- [ ] 1.5 Nya kommandon i Claude Desktop
+
+**Fas 2 — Installer + auto-uppdatering**
+- [ ] 2.1 Bygg-kedja (Next standalone)
+- [ ] 2.2 Desktop startar inbyggd server
+- [ ] 2.3 electron-builder, ikon, NSIS
+- [ ] 2.4 Auto-uppdatering + bevis A (lokalt)
+- [ ] 2.5 GitHub Actions + bevis B (kräver ok för tagg)
+- [ ] 2.6 MCPB-tillägg + nedladdningsbanner
+
+**Fas 3 — M7 Struktur:** [ ] 3.1 sektioner i navigator · [ ] 3.2 `reorderScenes` · [ ] 3.3 indexkort med drag · [ ] 3.4 roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel
+
+**Fas 4 — M8 Revisioner:** [ ] 4.1 lagring · [ ] 4.2 versionsmeny + auto-ögonblicksbilder · [ ] 4.3 PDF-asterisker · [ ] 4.4 scenalternativ · [ ] 4.5 MCP-läsverktyg
+
+**Fas 5 — M9 Import/export:** [ ] FDX/HTML/sidor/rapporter ut · [ ] FDX/Highland/Word in · [ ] titelsidesformulär
+
+**Fas 6 — M10 Polish:** [ ] kommandopalett · [ ] sök & ersätt · [ ] stavningskontroll · [ ] datasynk · [ ] spegling till filer · [ ] skrivpass + fokus · [ ] delning/kommentarer/roller · [ ] story-dagar + energikurva
+
+**Fas 7 — Putsning** efter varje fas (skärmdumpar Ljust/Mörkt/Midnatt, desktop + mobil).
+
+**Därefter:** Plan → Produktion, Casting, Live, realtid. Beredskapsanalysen ("Are we ready?") står i `PLAN.md` §5c.
+
+## Det du måste göra själv
+
+- **Supabase** (Authentication): URL Configuration → Site URL `https://toolkit.aplusfilm.se`, Redirect URLs `http://localhost:3000/auth/callback` och `https://toolkit.aplusfilm.se/auth/callback`. Sign In / Providers → stäng av *Allow new users to sign up*. Users → *Invite user* för varje kollega.
+- **Vercel** → Project → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY`, sedan redeploy (värdena bakas in vid bygge).
+- **GitHub** → Settings → Secrets: samma två som repo-secrets (behövs för installern, fas 2.5).
+- Starta om Claude Desktop efter att MCP-servern byggts om. Installationsrutan för `.mcpb` bekräftar du själv.
+
+## Fällor
+
+- Env-filer läses från `aplusweb/`. `aplusweb/.env.local` är rätt plats.
+- `gh` finns inte på datorn. Releaser byggs av GitHub Actions på en `v*`-tagg.
+- Windows Developer Mode är av. Om electron-builder klagar på symlänkar: slå på det (Inställningar → System → För utvecklare) eller sätt `signAndEditExecutable: false`.
+- Osignerad installer ger en SmartScreen-varning första gången ("Mer info" → "Kör ändå"). Okej för internt bruk.

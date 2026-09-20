@@ -3,10 +3,18 @@ A+ WRITE — IDÉER FÖR SENARE
 Saker som är beslutade att vänta. Läs den här filen i början av en ny chatt
 innan du föreslår nya funktioner, så att vi inte föreslår samma sak igen.
 
-Grundregel för all AI i A+ Write:
-  AI:n är ett verktyg som hjälper till när användaren frågar. Den skriver
-  aldrig manuset åt någon. Den rör aldrig dialog eller beskrivning utan att
-  användaren själv klickar "Använd" på ett förslag.
+Grundregel för all AI i A+ Write (uppdaterad 2026-09-20):
+  AI:n är ett verktyg som hjälper till när användaren frågar. Den skriver om
+  eller skriver ny text BARA när användaren uttryckligen ber om det, och det
+  kommer alltid som ett kort (diff) som användaren själv klickar "Använd" på.
+  Inget ändras före klicket, Ctrl+Z tar tillbaka. Den skriver aldrig på eget
+  initiativ, och den följer craft-reglerna: ingen mörk ton utan upplösning,
+  inga AI-klyschor ("Han vet mer än han ska", "De borde inte vara så här
+  stora"), skribentens egen röst och genre. Se docs/handoff.md.
+
+Grundregel för utseendet (2026-09-20): minimalism. Extra funktioner (kurvor,
+kartor, ordräkning, tidslinjer) är av som standard och slås på med en knapp
+som kommer ihåg valet. Skrivytan ska vara lugn.
 
 ------------------------------------------------------------------------
 KOMMER SENARE
@@ -36,6 +44,28 @@ KOMMER SENARE
    "Skulle svensk polis 1995 ha en sån radio?" Svaret kommer bara i
    chatten och skrivs aldrig in i manuset.
 
+6. Bordsläsning och replikträning (beslut 2026-09-20: i framtiden)
+   Stor text, autorullning, en färg per roll, "Ta min roll" som markerar
+   dina repliker. Replikträning döljer dina repliker tills du trycker.
+   Människor läser, ingen AI-röst.
+
+7. Pitch-PDF / one-sheet (beslut 2026-09-20: i framtiden)
+   Logline, synopsis, roller och platser ur manuset och Claudes sparade
+   texter, i en snygg PDF att skicka till finansiärer.
+
+8. Discord-bot eller webhook (beslut 2026-09-20: bara idé, inte prio)
+   T.ex. postar när en ny revision sparas eller en inspelningsdag är
+   schemalagd. Ingen Google Kalender behövs. Bot är mer än webhook, välj
+   när det blir aktuellt.
+
+9. Filmklappa och tagningslogg som mobil-webbapp (beslut 2026-09-20: inte än)
+   Hör till A+ Shoot. Scen, bild och tagning fylls i från manuset.
+
+10. Realtidsskrivning tillsammans, roller/behörigheter, A+ Casting, A+ Live
+    Alla i framtiden. Beredskapsanalys (vad som finns, vad som saknas) står i
+    PLAN.md under "Är vi redo?". Kort: roller är nästan redo (SQL finns),
+    Casting delvis, realtid och Live är inte redo.
+
 ------------------------------------------------------------------------
 AVFÄRDAT (föreslå inte igen utan anledning)
 ------------------------------------------------------------------------
@@ -46,6 +76,12 @@ AVFÄRDAT (föreslå inte igen utan anledning)
 - Tab som bläddrar mellan elementtyper. Den gjorde oväntade saker, som att
   lägga in < och (). Tab gör nu bara säkra saker (fyller i förslag och
   scenprefix).
+- Inline-diff direkt i texten (Copilot-stil). Motivering (2026-09-20):
+  kortpanelen räcker och håller skrivytan ren.
+- Beat-tavla med mallar (Save the Cat, tre akter) på indexkorten.
+- "Fråga Claude"-meny i appen med färdiga prompts. Claude Desktops egna
+  /-kommandon täcker det.
+- Kalenderexport (.ics) för inspelningsschemat. Ingen Google Kalender.
 
 
 ========================================================================
@@ -95,8 +131,15 @@ anpassat för A+ Studios produktioner
 ------------------------------------------------------------------------
 A+ PLAN — undersidor att bygga
 ------------------------------------------------------------------------
-- Shotlist (fristående sida, alla scener; i dag sparas Claudes shotlists per
-  projekt i skrivvyn)
+- Produktion (beslut 2026-09-20: Shotlist-sidan växer till Plan → Produktion,
+  byggs efter att screenwriting är färdigt). Innehåller shotlist (fristående
+  sida, alla scener; i dag sparas Claudes shotlists per projekt i skrivvyn),
+  stripboard (scener som färgkodade remsor, INT/EXT och DAG/NATT, dras till
+  inspelningsdagar, ger day-out-of-days), callsheet-PDF per inspelningsdag,
+  samlad rekvisita- och kostymlista. Datan finns redan: scheduleGroups,
+  sceneDifficulty, roller per scen, längd i åttondelar.
+  A+ Shoot behåller det som händer på set (klappa, tagningslogg, dagsrapport)
+  och läser samma data.
 - Casting (rollbeskrivningar från manuset, casting calls, kandidater,
   anteckningar, tidsbokning). Rollbibeln finns redan som Claude-kommando.
 - Fler: Platser, Schema, Budget (fråga först)
@@ -106,6 +149,9 @@ TEKNISKT ATT KOMMA IHÅG
 ------------------------------------------------------------------------
 - Hela projektet ligger i mappen aplustoolkit/. Det är enda mappen som pushas.
   Vercel: Root Directory = aplustoolkit (vercel.json sköter resten)
-- Supabase Site URL: https://apluswriter.vercel.app
-  Redirect URLs: http://localhost:3000/auth/callback  (och Vercel-adressen)
+- Sajten: https://toolkit.aplusfilm.se (Vercel ← GitHub). En push till main deployar.
+  Supabase Site URL: https://toolkit.aplusfilm.se
+  Redirect URLs: http://localhost:3000/auth/callback och
+  https://toolkit.aplusfilm.se/auth/callback
+- Env-filer läses från aplusweb/ (inte aplustoolkit/). Se supabase/README.md.
 - Startsidans bilder ligger i aplusweb/public/media/hero/ (3:4, stående).
