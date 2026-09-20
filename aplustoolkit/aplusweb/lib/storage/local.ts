@@ -1,4 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
+import type { Revision } from '@aplus/fountain/revisions';
 import type { LocalScript, ProjectMeta } from './types';
 
 /**
@@ -14,10 +15,13 @@ interface AplusDB extends DBSchema {
   projects: { key: string; value: ProjectMeta };
   scripts: { key: string; value: LocalScript };
   data: { key: [string, string]; value: { projectId: string; key: string; value: unknown; updatedAt: number } };
+  revisions: { key: string; value: Revision; indexes: { byProject: string } };
 }
 
 const DB_NAME = 'aplus-write';
-const DB_VERSION = 1;
+// 2: revisions. The upgrade only ever adds a store, so a writer's projects,
+// scripts and data are never touched by it.
+const DB_VERSION = 2;
 
 export class LocalStore {
   private dbPromise: Promise<IDBPDatabase<AplusDB>> | null = null;
@@ -30,6 +34,16 @@ export class LocalStore {
         if (!db.objectStoreNames.contains('projects')) db.createObjectStore('projects', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('scripts')) db.createObjectStore('scripts', { keyPath: 'projectId' });
         if (!db.objectStoreNames.contains('data')) db.createObjectStore('data', { keyPath: ['projectId', 'key'] });
+        if (!db.objectStoreNames.contains('revisions')) {
+          db.createObjectStore('revisions', { keyPath: 'id' }).createIndex('byProject', 'projectId');
+        }
+      },
+      // Another tab wants a newer schema. An open connection here would hold
+      // its upgrade up indefinitely, so let go and reopen on the next call.
+      blocking: () => {
+        const stale = this.dbPromise;
+        this.dbPromise = null;
+        void stale?.then((db) => db.close());
       },
     });
     return this.dbPromise;
@@ -62,12 +76,14 @@ export class LocalStore {
     return next;
   }
 
-  /** Removes the project, its script and its data in one transaction. */
+  /** Removes the project, its script, its data and its revisions in one transaction. */
   async deleteProject(id: string): Promise<void> {
     const db = await this.db();
-    const tx = db.transaction(['projects', 'scripts', 'data'], 'readwrite');
+    const tx = db.transaction(['projects', 'scripts', 'data', 'revisions'], 'readwrite');
     await tx.objectStore('projects').delete(id);
     await tx.objectStore('scripts').delete(id);
+    const revisions = tx.objectStore('revisions');
+    for (const key of await revisions.index('byProject').getAllKeys(id)) await revisions.delete(key);
     const data = tx.objectStore('data');
     for (const key of await data.getAllKeys()) {
       if (key[0] === id) await data.delete(key);
@@ -89,6 +105,27 @@ export class LocalStore {
     await tx.objectStore('scripts').put(script);
     const meta = await tx.objectStore('projects').get(script.projectId);
     if (meta) await tx.objectStore('projects').put({ ...meta, ...projectPatch, updatedAt: script.updatedAt });
+    await tx.done;
+  }
+
+  /** A project's revisions, newest first. */
+  async listRevisions(projectId: string): Promise<Revision[]> {
+    const all = await (await this.db()).getAllFromIndex('revisions', 'byProject', projectId);
+    return all.sort((a, b) => b.createdAt - a.createdAt);
+  }
+
+  async getRevision(id: string): Promise<Revision | undefined> {
+    return (await this.db()).get('revisions', id);
+  }
+
+  async putRevision(revision: Revision): Promise<void> {
+    await (await this.db()).put('revisions', revision);
+  }
+
+  async deleteRevisions(ids: readonly string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const tx = (await this.db()).transaction('revisions', 'readwrite');
+    for (const id of ids) await tx.store.delete(id);
     await tx.done;
   }
 
