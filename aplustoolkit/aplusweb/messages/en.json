@@ -377,7 +377,9 @@
     "dual": "Dual dialogue: toggle for this speech",
     "shortcuts": "Shortcuts (change keys)",
     "elementBarOn": "Show the element bar over the page",
-    "elementBarOff": "Hide the element bar"
+    "elementBarOff": "Hide the element bar",
+    "recording": "Recording (Minecraft): server, take, time, players",
+    "voiceLines": "Export the line list for voice recording (CSV)"
   },
   "settings": {
     "title": "Settings",
@@ -670,5 +672,30 @@
       "sceneUp": "Move scene up",
       "sceneDown": "Move scene down"
     }
+  },
+  "recording": {
+    "title": "Recording",
+    "hint": "For scripts recorded in a game and cut afterwards. Everything is saved as notes under the scene heading, such as [[recording: Evening1]] and [[time: 13000]]. Empty fields change nothing.",
+    "scene": "Scene",
+    "time": "Time",
+    "server": "Server",
+    "recordingName": "Recording",
+    "take": "Take",
+    "at": "Start",
+    "pov": "POV",
+    "sceneNumber": "scene {scene}",
+    "part": {
+      "sunrise": "sunrise",
+      "day": "day",
+      "sunset": "sunset",
+      "night": "night"
+    },
+    "log": "Recording log",
+    "logEmpty": "No scene has a recording yet. Type a name in the Recording field and they are gathered here.",
+    "notRecorded": "Not recorded",
+    "sceneCount": "{count, plural, =1 {# scene} other {# scenes}}",
+    "players": "Who plays whom",
+    "playersHint": "The player name goes into the line list. It changes nothing in the script.",
+    "exportVoice": "Download the line list (CSV)"
   }
 }

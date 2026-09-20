@@ -115,6 +115,32 @@ export function readSceneMeta(source: string): SceneMeta {
         if (day >= 1) meta.day = day;
         break;
       }
+      case 'time':
+      case 'tid': {
+        const tick = /^\d{1,5}$/.test(value) ? Number(value) : NaN;
+        if (tick >= 0 && tick < 24000) meta.time = tick;
+        break;
+      }
+      case 'server':
+        meta.server = value;
+        break;
+      case 'recording':
+      case 'inspelning':
+        meta.recording = value;
+        break;
+      case 'take':
+      case 'tagning': {
+        const take = /^\d{1,3}$/.test(value) ? Number(value) : NaN;
+        if (take >= 1) meta.take = take;
+        break;
+      }
+      case 'at':
+      case 'start':
+        if (/^\d{1,3}:\d{2}(?::\d{2})?$/.test(value)) meta.at = value;
+        break;
+      case 'pov':
+        meta.pov = value;
+        break;
       case 'energy':
       case 'energi': {
         const energy = /^\d{1,2}$/.test(value) ? Number(value) : NaN;

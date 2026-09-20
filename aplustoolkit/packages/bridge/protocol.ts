@@ -58,6 +58,17 @@ export interface Shot {
   /** Who is in frame. */
   subjects?: string[];
   notes?: string;
+  /**
+   * For a scene recorded in a game and cut afterwards (Minecraft with a replay tool): how the camera works on the
+   * recording. `free` a free camera on a path, `first` or `third` the player's own view, `follow` tracking an entity.
+   */
+  camera?: string;
+  /** Who or what the camera follows, when it does. */
+  follow?: string;
+  /** How the path moves between keyframes: smooth, linear or hermite. */
+  path?: string;
+  /** Slow motion, timelapse or a freeze, and how much. */
+  speed?: string;
 }
 
 export interface Shotlist {

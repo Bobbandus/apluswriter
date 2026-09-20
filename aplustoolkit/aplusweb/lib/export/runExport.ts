@@ -100,3 +100,16 @@ export async function runExport(request: ExportRequest): Promise<string> {
   await saveFile(name, new Blob([bytes as BlobPart], { type: 'application/pdf' }));
   return name;
 }
+
+/**
+ * Every spoken line with its role and player, as a CSV to tick off while the voices are recorded apart
+ * from the picture. Written with a byte-order mark so Excel reads å, ä and ö.
+ */
+export async function runVoiceLinesExport(source: string, players: Record<string, string>): Promise<string> {
+  const script = parse(source);
+  const { exportFileName } = await import('@aplus/export/pdf');
+  const { voiceLines, voiceLinesCsv } = await import('@aplus/production/minecraft');
+  const name = exportFileName(script, 'csv').replace(/\.csv$/, ' - repliker.csv');
+  await saveFile(name, new Blob(['\uFEFF', voiceLinesCsv(voiceLines(script, players))], { type: 'text/csv;charset=utf-8' }));
+  return name;
+}

@@ -37,6 +37,8 @@ import { WritingPill } from '@/components/writing/WritingPill';
 import { useWritingStats } from '@/lib/hooks/useWritingStats';
 import { TimelineSheet } from '@/components/timeline/TimelineSheet';
 import { QuickNote } from '@/components/quicknote/QuickNote';
+import { RecordingSheet, type RecordingField } from '@/components/recording/RecordingSheet';
+import { runVoiceLinesExport } from '@/lib/export/runExport';
 import { quickNoteEdit } from '@/lib/quickNote';
 import { toggleDualEdit } from '@aplus/fountain/dual';
 import { ShortcutsSheet } from '@/components/shortcuts/ShortcutsSheet';
@@ -104,6 +106,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [replaceMode, setReplaceMode] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [quickNoteOpen, setQuickNoteOpen] = useState(false);
+  const [recordingOpen, setRecordingOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const shortcuts = useShortcuts();
   const [focusPrefs, setFocusPrefs] = useFocusPrefs();
@@ -475,6 +478,29 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     if (edit && text.slice(edit.from, edit.to) !== edit.insert) handle.applyChanges([edit]);
   }, []);
 
+  /* Who plays whom, per project: it belongs to this production, not to this device. */
+  const [players, setPlayers] = useProjectData<Record<string, string>>(projectId, 'players', {});
+
+  const setRecordingField = useCallback((sceneIndex: number, field: RecordingField, value: string | null) => {
+    const handle = editorRef.current;
+    if (!handle) return;
+    const text = handle.getText();
+    const keys: Record<RecordingField, string[]> = {
+      time: ['time', 'tid'],
+      server: ['server'],
+      recording: ['recording', 'inspelning'],
+      take: ['take', 'tagning'],
+      at: ['at', 'start'],
+      pov: ['pov'],
+    };
+    const edit = sceneNoteEdit(text, sceneIndex, keys[field], value);
+    if (edit && text.slice(edit.from, edit.to) !== edit.insert) handle.applyChanges([edit]);
+  }, []);
+
+  const exportVoiceLines = useCallback(() => {
+    void runVoiceLinesExport(editorRef.current?.getText() ?? sourceRef.current, players).then((name) => say(name));
+  }, [players, say]);
+
   const tCommand = useTranslations('command');
   const commands = useMemo<Command[]>(
     () => [
@@ -487,6 +513,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: shortcuts.binding('replace'), run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
       { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
       { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
+      { id: 'recording', label: tCommand('recording'), group: tCommand('groupScript'), keywords: 'minecraft inspelning tagning server flashback tid spelare pov', run: () => setRecordingOpen(true) },
+      { id: 'voiceLines', label: tCommand('voiceLines'), group: tCommand('groupScript'), keywords: 'repliker röst ljud inspelning csv minecraft', run: exportVoiceLines },
       { id: 'timeline', label: tCommand('timeline'), group: tCommand('groupScript'), keywords: 'dag dagar energi kurva rytm story tidslinje', run: () => setTimelineOpen(true) },
       { id: 'dual', label: tCommand('dual'), group: tCommand('groupElement'), keywords: 'dubbel dialog samtidigt två pratar', shortcut: shortcuts.binding('dual'), run: toggleDual },
       { id: 'quickNote', label: tCommand('quickNote'), group: tCommand('groupScript'), keywords: 'todo anteckning notera påminnelse', shortcut: shortcuts.binding('quickNote'), run: () => setQuickNoteOpen(true) },
@@ -540,7 +568,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts, elementBar, setElementBar],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts, elementBar, setElementBar, exportVoiceLines],
   );
 
   useHotkeys({
@@ -758,6 +786,16 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
           const edit = quickNoteEdit(handle.getText(), handle.getSelection().from, note);
           if (edit) handle.applyChanges([edit]);
         }}
+      />
+      <RecordingSheet
+        open={recordingOpen}
+        onClose={() => setRecordingOpen(false)}
+        scenes={script.scenes}
+        roles={script.characters.map((entry) => entry.name)}
+        players={players}
+        onPlayers={setPlayers}
+        onSet={setRecordingField}
+        onExportVoice={exportVoiceLines}
       />
       <TimelineSheet open={timelineOpen} onClose={() => setTimelineOpen(false)} scenes={script.scenes} onSet={setSceneField} />
 

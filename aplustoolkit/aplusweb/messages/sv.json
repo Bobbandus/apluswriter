@@ -377,7 +377,9 @@
     "dual": "Dubbeldialog: växla för repliken",
     "shortcuts": "Genvägar (ändra tangenter)",
     "elementBarOn": "Visa elementraden över sidan",
-    "elementBarOff": "Dölj elementraden"
+    "elementBarOff": "Dölj elementraden",
+    "recording": "Inspelning (Minecraft): server, tagning, tid, spelare",
+    "voiceLines": "Exportera repliklista för röstinspelning (CSV)"
   },
   "settings": {
     "title": "Inställningar",
@@ -670,5 +672,30 @@
       "sceneUp": "Flytta scenen upp",
       "sceneDown": "Flytta scenen ner"
     }
+  },
+  "recording": {
+    "title": "Inspelning",
+    "hint": "För manus som spelas in i spelet och klipps efteråt. Allt sparas som noter under scenrubriken, till exempel [[recording: Kväll1]] och [[time: 13000]]. Tomma fält ändrar ingenting.",
+    "scene": "Scen",
+    "time": "Tid",
+    "server": "Server",
+    "recordingName": "Inspelning",
+    "take": "Tagn.",
+    "at": "Start",
+    "pov": "POV",
+    "sceneNumber": "scen {scene}",
+    "part": {
+      "sunrise": "soluppgång",
+      "day": "dag",
+      "sunset": "solnedgång",
+      "night": "natt"
+    },
+    "log": "Inspelningslogg",
+    "logEmpty": "Inga scener har en inspelning än. Skriv ett namn i fältet Inspelning så samlas de här.",
+    "notRecorded": "Ej inspelade",
+    "sceneCount": "{count, plural, =1 {# scen} other {# scener}}",
+    "players": "Vem spelar rollen",
+    "playersHint": "Spelarnamnet hamnar i repliklistan. Det ändrar inget i manuset.",
+    "exportVoice": "Ladda ner repliklista (CSV)"
   }
 }

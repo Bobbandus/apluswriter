@@ -1,0 +1,124 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--t-small);
+  color: var(--text-faint);
+  line-height: 1.5;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.4fr) 72px minmax(80px, 1fr) minmax(90px, 1fr) 56px 72px minmax(70px, 1fr);
+  gap: var(--s-1) var(--s-2);
+  align-items: center;
+  min-width: 640px;
+}
+
+.head {
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.scene {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--t-small);
+  color: var(--text);
+}
+
+.input,
+.narrow {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 var(--s-2);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--t-small);
+}
+
+.narrow {
+  text-align: center;
+}
+
+.input:focus,
+.narrow:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
+.input::placeholder,
+.narrow::placeholder {
+  color: var(--text-faint);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--t-small);
+}
+
+.log li {
+  display: flex;
+  gap: var(--s-3);
+  align-items: baseline;
+}
+
+.log .todo strong {
+  color: var(--gold);
+}
+
+.scenes {
+  color: var(--text-faint);
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--s-2) var(--s-4);
+}
+
+.player {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}

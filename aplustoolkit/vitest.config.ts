@@ -11,6 +11,7 @@ export default defineConfig({
       '@aplus/paginator': at('./packages/paginator'),
       '@aplus/export': at('./packages/export'),
       '@aplus/bridge': at('./packages/bridge'),
+      '@aplus/production': at('./packages/production'),
       '@': at('./aplusweb'),
     },
   },

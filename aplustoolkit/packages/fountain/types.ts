@@ -109,6 +109,18 @@ export interface SceneMeta {
   day?: number;
   /** From `[[energy: 7]]`, 1 to 10: how hard the scene pushes, for reading the script's rhythm. */
   energy?: number;
+  /**
+   * Recording data, for productions shot in a game and cut afterwards (a Minecraft SMP with Flashback):
+   * `[[time: 13000]]` the game clock in ticks (0 sunrise, 6000 noon, 12000 sunset, 18000 midnight),
+   * `[[server: Unstable]]`, `[[recording: Kök_kväll]]`, `[[take: 3]]`, `[[at: 12:30]]` where the scene starts in the
+   * recording, `[[pov: Spoke]]` whose view the scene is told from.
+   */
+  time?: number;
+  server?: string;
+  recording?: string;
+  take?: number;
+  at?: string;
+  pov?: string;
 }
 
 /* ========================================================================== */

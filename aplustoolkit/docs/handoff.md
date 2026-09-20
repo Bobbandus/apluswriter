@@ -138,3 +138,14 @@ Allt som är planerat för skrivvyn är byggt: import/export (FDX, Highland, Wor
 Medvetet inte gjort (ur "färdigt nu", inte för många features): splittvy, minnesbubblor, Shoot (klappa/logga), Live (OBS-overlay), datasynk och delning/kommentarer/roller, MCP-läsare för revisioner. De ligger kvar i listorna ovan.
 
 **Taggad v0.1.0.** Release-flödet (`.github/workflows/release.yml`) stannar med ett tydligt fel om repo-secrets `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY` saknas, och publicerar Windows-installern om de finns. Det som kräver användaren: lägg in de två secrets (och kör om workflowen), Supabase-stegen, starta om Claude Desktop, provköra installern och punkterna i steg 5 ovan.
+
+## Minecraft-anpassning (2026-09-20)
+
+Bakgrund: scriptade SMP:er (som Unstable Universe) spelas in en gång i spelet och klipps efteråt med Flashback (fri kamera med keyframes, följa entitet, hastighet, tid på dygnet, ljud, block-överskrivningar). Byggt:
+- Scennoter `[[time: 13000]]` (speltid i ticks, 0 soluppgång, 6000 middag, 12000 solnedgång, 18000 midnatt), `[[server:]]`, `[[recording:]]`, `[[take:]]`, `[[at: 12:30]]` (startpunkt i inspelningen), `[[pov:]]`. Svenska alias: tid, inspelning, tagning, start.
+- Ctrl+K "inspelning": ark med en rad per scen, inspelningslogg (grupperad per inspelning, ej inspelade sist) och vem-spelar-rollen (sparas per projekt). Tid föreslås från rubriken (KVÄLL = 12500).
+- Ctrl+K "repliklista": CSV med varje replik, roll, spelare och en kolumn att bocka av (för röstinspelning som görs separat).
+- Shotlistan har fälten camera, follow, path, speed. Claude-kommandot `minecraft_shotlist` (Kameraplan) lämnar objektiv i mm och planerar kameran på inspelningen. Starta om Claude Desktop efter mcp:build.
+- Logik och tester i `packages/production/minecraft.ts`.
+
+Okänt: om flera spelare spelar in samma scen från olika klienter (då behöver en scen flera inspelningar). Inte byggt: breakdown-kategorin för block-överskrivningar, exportförval (upplösning/fps).

@@ -290,6 +290,10 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
               description: z.string(),
               subjects: z.array(z.string()).optional(),
               notes: z.string().optional(),
+              camera: z.string().optional().describe('Only for game-recorded scenes: free, first, third or follow'),
+              follow: z.string().optional().describe('Only for game-recorded scenes: who or what the camera follows'),
+              path: z.string().optional().describe('Only for game-recorded scenes: smooth, linear or hermite'),
+              speed: z.string().optional().describe('Only for game-recorded scenes: slow motion, timelapse or freeze, and how much'),
             }),
           )
           .min(1),
@@ -646,6 +650,19 @@ function registerPrompts(server: McpServer): void {
         `Make a shotlist for ${scene ? `scene "${scene}"` : 'the scene I am in'}. First call get_current_scene. Think about what the scene is about ` +
           `and how to cover it: master, coverage, inserts, and what each shot is for. Then call suggest_shotlist with numbered shots, each with size, ` +
           `a sensible lens in mm, movement if it earns its place, and a short description of what it shows and why. ${RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'minecraft_shotlist',
+    { title: 'Kameraplan (Minecraft)', description: 'Kameraplan för en scen som spelas in i spelet och klipps efteråt, till exempel med Flashback.', argsSchema: sceneArg },
+    ({ scene }) =>
+      msg(
+        `Plan the camera for ${scene ? `scene "${scene}"` : 'the scene I am in'}, which is recorded once in Minecraft and covered afterwards in a replay tool ` +
+          `(Flashback): a free camera on keyframe paths, tracking of an entity, speed changes, time of day. First call get_current_scene. Then call suggest_shotlist ` +
+          `with numbered shots. Leave out lens in mm. For each shot give: size, camera (free, first, third or follow), follow (which player or entity, when it follows), ` +
+          `path (smooth, linear or hermite, when it is a path), speed (only when it is not normal), and a short description of what it shows and why. ` +
+          `Everything is shot from what was recorded, so never ask for something the performers would have to do again. ${RULES}`,
       ),
   );
 

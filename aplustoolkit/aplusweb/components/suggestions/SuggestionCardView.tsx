@@ -74,7 +74,9 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
                   <span className={styles.shotNumber}>{shot.number}</span>
                   <span className={styles.shotBody}>
                     <span className={styles.shotSpecs}>
-                      {[shot.size, shot.lens ? `${shot.lens} mm` : null, shot.angle, shot.movement].filter(Boolean).join(' · ')}
+                      {[shot.size, shot.lens ? `${shot.lens} mm` : null, shot.angle, shot.movement, shot.camera, shot.follow ? `→ ${shot.follow}` : null, shot.path, shot.speed]
+                        .filter(Boolean)
+                        .join(' · ')}
                     </span>
                     {shot.description}
                   </span>

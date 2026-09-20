@@ -19,6 +19,9 @@
       ],
       "@aplus/bridge/*": [
         "../packages/bridge/*"
+      ],
+      "@aplus/production/*": [
+        "../packages/production/*"
       ]
     }
   },

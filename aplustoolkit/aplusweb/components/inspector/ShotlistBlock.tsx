@@ -29,7 +29,9 @@ export function ShotlistBlock({ shotlist, onRemove }: ShotlistBlockProps) {
             <span className={styles.number}>{shot.number}</span>
             <span className={styles.body}>
               <span className={styles.specs}>
-                {[shot.size, shot.lens ? `${shot.lens} mm` : null, shot.angle, shot.movement].filter(Boolean).join(' · ')}
+                {[shot.size, shot.lens ? `${shot.lens} mm` : null, shot.angle, shot.movement, shot.camera, shot.follow ? `→ ${shot.follow}` : null, shot.path, shot.speed]
+                  .filter(Boolean)
+                  .join(' · ')}
               </span>
               {shot.description}
             </span>
