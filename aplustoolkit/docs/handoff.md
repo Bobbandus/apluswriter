@@ -69,8 +69,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 2.1 Bygg-kedja (Next standalone)
 - [x] 2.2 Desktop startar inbyggd server
 - [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
-- [ ] **▶ NÄSTA: 2.4** Auto-uppdatering + bevis A (lokalt)
-- [ ] 2.5 GitHub Actions + bevis B (kräver ok för tagg)
+- [x] 2.4 Auto-uppdatering + bevis A (lokalt, 0.1.0 → 0.1.1 bevisat)
+- [ ] **▶ NÄSTA: 2.5** GitHub Actions + bevis B (kräver ditt ok för att tagga)
 - [ ] 2.6 MCPB-tillägg + nedladdningsbanner
 
 **Fas 3 — M7 Struktur:** [ ] 3.1 sektioner i navigator · [ ] 3.2 `reorderScenes` · [ ] 3.3 indexkort med drag · [ ] 3.4 roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel

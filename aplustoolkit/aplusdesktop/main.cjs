@@ -311,6 +311,101 @@ async function setupClaude() {
   return { ok: true, changed: true };
 }
 
+/* ----------------------------------------------------------------- updates */
+
+/**
+ * Keeping the app up to date without getting in the way.
+ *
+ * An update downloads quietly in the background and is installed the next
+ * time the app is closed — a writer mid-scene should never be asked to
+ * restart. The only dialogs are the ones that answer a question the writer
+ * asked themselves, from the menu.
+ *
+ * APLUS_UPDATE_URL points the updater at a plain static folder instead of
+ * GitHub. That is what makes the whole path testable without cutting a
+ * release: see docs/electron.md.
+ */
+let updateReady = false;
+
+function updates() {
+  const { autoUpdater } = require('electron-updater');
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+  if (process.env.APLUS_UPDATE_URL) {
+    autoUpdater.setFeedURL({ provider: 'generic', url: process.env.APLUS_UPDATE_URL });
+  }
+  return autoUpdater;
+}
+
+function watchForUpdates() {
+  // A checkout has no installer to replace, and electron-updater says so
+  // loudly. Nothing to do until the app is packaged.
+  if (!app.isPackaged && !process.env.APLUS_UPDATE_URL) return;
+
+  const autoUpdater = updates();
+
+  autoUpdater.on('update-downloaded', (info) => {
+    updateReady = true;
+    const version = (info && info.version) || '';
+    process.stdout.write(`APLUS_UPDATE_DOWNLOADED ${version}\n`);
+    buildMenu();
+    // Asked for by a test harness, never in normal use: restart immediately
+    // so the update can be verified end to end.
+    if (process.env.APLUS_UPDATE_TEST) setImmediate(() => autoUpdater.quitAndInstall(true, true));
+  });
+
+  autoUpdater.on('error', (error) => {
+    process.stdout.write(`APLUS_UPDATE_ERROR ${error && error.message}\n`);
+  });
+
+  const check = () => autoUpdater.checkForUpdates().catch(() => undefined);
+  void check();
+  const timer = setInterval(check, 4 * 60 * 60 * 1000);
+  app.on('before-quit', () => clearInterval(timer));
+}
+
+/** The menu item: only here does an update ever open a dialog. */
+async function checkForUpdatesNow() {
+  if (updateReady) {
+    const answer = await dialog.showMessageBox(win, {
+      type: 'question',
+      buttons: [say('Starta om nu', 'Restart now'), say('Senare', 'Later')],
+      defaultId: 0,
+      cancelId: 1,
+      message: say('Uppdateringen är klar', 'The update is ready'),
+      detail: say('Den läggs in när du stänger appen, eller nu om du vill.', 'It is applied when you close the app, or now if you prefer.'),
+    });
+    if (answer.response === 0) updates().quitAndInstall(true, true);
+    return;
+  }
+
+  if (!app.isPackaged && !process.env.APLUS_UPDATE_URL) {
+    await dialog.showMessageBox(win, {
+      message: say('Uppdateringar gäller den installerade appen', 'Updates apply to the installed app'),
+      detail: say('Du kör från en utvecklingskopia.', 'You are running from a checkout.'),
+    });
+    return;
+  }
+
+  try {
+    const result = await updates().checkForUpdates();
+    const version = result && result.updateInfo && result.updateInfo.version;
+    await dialog.showMessageBox(win, {
+      message:
+        version && version !== app.getVersion()
+          ? say(`Hämtar version ${version} …`, `Downloading version ${version} …`)
+          : say('Du har den senaste versionen.', 'You are up to date.'),
+      detail: say(`Den här appen är version ${app.getVersion()}.`, `This app is version ${app.getVersion()}.`),
+    });
+  } catch (error) {
+    await dialog.showMessageBox(win, {
+      type: 'error',
+      message: say('Kunde inte leta efter uppdateringar', 'Could not check for updates'),
+      detail: (error && error.message) || '',
+    });
+  }
+}
+
 /* ------------------------------------------------------------------- menu */
 
 function buildMenu() {
@@ -323,6 +418,15 @@ function buildMenu() {
     {
       label: 'Claude',
       submenu: [{ label: say('Koppla in Claude Desktop …', 'Connect Claude Desktop …'), click: () => void setupClaude() }],
+    },
+    {
+      label: say('Hjälp', 'Help'),
+      submenu: [
+        { label: `A+ Toolkit ${app.getVersion()}`, enabled: false },
+        updateReady
+          ? { label: say('Starta om för att uppdatera', 'Restart to update'), click: () => void checkForUpdatesNow() }
+          : { label: say('Sök efter uppdateringar …', 'Check for updates …'), click: () => void checkForUpdatesNow() },
+      ],
     },
     { role: 'windowMenu' },
   ];
@@ -368,6 +472,7 @@ if (!app.requestSingleInstanceLock()) {
     }
 
     createWindow();
+    watchForUpdates();
 
     // `APLUS_SMOKE=1` is for checking the shell without a person: load the
     // page, report what it found and what the preload exposed, and quit.
