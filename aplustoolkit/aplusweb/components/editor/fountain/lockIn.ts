@@ -76,7 +76,16 @@ const theme = EditorView.baseTheme({
   '.cm-dim': { opacity: '0.28' },
 });
 
-export function lockIn(enabled: boolean, scope: DimScope = 'paragraph'): Extension {
-  if (!enabled) return [];
-  return [theme, typewriter, ...(scope === 'off' ? [] : [dimming(scope)])];
+export interface LockIn {
+  /** Focus mode is on. */
+  focus: boolean;
+  dim: DimScope;
+  typewriter: 'focus' | 'always' | 'off';
+}
+
+export function lockIn({ focus, dim, typewriter: keep }: LockIn): Extension {
+  const centred = keep === 'always' || (keep === 'focus' && focus);
+  const dimmed = focus && dim !== 'off';
+  if (!centred && !dimmed) return [];
+  return [theme, ...(centred ? [typewriter] : []), ...(dimmed ? [dimming(dim as Exclude<DimScope, 'off'>)] : [])];
 }

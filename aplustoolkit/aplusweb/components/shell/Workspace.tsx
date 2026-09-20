@@ -6,6 +6,7 @@ import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { Titlebar } from './Titlebar';
 import type { SaveState } from './SaveStatus';
+import { readFocusPrefs, TOGGLE_FOCUS_EVENT } from '@/lib/focusPrefs';
 import { FocusModeContext } from './FocusModeContext';
 import styles from './Workspace.module.css';
 
@@ -59,6 +60,17 @@ export function Workspace({
   const [inspectorOpen, setInspectorOpen] = usePersistentState('aplus.ui.inspectorOpen', true);
   const [sidebarWidth, setSidebarWidth] = usePersistentState('aplus.ui.sidebarWidth', 268);
   const [focusMode, setFocusMode] = useState(false);
+  // A writer who wants every script to open in focus mode says so once.
+  useEffect(() => {
+    if (readFocusPrefs().startInFocus) setFocusMode(true);
+  }, []);
+
+  useEffect(() => {
+    const toggle = () => setFocusMode((v) => !v);
+    window.addEventListener(TOGGLE_FOCUS_EVENT, toggle);
+    return () => window.removeEventListener(TOGGLE_FOCUS_EVENT, toggle);
+  }, []);
+
   // In focus mode the titlebar fades out and comes back when the pointer nears the top edge.
   const [edgeHover, setEdgeHover] = useState(false);
 

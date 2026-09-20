@@ -36,6 +36,9 @@ import { TitlePageSheet } from '@/components/export/TitlePageSheet';
 import { WritingPill } from '@/components/writing/WritingPill';
 import { useWritingStats } from '@/lib/hooks/useWritingStats';
 import { TimelineSheet } from '@/components/timeline/TimelineSheet';
+import { QuickNote } from '@/components/quicknote/QuickNote';
+import { quickNoteEdit } from '@/lib/quickNote';
+import { TOGGLE_FOCUS_EVENT, useFocusPrefs } from '@/lib/focusPrefs';
 import { sceneNoteEdit } from '@aplus/bridge/apply';
 import { useMirror } from '@/lib/hooks/useMirror';
 import { FindReplace } from '@/components/find/FindReplace';
@@ -96,6 +99,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [findOpen, setFindOpen] = useState(false);
   const [replaceMode, setReplaceMode] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false);
+  const [focusPrefs, setFocusPrefs] = useFocusPrefs();
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
   const doc = useProjectDocument(projectId, t('untitled'));
@@ -464,6 +469,15 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
       { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
       { id: 'timeline', label: tCommand('timeline'), group: tCommand('groupScript'), keywords: 'dag dagar energi kurva rytm story tidslinje', run: () => setTimelineOpen(true) },
+      { id: 'quickNote', label: tCommand('quickNote'), group: tCommand('groupScript'), keywords: 'todo anteckning notera påminnelse', shortcut: 'mod+shift+n', run: () => setQuickNoteOpen(true) },
+      { id: 'focus', label: tCommand('focus'), group: tCommand('groupView'), keywords: 'fokus lock in zen ostörd', shortcut: 'mod+shift+f', run: () => window.dispatchEvent(new Event(TOGGLE_FOCUS_EVENT)) },
+      ...(['paragraph', 'scene', 'off'] as const)
+        .filter((dim) => dim !== focusPrefs.dim)
+        .map((dim) => ({ id: `dim:${dim}`, label: tCommand(`dim.${dim}`), group: tCommand('groupView'), keywords: 'fokus dämpa tona', run: () => setFocusPrefs({ dim }) })),
+      ...(['focus', 'always', 'off'] as const)
+        .filter((mode) => mode !== focusPrefs.typewriter)
+        .map((mode) => ({ id: `typewriter:${mode}`, label: tCommand(`typewriter.${mode}`), group: tCommand('groupView'), keywords: 'typewriter skrivmaskin mitten scroll', run: () => setFocusPrefs({ typewriter: mode }) })),
+      { id: 'startInFocus', label: focusPrefs.startInFocus ? tCommand('startInFocusOff') : tCommand('startInFocusOn'), group: tCommand('groupView'), keywords: 'fokus starta öppna alltid', run: () => setFocusPrefs({ startInFocus: !focusPrefs.startInFocus }) },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
@@ -487,11 +501,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs],
   );
 
   useHotkeys({
     'mod+,': openSettings,
+    'mod+shift+n': () => view === 'script' && setQuickNoteOpen(true),
     // Move the scene the caret is in, without leaving the keyboard.
     'mod+shift+arrowup': () => view === 'script' && moveCaretScene(-1),
     'mod+shift+arrowdown': () => view === 'script' && moveCaretScene(1),
@@ -690,6 +705,19 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onApply={(edits) => editorRef.current?.applyChanges(edits)}
       />
 
+      <QuickNote
+        open={quickNoteOpen}
+        onClose={() => {
+          setQuickNoteOpen(false);
+          editorRef.current?.focus();
+        }}
+        onSubmit={(note) => {
+          const handle = editorRef.current;
+          if (!handle) return;
+          const edit = quickNoteEdit(handle.getText(), handle.getSelection().from, note);
+          if (edit) handle.applyChanges([edit]);
+        }}
+      />
       <TimelineSheet open={timelineOpen} onClose={() => setTimelineOpen(false)} scenes={script.scenes} onSet={setSceneField} />
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />

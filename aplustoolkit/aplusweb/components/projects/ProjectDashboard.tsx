@@ -86,6 +86,12 @@ export function ProjectDashboard() {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
+  // The script written on last, one click away: opening the app is for writing.
+  const latest = useMemo(
+    () => (projects && projects.length > 0 ? projects.reduce((a, b) => (b.updatedAt > a.updatedAt ? b : a)) : null),
+    [projects],
+  );
+
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const list = (projects ?? []).filter(
@@ -169,9 +175,14 @@ export function ProjectDashboard() {
             <Button variant="ghost" icon="import" onClick={() => fileInput.current?.click()}>
               {t('import')}
             </Button>
-            <Button variant="primary" icon="plus" onClick={() => setCreating(true)}>
+            <Button variant={latest ? 'secondary' : 'primary'} icon="plus" onClick={() => setCreating(true)}>
               {t('create')}
             </Button>
+            {latest && (
+              <Button variant="primary" icon="write" onClick={() => router.push(`/app/${latest.id}`)} title={latest.title}>
+                {t('continue')}
+              </Button>
+            )}
             <input
               ref={fileInput}
               type="file"

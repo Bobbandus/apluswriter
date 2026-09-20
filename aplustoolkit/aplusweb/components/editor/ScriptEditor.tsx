@@ -24,6 +24,7 @@ import type { SwitchableType } from '@aplus/fountain/rewrite';
 import type { DictionaryData } from '@aplus/fountain/autocomplete';
 import { useFocusMode } from '@/components/shell/FocusModeContext';
 import { lockIn } from './fountain/lockIn';
+import { useFocusPrefs } from '@/lib/focusPrefs';
 import styles from './ScriptEditor.module.css';
 
 export interface ScriptEditorProps {
@@ -95,6 +96,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
   const settingsCompartment = useRef(new Compartment());
   const lockInCompartment = useRef(new Compartment());
   const focusMode = useFocusMode();
+  const [focusPrefs] = useFocusPrefs();
   const autocompleteCompartment = useRef(new Compartment());
 
   const locale = useLocale();
@@ -139,7 +141,7 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
       rectangularSelection(),
       EditorView.lineWrapping,
       settingsCompartment.current.of(editorSettings.of(resolved)),
-      lockInCompartment.current.of(lockIn(focusMode)),
+      lockInCompartment.current.of(lockIn({ focus: focusMode, ...focusPrefs })),
       autocompleteCompartment.current.of(
         fountainAutocomplete({
           dictionary: dictionary ?? { characters: [], locations: [], tags: [] },
@@ -204,8 +206,8 @@ export const ScriptEditor = forwardRef<ScriptEditorHandle, ScriptEditorProps>(fu
 
   // Focus mode dims all but the paragraph being written and holds the caret line steady.
   useEffect(() => {
-    view.current?.dispatch({ effects: lockInCompartment.current.reconfigure(lockIn(focusMode)) });
-  }, [focusMode]);
+    view.current?.dispatch({ effects: lockInCompartment.current.reconfigure(lockIn({ focus: focusMode, ...focusPrefs })) });
+  }, [focusMode, focusPrefs]);
 
   useEffect(() => {
     view.current?.dispatch({

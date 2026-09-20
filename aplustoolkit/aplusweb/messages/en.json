@@ -358,7 +358,21 @@
     "viewScript": "Show script",
     "viewCards": "Show index cards",
     "settings": "Settings",
-    "projects": "All projects"
+    "projects": "All projects",
+    "quickNote": "Quick note",
+    "focus": "Focus mode",
+    "dim": {
+      "paragraph": "Focus: dim all but the paragraph",
+      "scene": "Focus: dim all but the scene",
+      "off": "Focus: no dimming"
+    },
+    "typewriter": {
+      "focus": "Typewriter scroll: in focus mode only",
+      "always": "Typewriter scroll: always",
+      "off": "Typewriter scroll: off"
+    },
+    "startInFocusOn": "Always open in focus mode",
+    "startInFocusOff": "Do not open in focus mode"
   },
   "settings": {
     "title": "Settings",
@@ -384,17 +398,15 @@
     "tabExtension": "Extension",
     "autoUppercase": "Uppercase automatically",
     "autoUppercaseHint": "In scene headings and character names.",
-    "spellcheck": "Spellcheck",
-    "spellcheckHint": "Characters and locations are whitelisted automatically.",
+    "spellcheck": "Spell check",
+    "spellcheckHint": "Underlines mistakes in dialogue and action. Headings, character names and transitions are never checked.",
     "mirror": "Mirror scripts to files",
     "mirrorHint": "Keeps a copy of each script as a .fountain file in a folder you choose, while you write. One way only: the files are never read back. The same folder can be given to the Claude extension.",
     "mirrorOn": "Copies are saved in {folder}. Changes to the files are not brought back.",
     "mirrorChoose": "Choose folder",
     "mirrorOff": "Turn off",
     "renderNotes": "Render notes",
-    "renderNotesHint": "Off shows raw Fountain: the brackets stay visible and nothing is hidden.",
-    "spellcheck": "Spell check",
-    "spellcheckHint": "Underlines mistakes in dialogue and action. Headings, character names and transitions are never checked."
+    "renderNotesHint": "Off shows raw Fountain: the brackets stay visible and nothing is hidden."
   },
   "auth": {
     "signIn": "Sign in",
@@ -453,7 +465,8 @@
     "movedToCloud": "Moved to the cloud.",
     "nothingFound": "No projects match.",
     "recent": "Recent",
-    "breadcrumbWrite": "Write"
+    "breadcrumbWrite": "Write",
+    "continue": "Keep writing"
   },
   "conflict": {
     "title": "The script changed somewhere else",
@@ -623,5 +636,9 @@
       "p3": "Candidates and notes",
       "p4": "Booking auditions"
     }
+  },
+  "quickNote": {
+    "placeholder": "A note for the current line … Enter saves",
+    "label": "Quick note"
   }
 }

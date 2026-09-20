@@ -358,7 +358,21 @@
     "viewScript": "Visa manus",
     "viewCards": "Visa indexkort",
     "settings": "Inställningar",
-    "projects": "Alla projekt"
+    "projects": "Alla projekt",
+    "quickNote": "Snabbanteckning",
+    "focus": "Fokusläge",
+    "dim": {
+      "paragraph": "Fokus: dämpa allt utom stycket",
+      "scene": "Fokus: dämpa allt utom scenen",
+      "off": "Fokus: dämpa inte"
+    },
+    "typewriter": {
+      "focus": "Typewriter-scroll: bara i fokusläge",
+      "always": "Typewriter-scroll: alltid",
+      "off": "Typewriter-scroll: av"
+    },
+    "startInFocusOn": "Öppna alltid i fokusläge",
+    "startInFocusOff": "Öppna inte i fokusläge"
   },
   "settings": {
     "title": "Inställningar",
@@ -385,16 +399,14 @@
     "autoUppercase": "Versaler automatiskt",
     "autoUppercaseHint": "I scenrubriker och rollfigursnamn.",
     "spellcheck": "Stavningskontroll",
-    "spellcheckHint": "Rollfigurer och platser läggs till automatiskt i ordlistan.",
+    "spellcheckHint": "Understryker fel i dialog och beskrivning. Rubriker, rollnamn och övergångar kontrolleras aldrig.",
     "mirror": "Spegla manus till filer",
     "mirrorHint": "Sparar en kopia av varje manus som .fountain-fil i en mapp du väljer, medan du skriver. Bara en väg: filerna läses aldrig tillbaka. Samma mapp kan ges till Claude-tillägget.",
     "mirrorOn": "Kopior sparas i {folder}. Ändringar i filerna förs inte tillbaka.",
     "mirrorChoose": "Välj mapp",
     "mirrorOff": "Stäng av",
     "renderNotes": "Visa anteckningar formaterade",
-    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs.",
-    "spellcheck": "Stavningskontroll",
-    "spellcheckHint": "Understryker fel i dialog och beskrivning. Rubriker, rollnamn och övergångar kontrolleras aldrig."
+    "renderNotesHint": "Av visar rå Fountain: hakparenteserna syns och inget döljs."
   },
   "auth": {
     "signIn": "Logga in",
@@ -453,7 +465,8 @@
     "movedToCloud": "Flyttat till molnet.",
     "nothingFound": "Inga projekt matchar.",
     "recent": "Senaste",
-    "breadcrumbWrite": "Write"
+    "breadcrumbWrite": "Write",
+    "continue": "Fortsätt skriva"
   },
   "conflict": {
     "title": "Manuset har ändrats på ett annat ställe",
@@ -623,5 +636,9 @@
       "p3": "Kandidater och anteckningar",
       "p4": "Tidsbokning för provspelningar"
     }
+  },
+  "quickNote": {
+    "placeholder": "Anteckning till nuvarande rad … Enter sparar",
+    "label": "Snabbanteckning"
   }
 }
