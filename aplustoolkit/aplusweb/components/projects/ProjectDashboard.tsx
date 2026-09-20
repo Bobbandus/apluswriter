@@ -1,5 +1,6 @@
 'use client';
 
+import { IMPORT_ACCEPT, IMPORT_PATTERN, readScriptFile } from '@/lib/import/readScriptFile';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -102,14 +103,12 @@ export function ProjectDashboard() {
 
   const importFiles = async (files: FileList | File[]) => {
     for (const file of Array.from(files)) {
-      if (!/\.(fountain|spmd|txt|fdx)$/i.test(file.name)) {
+      if (!IMPORT_PATTERN.test(file.name)) {
         setNotice(t('importFailed'));
         continue;
       }
       try {
-        const raw = await file.text();
-        // A Final Draft file is read into Fountain first; the project then starts like any other.
-        const text = /\.fdx$/i.test(file.name) ? (await import('@aplus/fountain/importFdx')).fdxToFountain(raw) : raw;
+        const text = await readScriptFile(file);
         await repo.importFountain(file.name, text, signedIn ? 'cloud' : 'local');
       } catch {
         setNotice(t('importFailed'));
@@ -174,7 +173,7 @@ export function ProjectDashboard() {
             <input
               ref={fileInput}
               type="file"
-              accept=".fountain,.spmd,.txt,.fdx"
+              accept={IMPORT_ACCEPT}
               multiple
               hidden
               onChange={(event) => {
