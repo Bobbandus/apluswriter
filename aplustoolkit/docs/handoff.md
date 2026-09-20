@@ -70,8 +70,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 2.2 Desktop startar inbyggd server
 - [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
 - [x] 2.4 Auto-uppdatering + bevis A (lokalt, 0.1.0 → 0.1.1 bevisat)
-- [ ] **▶ NÄSTA: 2.5** GitHub Actions + bevis B (kräver ditt ok för att tagga)
-- [ ] 2.6 MCPB-tillägg + nedladdningsbanner
+- [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
+- [ ] **▶ NÄSTA: 2.6** MCPB-tillägg + nedladdningsbanner
 
 **Fas 3 — M7 Struktur:** [ ] 3.1 sektioner i navigator · [ ] 3.2 `reorderScenes` · [ ] 3.3 indexkort med drag · [ ] 3.4 roll-/platspaneler + relationskarta · [ ] 3.5 Att göra-panel
 
@@ -92,13 +92,22 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
    - konto-knappen uppe till höger på `/`, `/plan`, `/plan/write` och att `/login` renderar formuläret;
    - ordboken: skriv en ny roll bokstav för bokstav, radera, och kontrollera att inga halva namn ligger kvar i Manusordlistan (Inspektorn → ikonen Rollfigurer).
 3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd, och det är omstarten som gör att Claude börjar skriva om när du ber om det. Skriv in din stil under Inställningar → Skrivande → Stil & ton, så läser Claude den före varje omskrivning. Prova sedan /rewrite, /alternatives, /new_scene, /polish_dialogue, eller "skriv om dialogen i scen 1 så den blir vassare" (ett kort med en ändring per rad, kryssa i det du vill ha) och "ge mig tre varianter av Vildes sista replik".
-4. Kör `npm run check`, ta sedan **1.1**.
+4. Kör `npm run check`, ta sedan nästa delfas.
+
+## Släppa en version (fas 2.5, kräver dig)
+
+1. Lägg in repo-secrets på GitHub (se nedan). Utan dem stoppar bygget med ett tydligt fel i stället för att skeppa en app utan inloggning.
+2. Höj `version` i `aplustoolkit/aplusdesktop/package.json`, committa.
+3. `git tag v0.1.0 && git push origin v0.1.0`. Taggen måste stämma med versionen — workflowen vägrar annars.
+4. Actions bygger installern och lägger den som en release. Länken blir densamma varje gång:
+   `https://github.com/Bobbandus/apluswriter/releases/latest/download/A-Plus-Toolkit-Setup.exe`
+5. Installera, höj versionen igen, tagga igen — appen ska uppdatera sig själv. Det är bevis B.
 
 ## Det du måste göra själv
 
 - **Supabase** (Authentication): URL Configuration → Site URL `https://toolkit.aplusfilm.se`, Redirect URLs `http://localhost:3000/auth/callback` och `https://toolkit.aplusfilm.se/auth/callback`. Sign In / Providers → stäng av *Allow new users to sign up*. Users → *Invite user* för varje kollega.
 - **Vercel** → Project → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY`, sedan redeploy (värdena bakas in vid bygge).
-- **GitHub** → Settings → Secrets: samma två som repo-secrets (behövs för installern, fas 2.5).
+- **GitHub** → Settings → Secrets and variables → Actions → *New repository secret*: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY` (samma värden som i `aplusweb/.env.local`). Behövs för att installern ska ha inloggning.
 - Starta om Claude Desktop efter att MCP-servern byggts om. Installationsrutan för `.mcpb` bekräftar du själv.
 
 ## Fällor

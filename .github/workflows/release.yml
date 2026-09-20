@@ -1,0 +1,78 @@
+name: Release
+
+# Cutting a release is pushing a tag. Nothing else publishes anything:
+# every other push just deploys the site through Vercel.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: aplustoolkit/package-lock.json
+
+      # electron-builder publishes to the release matching the version in
+      # package.json, not the tag. When they disagree it quietly builds the
+      # wrong one, so they are compared here instead.
+      - name: The tag and the app version must agree
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          app=$(node -p "require('./aplustoolkit/aplusdesktop/package.json').version")
+          echo "tag=$tag  package.json=$app"
+          if [ "$tag" != "$app" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match aplusdesktop/package.json ($app). Bump the version, commit, then tag."
+            exit 1
+          fi
+
+      - name: Install
+        working-directory: aplustoolkit
+        run: npm ci
+
+      - name: Install the shell's own dependencies
+        working-directory: aplustoolkit/aplusdesktop
+        run: npm ci
+
+      - name: Check
+        working-directory: aplustoolkit
+        run: npm run check
+
+      # The Supabase keys are baked into the bundle at build time. Without
+      # them the installed app has no sign-in at all, so this must not be
+      # allowed to succeed quietly.
+      - name: Build the bundle
+        working-directory: aplustoolkit
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        shell: bash
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Missing repository secrets NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY."
+            exit 1
+          fi
+          npm run desktop:build
+
+      - name: Build the installer and publish it
+        working-directory: aplustoolkit/aplusdesktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish always
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: A-Plus-Toolkit-Setup
+          path: aplustoolkit/aplusdesktop/release/A-Plus-Toolkit-Setup.exe
+          if-no-files-found: error
