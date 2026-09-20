@@ -62,11 +62,11 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 1.1 `suggest_rewrite` med flera ändringar per kort
 - [x] 1.2 `suggest_alternatives`
 - [x] 1.3 `suggest_insert` (ny scen, visas som grönt block)
-- [ ] **▶ NÄSTA: 1.4** Stil & ton per projekt (fält i Inställningar, läses av Claude via bryggan)
-- [ ] 1.5 Nya kommandon i Claude Desktop
+- [x] 1.4 Stil & ton per projekt
+- [x] 1.5 Nya kommandon i Claude Desktop (`rewrite`, `alternatives`, `new_scene`, `polish_dialogue`)
 
 **Fas 2 — Installer + auto-uppdatering**
-- [ ] 2.1 Bygg-kedja (Next standalone)
+- [ ] **▶ NÄSTA: 2.1** Bygg-kedja (Next standalone)
 - [ ] 2.2 Desktop startar inbyggd server
 - [ ] 2.3 electron-builder, ikon, NSIS
 - [ ] 2.4 Auto-uppdatering + bevis A (lokalt)
@@ -91,7 +91,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 2. **Ögna i webbläsaren när du är vid datorn** (inget av det blockerar arbetet):
    - konto-knappen uppe till höger på `/`, `/plan`, `/plan/write` och att `/login` renderar formuläret;
    - ordboken: skriv en ny roll bokstav för bokstav, radera, och kontrollera att inga halva namn ligger kvar i Manusordlistan (Inspektorn → ikonen Rollfigurer).
-3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd, och det är omstarten som gör att Claude börjar skriva om när du ber om det. Prova "skriv om dialogen i scen 1 så den blir vassare" (ett kort med en ändring per rad, kryssa i det du vill ha) och "ge mig tre varianter av Vildes sista replik".
+3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd, och det är omstarten som gör att Claude börjar skriva om när du ber om det. Skriv in din stil under Inställningar → Skrivande → Stil & ton, så läser Claude den före varje omskrivning. Prova sedan /rewrite, /alternatives, /new_scene, /polish_dialogue, eller "skriv om dialogen i scen 1 så den blir vassare" (ett kort med en ändring per rad, kryssa i det du vill ha) och "ge mig tre varianter av Vildes sista replik".
 4. Kör `npm run check`, ta sedan **1.1**.
 
 ## Det du måste göra själv

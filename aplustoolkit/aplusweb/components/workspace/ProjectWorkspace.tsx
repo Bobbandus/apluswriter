@@ -23,7 +23,7 @@ import { ExportSheet } from '@/components/export/ExportSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
 import { useScript } from '@/lib/hooks/useScript';
-import { useProjectDocument } from '@/lib/storage/hooks';
+import { useProjectData, useProjectDocument } from '@/lib/storage/hooks';
 import { ConflictSheet } from '@/components/sync/ConflictSheet';
 import {
   DEFAULT_EDITOR_SETTINGS,
@@ -112,6 +112,9 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [selection, setSelection] = useState({ from: 0, to: 0, text: '' });
   const [tab, setTab] = useState<InspectorTab>('scene');
   const [cardsEnabled, setCardsEnabled] = usePersistentState('aplus.ui.cards', true);
+  /* Per project, not per device: how a script should sound belongs to the
+     script, and it is what Claude reads before it writes anything. */
+  const [styleGuide, setStyleGuide] = useProjectData<string>(projectId, 'styleGuide', '');
   const [toast, say] = useToast();
   const tAssistant = useTranslations('assistant');
   const [element, setElement] = useState<LineType | null>(null);
@@ -148,9 +151,10 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             pageSize,
             locale: locale === 'en' ? 'en' : 'sv',
             cards: cardsEnabled,
+            ...(styleGuide.trim() ? { styleGuide: styleGuide.trim() } : {}),
           }
         : null,
-    [hydrated, projectId, doc.meta?.title, source, caret, selection, pageSize, locale, cardsEnabled],
+    [hydrated, projectId, doc.meta?.title, source, caret, selection, pageSize, locale, cardsEnabled, styleGuide],
   );
   const bridge = useBridge(bridgeState);
   const assistant = useAssistant(projectId, editorRef, bridge, say, {
@@ -374,6 +378,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onEditorChange={setEditor}
         cards={cardsEnabled}
         onCardsChange={setCardsEnabled}
+        styleGuide={styleGuide}
+        onStyleGuideChange={setStyleGuide}
       />
       <DictionarySheet
         open={dictionaryOpen}

@@ -12,7 +12,7 @@ import {
   structureReport,
 } from '../../packages/production/analysis';
 import type { Bridge } from './bridge';
-import { CRAFT_SHORT, RULES } from './craft';
+import { CRAFT_SHORT, RULES, WRITING_RULES } from './craft';
 import type { Library } from './library';
 
 /**
@@ -104,8 +104,9 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
     {
       title: 'What is open in A+ Write',
       description:
-        'The script the writer has open right now: title, the scene the caret is in, any selected text, page size and language. ' +
-        'Call this first when the writer says "this scene" or "what I selected". Fails if no app is connected.',
+        'The script the writer has open right now: title, the scene the caret is in, any selected text, page size, language, and ' +
+        'their own note on how this script should sound (`styleGuide`). Call this first when the writer says "this scene" or ' +
+        '"what I selected", and always before writing anything. Fails if no app is connected.',
       inputSchema: {},
     },
     async () => {
@@ -123,6 +124,9 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
         pageSize: app.pageSize,
         language: app.locale,
         suggestionCards: app.cards,
+        // The writer's own note on how this script should sound. It outranks
+        // any general idea of good writing, including the craft rules.
+        styleGuide: app.styleGuide ?? null,
         currentScene: scene ? { index, number: scene.sceneNumber ?? String(index + 1), heading: scene.heading } : null,
         selection: app.selection.text ? app.selection : null,
       });
@@ -733,6 +737,54 @@ function registerPrompts(server: McpServer): void {
         `Call get_character_lines for "${character}" and read the scenes they are in. Call suggest_character_profile with what the script shows, ` +
           `including evidence quotes. Then call suggest_document with a casting call: the role described by who they are and what the part demands ` +
           `(age range, physicality, emotional range, language), not by a named actor. ${RULES}`,
+      ),
+  );
+
+  /* ------------------------------------------------ the writing commands */
+
+  server.registerPrompt(
+    'rewrite',
+    { title: 'Skriv om', description: 'Skriv om en scen eller en replik. Kommer som ett kort du godkänner.', argsSchema: { ...sceneArg, what: z.string().optional().describe('Vad du vill ändra: "vassare", "mer känslosam", "kortare"') } },
+    ({ scene, what }) =>
+      msg(
+        `Rewrite ${scene ? `scene "${scene}"` : 'the scene I am in'}${what ? `, ${what}` : ''}. First call get_open_script (read the ` +
+          `styleGuide) and get_current_scene. Then call suggest_rewrite with ONE entry per change — a line, a speech, a beat — each ` +
+          `with a short note on what it does, so I can take some and leave others. Copy every \`before\` verbatim. Do not send the ` +
+          `whole scene as one entry. ${WRITING_RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'alternatives',
+    { title: 'Ge mig varianter', description: 'Några olika versioner av en replik att välja mellan.', argsSchema: { what: z.string().optional().describe('Vilken replik, om inget är markerat') } },
+    ({ what }) =>
+      msg(
+        `Give me a few versions of ${what ? `"${what}"` : 'the line I have selected (call get_selection)'}. Call get_open_script for ` +
+          `the styleGuide first. Then call suggest_alternatives with three genuinely different approaches — not three shades of the ` +
+          `same sentence — each labelled with its angle. ${WRITING_RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'new_scene',
+    { title: 'Skriv en ny scen', description: 'En ny scen där du vill ha den. Kommer som ett kort.', argsSchema: { ...sceneArg, about: z.string().optional().describe('Vad scenen ska handla om') } },
+    ({ scene, about }) =>
+      msg(
+        `Write a new scene to go after ${scene ? `scene "${scene}"` : 'the scene I am in'}${about ? `, about: ${about}` : ''}. ` +
+          `Call get_open_script (read the styleGuide), get_structure and the surrounding scenes first, so it belongs where it lands. ` +
+          `Then call suggest_insert with real Fountain. Keep it short — a scene, not a sequence. ${WRITING_RULES}`,
+      ),
+  );
+
+  server.registerPrompt(
+    'polish_dialogue',
+    { title: 'Putsa dialogen', description: 'Stryk det som inte behövs. Ändrar inte vad som sägs.', argsSchema: sceneArg },
+    ({ scene }) =>
+      msg(
+        `Tighten the dialogue in ${scene ? `scene "${scene}"` : 'the scene I am in'}. Read get_open_script (styleGuide) and ` +
+          `get_current_scene. Look for lines that say what the scene has already shown, answers that repeat the question, and ` +
+          `throat-clearing before the real line. Deliver with suggest_rewrite, one entry per cut, keeping what is actually said ` +
+          `intact. Do not add anything new. ${WRITING_RULES}`,
       ),
   );
 

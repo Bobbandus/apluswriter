@@ -16,6 +16,8 @@
 /** The full list. Long on purpose: each line is a habit worth naming. */
 export const CRAFT = [
   'Craft rules — they apply to every rewrite, alternative and new scene:',
+  '(0) Read `styleGuide` from get_open_script first and follow it. It is the writer\'s own note on how this particular script ' +
+    'should sound, and it outranks every rule below and any general idea of good writing.',
   "(1) Write in the writer's own voice, vocabulary and genre. Comedy stays comedy. Never make a light scene darker, " +
     'heavier or "deeper" unless that is exactly what was asked for.',
   '(2) No ominous foreshadowing, and no darkness without resolution as a default setting. A scene should land: ' +
@@ -32,8 +34,9 @@ export const CRAFT = [
 
 /** The same thing in one breath, for a tool description that must stay short. */
 export const CRAFT_SHORT =
-  "Craft rules apply: the writer's own voice and genre, no added darkness or ominous foreshadowing, no stock AI lines " +
-  '("Han vet mer än han ska", "Något är fel", a scene ending on a silent look), subtext over abstractions, facts kept.';
+  "Craft rules apply: follow the project's `styleGuide` from get_open_script above all; then the writer's own voice and genre, " +
+  'no added darkness or ominous foreshadowing, no stock AI lines ("Han vet mer än han ska", "Något är fel", a scene ending on a ' +
+  'silent look), subtext over abstractions, facts kept.';
 
 /** What every ready-made command repeats, so a long conversation cannot drift out of it. */
 export const RULES =

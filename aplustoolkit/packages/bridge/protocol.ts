@@ -181,6 +181,11 @@ export interface AppState {
   locale: 'sv' | 'en';
   /** The writer has suggestion cards switched on. */
   cards: boolean;
+  /**
+   * The writer's own note on how this script should sound, set per project.
+   * Read before writing anything — it outranks any general idea of good.
+   */
+  styleGuide?: string;
 }
 
 export type AppMessage =

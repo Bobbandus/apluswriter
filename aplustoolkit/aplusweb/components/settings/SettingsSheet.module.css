@@ -47,6 +47,24 @@
   flex: 0 0 auto;
 }
 
+.textarea {
+  display: block;
+  width: 100%;
+  margin-top: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border: var(--hairline) solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.textarea::placeholder {
+  color: var(--text-faint);
+}
+
 /* The theme picker shows what each theme looks like, not just its name. */
 .themeRow {
   display: grid;

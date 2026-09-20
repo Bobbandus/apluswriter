@@ -23,6 +23,9 @@ export interface SettingsSheetProps {
   onEditorChange: (next: EditorSettings) => void;
   cards: boolean;
   onCardsChange: (next: boolean) => void;
+  /** The writer's own note on how this script should sound. */
+  styleGuide: string;
+  onStyleGuideChange: (next: string) => void;
 }
 
 /** The colours each theme's miniature is painted in — read from the tokens. */
@@ -41,6 +44,8 @@ export function SettingsSheet({
   onEditorChange,
   cards,
   onCardsChange,
+  styleGuide,
+  onStyleGuideChange,
 }: SettingsSheetProps) {
   const t = useTranslations('settings');
   const tAssistant = useTranslations('assistant');
@@ -184,6 +189,24 @@ export function SettingsSheet({
           checked={cards}
           onChange={onCardsChange}
         />
+
+        {/* Per project, and read by Claude before it writes a word. This is
+            the one place the writer can push back on a house style that is
+            not theirs. */}
+        <div className={styles.fieldText}>
+          <label className={styles.fieldLabel} htmlFor="aplus-style-guide">
+            {tAssistant('styleGuide')}
+          </label>
+          <p className={styles.fieldHint}>{tAssistant('styleGuideHint')}</p>
+          <textarea
+            id="aplus-style-guide"
+            className={styles.textarea}
+            rows={3}
+            value={styleGuide}
+            placeholder={tAssistant('styleGuidePlaceholder')}
+            onChange={(event) => onStyleGuideChange(event.target.value)}
+          />
+        </div>
 
         {desktopApi?.setupClaude && (
           <div className={styles.field}>
