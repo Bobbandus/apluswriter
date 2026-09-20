@@ -813,9 +813,15 @@
       "logo": "Logotyp",
       "logoPlaceholder": "Logotyp-URL (https://…)",
       "streamDeck": "Stream Deck och andra knappar (HTTP)",
-      "streamDeckHint": "Varje knapp har en egen adress. Lägg den i en Stream Decks \"Webbplats\"-åtgärd (eller valfritt HTTP-anrop, GET eller POST). Adressen innehåller kontrollänken och ska hållas hemlig."
+      "streamDeckHint": "Varje knapp har en egen adress. Lägg den i en Stream Decks \"Webbplats\"-åtgärd (eller valfritt HTTP-anrop, GET eller POST). Adressen innehåller kontrollänken och ska hållas hemlig.",
+      "allThemes": "Se alla teman i galleriet"
     },
     "period": "{period}:a halvlek",
-    "timeoutChip": "Timeout"
+    "timeoutChip": "Timeout",
+    "gallery": {
+      "title": "Teman",
+      "lead": "Alla inbyggda teman, ritade på en tavla av vald typ. Ett tema väljs på tavlan under /live.",
+      "count": "{count} av {total} teman"
+    }
   }
 }

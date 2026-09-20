@@ -1,8 +1,8 @@
 'use client';
 
-import type { CSSProperties, ReactNode } from 'react';
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import { gamesToWin } from '@aplus/live/pingis';
-import { isColor, themeToCss, type Theme } from '@aplus/live/theme';
+import { isColor, onColor, themeToCss, type Theme } from '@aplus/live/theme';
 import { handballView } from '@aplus/live/handball';
 import { standings } from '@aplus/live/ranking';
 import type { BoardKind, BoardState, HandballState, LowerState, PingisState, RankingState, ScoreState, Side } from '@aplus/live/types';
@@ -28,9 +28,21 @@ const flagUrl = (code: string) => (/^[A-Za-z]{2}$/.test(code) ? `https://flagcdn
 /** An image URL that is safe to draw: http(s) or a data image, nothing else. */
 const safeUrl = (url: string) => (/^https?:\/\//i.test(url) || /^data:image\//i.test(url) ? url : '');
 const initials = (name: string) => name.replace(/[^\p{L}\p{N} ]/gu, '').trim().slice(0, 3).toUpperCase() || '?';
-/** A side's own colour if it has a valid one, else the theme's. */
-const badge = (color: string, fallbackVar: string): CSSProperties => ({ '--badge': isColor(color) ? color : `var(${fallbackVar})` }) as CSSProperties;
+/** The theme being drawn, for the parts that need to know a colour and not only use it. */
+const ThemeContext = createContext<Theme | null>(null);
+const useTheme = () => useContext(ThemeContext)!;
+
 const sideVar = (side: Side) => (side === 'a' ? '--lv-side-a' : '--lv-side-b');
+
+/** A side's own colour if it has a valid one, else the theme's. */
+const sideColor = (theme: Theme, info: { color: string }, side: Side) => (isColor(info.color) ? info.color : theme.sides[side === 'a' ? 0 : 1]);
+
+/** The style that paints something in a side's colour, with a readable colour for the type that sits on it. */
+const badgeFor = (theme: Theme, info: { color: string }, side: Side): CSSProperties => {
+  const color = sideColor(theme, info, side);
+  return { '--badge': color, '--on': onColor(color) } as CSSProperties;
+};
+const useBadge = (info: { color: string }, side: Side) => badgeFor(useTheme(), info, side);
 
 /** "Truls Moregard" -> a light first name and a bold surname, as a broadcast prints it. */
 function Who({ name }: { name: string }) {
@@ -81,7 +93,10 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
   } else if (kind === 'ranking') {
     content = <Ranking state={state as RankingState} />;
   } else if (kind === 'pingis') {
-    content = <BroadcastPingis state={state as PingisState} winnerLabel={winnerLabel} />;
+    const pingis = state as PingisState;
+    if (theme.design === 'college') content = <College rows={pingisRows(pingis)} clock="" label={pingis.label} />;
+    else if (theme.design === 'stack') content = <Stack rows={pingisRows(pingis)} clock="" label={pingis.label} />;
+    else content = <BroadcastPingis state={pingis} winnerLabel={winnerLabel} />;
   } else if (theme.design === 'bars') {
     content = <Bars state={score} />;
     full = true;
@@ -90,8 +105,12 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
     full = true;
   } else if (theme.design === 'league') {
     content = <League state={score} />;
+  } else if (theme.design === 'stack') {
+    content = <Stack rows={scoreRows(score)} clock={score.clock} label={score.label} />;
+  } else if (theme.design === 'pill') {
+    content = <Pill state={score} />;
   } else if (theme.design === 'college') {
-    content = <College state={score} />;
+    content = <College rows={scoreRows(score)} clock={score.clock} label={score.label} />;
   } else {
     content = <BroadcastScore state={score} />;
   }
@@ -106,19 +125,23 @@ export function BoardView({ kind, state, theme, position = 'bl', scale = 1, winn
 
   if (full) {
     return (
-      <div className={styles.root} style={vars} data-anim={theme.animation}>
-        {content}
-      </div>
+      <ThemeContext.Provider value={theme}>
+        <div className={styles.root} style={vars} data-anim={theme.animation}>
+          {content}
+        </div>
+      </ThemeContext.Provider>
     );
   }
 
   const placed = place(position, scale);
   return (
-    <div className={styles.root} style={vars} data-anim={theme.animation}>
-      <div className={styles.slot} style={placed.outer}>
-        <div style={placed.inner}>{content}</div>
+    <ThemeContext.Provider value={theme}>
+      <div className={styles.root} style={vars} data-anim={theme.animation}>
+        <div className={styles.slot} style={placed.outer}>
+          <div style={placed.inner}>{content}</div>
+        </div>
       </div>
-    </div>
+    </ThemeContext.Provider>
   );
 }
 
@@ -204,48 +227,143 @@ function BroadcastScore({ state }: { state: ScoreState }) {
   );
 }
 
-/* ------------------------------------------------------------------ college scorebug */
+/* ------------------------------------------------------------------ two-row designs (college, stack) */
 
-function BugLogo({ side, info }: { side: Side; info: ScoreState['a'] }) {
-  const url = safeUrl(info.logo);
+/** One side of a two-row design, whatever the sport: table tennis has sets and a serve, a plain score has neither. */
+interface Row {
+  side: Side;
+  name: string;
+  logo: string;
+  color: string;
+  points: number;
+  sets?: number;
+  serving?: boolean;
+}
+
+const scoreRows = (state: ScoreState): [Row, Row] => [
+  { side: 'a', name: state.a.name, logo: state.a.logo, color: state.a.color, points: state.a.score },
+  { side: 'b', name: state.b.name, logo: state.b.logo, color: state.b.color, points: state.b.score },
+];
+
+const pingisRows = (state: PingisState): [Row, Row] => {
+  const serving = (side: Side) => state.server === side && !state.winner && !state.gameWon;
+  return [
+    { side: 'a', name: state.a.name, logo: state.a.logo, color: state.a.color, points: state.a.points, sets: state.a.sets, serving: serving('a') },
+    { side: 'b', name: state.b.name, logo: state.b.logo, color: state.b.color, points: state.b.points, sets: state.b.sets, serving: serving('b') },
+  ];
+};
+
+function Mark({ row, className }: { row: Row; className: string | undefined }) {
+  const url = safeUrl(row.logo);
+  const style = useBadge(row, row.side);
   return (
-    <span className={styles.bugLogo}>
+    <span className={className}>
       {url ? (
         /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" />
       ) : (
-        <span className={styles.bugBadge} style={badge(info.color, sideVar(side))}>
-          {initials(info.name)}
+        <span className={styles.bugBadge} style={style}>
+          {initials(row.name)}
         </span>
       )}
     </span>
   );
 }
 
-function College({ state }: { state: ScoreState }) {
+/* ------------------------------------------------------------------ college scorebug */
+
+function College({ rows, clock, label }: { rows: [Row, Row]; clock: string; label: string }) {
+  const sets = rows[0].sets !== undefined;
   return (
     <div className={styles.bug}>
       <div className={styles.bugRows}>
-        <div className={`${styles.bugRow} ${styles.bugRowLight}`}>
-          <BugLogo side="a" info={state.a} />
-          <span className={styles.bugName}>{state.a.name}</span>
-          <span className={styles.bugScore}>
-            <Num value={state.a.score} />
-          </span>
-        </div>
-        <div className={`${styles.bugRow} ${styles.bugRowDark}`}>
-          <BugLogo side="b" info={state.b} />
-          <span className={styles.bugName}>{state.b.name}</span>
-          <span className={styles.bugScore}>
-            <Num value={state.b.score} />
-          </span>
-        </div>
+        {rows.map((row, index) => (
+          <div key={row.side} className={`${styles.bugRow} ${sets ? styles.bugRowSets : ''} ${index === 0 ? styles.bugRowLight : styles.bugRowDark}`}>
+            <Mark row={row} className={styles.bugLogo} />
+            <span className={styles.bugName}>
+              {row.name}
+              {row.serving && <span className={styles.bugServe} />}
+            </span>
+            {sets && (
+              <span className={styles.bugSets}>
+                <Num value={row.sets!} />
+              </span>
+            )}
+            <span className={styles.bugScore}>
+              <Num value={row.points} />
+            </span>
+          </div>
+        ))}
       </div>
-      {(state.clock || state.label) && (
+      {(clock || label) && (
         <div className={styles.bugClock}>
-          {state.clock && <span className={styles.bugClockTime}>{state.clock}</span>}
-          {state.label && <span className={styles.bugClockLabel}>{state.label}</span>}
+          {clock && <span className={styles.bugClockTime}>{clock}</span>}
+          {label && <span className={styles.bugClockLabel}>{label}</span>}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ stack (our own): each row in its side's colour */
+
+function Stack({ rows, clock, label }: { rows: [Row, Row]; clock: string; label: string }) {
+  const theme = useTheme();
+  const sets = rows[0].sets !== undefined;
+  return (
+    <div className={styles.stack}>
+      {rows.map((row) => {
+        const style = badgeFor(theme, row, row.side);
+        const url = safeUrl(row.logo);
+        return (
+          <div key={row.side} className={styles.stackRow} style={style}>
+            <span className={styles.stackMark}>{url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" /> : initials(row.name)}</span>
+            <span className={styles.stackName}>
+              {row.name}
+              {row.serving && <span className={styles.stackServe} />}
+            </span>
+            {sets && (
+              <span className={styles.stackSets}>
+                <Num value={row.sets!} />
+              </span>
+            )}
+            <span className={styles.stackScore}>
+              <Num value={row.points} />
+            </span>
+          </div>
+        );
+      })}
+      {(clock || label) && <div className={styles.stackFoot}>{[label, clock].filter(Boolean).join('  ·  ')}</div>}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ pill (our own): a capsule with round score badges */
+
+function Pill({ state }: { state: ScoreState }) {
+  const theme = useTheme();
+  const end = (side: Side, info: ScoreState['a']) => {
+    const url = safeUrl(info.logo);
+    return (
+      <span className={`${styles.pillEnd} ${side === 'a' ? styles.pillEndA : styles.pillEndB}`} style={badgeFor(theme, info, side)}>
+        {url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" />}
+        <span>{info.name}</span>
+      </span>
+    );
+  };
+  return (
+    <div className={styles.pill}>
+      {end('a', state.a)}
+      <span className={styles.pillScore}>
+        <Num value={state.a.score} />
+      </span>
+      <span className={styles.pillMid}>
+        {state.clock && <span className={styles.pillClock}>{state.clock}</span>}
+        {state.label && <span className={styles.pillLabel}>{state.label}</span>}
+      </span>
+      <span className={styles.pillScore}>
+        <Num value={state.b.score} />
+      </span>
+      {end('b', state.b)}
     </div>
   );
 }
@@ -254,8 +372,9 @@ function College({ state }: { state: ScoreState }) {
 
 function LogoBlock({ side, info }: { side: Side; info: ScoreState['a'] }) {
   const url = safeUrl(info.logo);
+  const style = useBadge(info, side);
   return (
-    <span className={styles.block} style={badge(info.color, sideVar(side))}>
+    <span className={styles.block} style={style}>
       {url ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" /> : initials(info.name)}
     </span>
   );
@@ -327,6 +446,8 @@ function LowerBlock({ state, theme }: { state: LowerState; theme: Theme }) {
   if (!item) return null;
   const hidden = !state.visible;
   if (theme.design === 'ribbon') return <Ribbon item={item} hidden={hidden} animation={theme.animation} />;
+  if (theme.design === 'tag') return <TagName item={item} hidden={hidden} animation={theme.animation} />;
+  if (theme.design === 'line') return <LineName item={item} hidden={hidden} animation={theme.animation} />;
   return (
     <div className={`${styles.lower} ${hidden ? styles.lowerHidden : ''} ${theme.design === 'pixel' ? styles.lowerPixel : ''}`} data-anim={theme.animation} aria-hidden={hidden}>
       <div className={`${styles.lowerBody} ${theme.design === 'pixel' ? styles.tiles : ''}`}>
@@ -342,10 +463,11 @@ function LowerBlock({ state, theme }: { state: LowerState; theme: Theme }) {
    A wide bar: a name in each side's colour on a slanted end, the two scores in dark boxes, the clock between. */
 
 function League({ state }: { state: ScoreState }) {
+  const theme = useTheme();
   const end = (side: Side, info: ScoreState['a']) => {
     const url = safeUrl(info.logo);
     return (
-      <span className={`${styles.leagueEnd} ${side === 'a' ? styles.leagueEndA : styles.leagueEndB}`} style={badge(info.color, sideVar(side))}>
+      <span className={`${styles.leagueEnd} ${side === 'a' ? styles.leagueEndA : styles.leagueEndB}`} style={badgeFor(theme, info, side)}>
         {url && /* eslint-disable-next-line @next/next/no-img-element */ <img src={url} alt="" />}
         <span>{info.name}</span>
       </span>
@@ -400,7 +522,7 @@ function Penalized({ penalties, timeout, children }: { penalties: { a: string[];
             </span>
           )}
           {chips.map((chip) => (
-            <span key={chip.key} className={styles.penalty} style={{ '--badge': `var(${sideVar(chip.side)})` } as CSSProperties}>
+            <span key={chip.key} className={styles.penalty} style={{ '--badge': `var(${sideVar(chip.side)})`, '--on': '#ffffff' } as CSSProperties}>
               2 min · {chip.left}
             </span>
           ))}
@@ -438,6 +560,29 @@ function Ranking({ state }: { state: RankingState }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ tag (our own): a name box with a tab above it */
+
+function TagName({ item, hidden, animation }: { item: LowerState['items'][number]; hidden: boolean; animation: string }) {
+  return (
+    <div className={`${styles.tagWrap} ${hidden ? styles.lowerHidden : ''}`} data-anim={animation} aria-hidden={hidden}>
+      {item.subtitle && <span className={styles.tagTab}>{item.subtitle}</span>}
+      <span className={styles.tagName}>{item.title}</span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ line (our own): type on the picture with a line under it */
+
+function LineName({ item, hidden, animation }: { item: LowerState['items'][number]; hidden: boolean; animation: string }) {
+  return (
+    <div className={`${styles.lineWrap} ${hidden ? styles.lowerHidden : ''}`} data-anim={animation} aria-hidden={hidden}>
+      <span className={styles.lineName}>{item.title}</span>
+      <span className={styles.lineBar} />
+      {item.subtitle && <span className={styles.lineSub}>{item.subtitle}</span>}
     </div>
   );
 }

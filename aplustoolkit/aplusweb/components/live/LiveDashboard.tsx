@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { API_NAMES } from '@aplus/live/api';
 import { defaultState, normalizeState } from '@aplus/live/board';
-import { DEFAULT_THEMES, THEME_FORMAT, validateTheme } from '@aplus/live/theme';
+import { DEFAULT_THEMES, THEME_FORMAT, themesFor, validateTheme } from '@aplus/live/theme';
 import { BOARD_KINDS, type BoardKind, type ScoreState, type Side } from '@aplus/live/types';
 import { useSession } from '@/lib/storage/hooks';
 import { ownerStore } from '@/lib/live/store';
@@ -43,7 +43,9 @@ export function LiveDashboard() {
 
   const create = async () => {
     try {
-      await store.create(kind, name.trim() || t(`kinds.${kind}`), defaultState(kind));
+      const made = await store.create(kind, name.trim() || t(`kinds.${kind}`), defaultState(kind));
+      // A new board starts in a theme that suits it: a name bar has no use for a scoreboard's paint.
+      await store.save(made.id, { theme: themesFor(kind)[0] });
       setName('');
       await load();
     } catch (error) {
@@ -185,8 +187,11 @@ function BoardCard({ board, store, local, onChanged }: { board: OwnedBoard; stor
 
       <section>
         <h3 className={styles.h}>{t('theme')}</h3>
+        <a className={styles.hint} href="/live/themes">
+          {t('allThemes')}
+        </a>
         <div className={styles.themes}>
-          {DEFAULT_THEMES.map((candidate) => (
+          {themesFor(board.kind).map((candidate) => (
             <button key={candidate.name} type="button" className={styles.themeBtn} data-on={candidate.name === theme.name} onClick={() => void save({ theme: candidate })}>
               <span className={styles.swatch} style={{ background: `linear-gradient(90deg, ${candidate.primary} 50%, ${candidate.secondary} 50%)` }} />
               {candidate.name}

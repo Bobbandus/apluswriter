@@ -813,9 +813,15 @@
       "logo": "Logo",
       "logoPlaceholder": "Logo URL (https://…)",
       "streamDeck": "Stream Deck and other buttons (HTTP)",
-      "streamDeckHint": "Every button has its own address. Put it in a Stream Deck \"Website\" action (or any HTTP call, GET or POST). The address contains the control link and must be kept secret."
+      "streamDeckHint": "Every button has its own address. Put it in a Stream Deck \"Website\" action (or any HTTP call, GET or POST). The address contains the control link and must be kept secret.",
+      "allThemes": "See every theme in the gallery"
     },
     "period": "Half {period}",
-    "timeoutChip": "Timeout"
+    "timeoutChip": "Timeout",
+    "gallery": {
+      "title": "Themes",
+      "lead": "Every built-in theme, drawn on a board of the chosen kind. A theme is picked on the board under /live.",
+      "count": "{count} of {total} themes"
+    }
   }
 }

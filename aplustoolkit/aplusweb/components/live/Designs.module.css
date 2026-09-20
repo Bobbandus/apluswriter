@@ -200,6 +200,7 @@
 
 .cellSets {
   background: var(--lv-secondary);
+  color: var(--lv-on-secondary);
 }
 
 /* Older OBS browser sources have no color-mix, and a rule that uses it inside var() would leave the box empty. */
@@ -281,7 +282,7 @@
   width: 100%;
   height: 100%;
   background: var(--badge);
-  color: #ffffff;
+  color: var(--on, #ffffff);
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -392,7 +393,7 @@
   width: 158px;
   height: 146px;
   background: var(--badge);
-  color: #ffffff;
+  color: var(--on, #ffffff);
   font-size: 44px;
   font-weight: 900;
 }
@@ -621,6 +622,7 @@
 }
 
 .leagueEnd {
+  color: var(--on, #ffffff);
   position: relative;
   display: flex;
   align-items: center;
@@ -735,7 +737,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--lv-text);
+  color: var(--lv-on-secondary);
 }
 
 @supports (background: color-mix(in srgb, red 50%, blue)) {
@@ -755,7 +757,7 @@
 .penalty {
   padding: 3px 14px;
   background: var(--badge);
-  color: #ffffff;
+  color: var(--on, #ffffff);
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -775,6 +777,7 @@
 }
 
 .rankTitle {
+  color: var(--lv-on-secondary);
   padding: 12px 24px;
   background: var(--lv-secondary);
   border-bottom: 4px solid var(--lv-accent);
@@ -849,4 +852,293 @@
   font-size: 40px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ table tennis in the two-tone bug */
+
+.bugRowSets {
+  grid-template-columns: 64px 250px 62px 78px;
+}
+
+.bugSets {
+  display: grid;
+  place-items: center;
+  background: var(--lv-secondary);
+  color: var(--lv-on-secondary);
+  font-size: 34px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bugServe {
+  display: inline-block;
+  margin-left: 14px;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid var(--lv-accent);
+}
+
+.bugRowLight .bugServe {
+  border-right-color: var(--lv-secondary);
+}
+
+/* ------------------------------------------------------------------ stack (our own): each row in its side's colour */
+
+.stack {
+  width: 580px;
+  overflow: hidden;
+  border-radius: var(--lv-radius);
+  box-shadow: var(--lv-shadow);
+}
+
+.stackRow {
+  display: grid;
+  grid-template-columns: 76px 1fr auto auto;
+  align-items: stretch;
+  height: 64px;
+  color: var(--on, #ffffff);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 55%),
+    var(--badge);
+}
+
+.stackRow + .stackRow {
+  border-top: 2px solid rgba(0, 0, 0, 0.25);
+}
+
+.stackMark {
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.stackMark img {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  object-fit: contain;
+}
+
+.stackName {
+  align-self: center;
+  padding: 0 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.stackServe {
+  display: inline-block;
+  margin-left: 14px;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid currentColor;
+}
+
+.stackSets {
+  display: grid;
+  place-items: center;
+  min-width: 62px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stackScore {
+  display: grid;
+  place-items: center;
+  min-width: 92px;
+  background: var(--lv-primary);
+  color: var(--lv-on-primary);
+  font-size: 46px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stackFoot {
+  padding: 5px 20px;
+  background: var(--lv-tertiary);
+  color: var(--lv-accent);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ pill (our own): a capsule with round score badges */
+
+.pill {
+  display: grid;
+  grid-template-columns: 300px 92px minmax(170px, auto) 92px 300px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: 44px;
+  background: linear-gradient(180deg, var(--lv-tertiary), var(--lv-primary));
+  box-shadow: var(--lv-shadow);
+}
+
+.pillEnd {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 44px;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--on, #ffffff);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 55%),
+    var(--badge);
+}
+
+.pillEndB {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.pillEnd img {
+  height: 56px;
+  width: auto;
+  max-width: 80px;
+  object-fit: contain;
+}
+
+.pillScore {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  align-self: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--lv-secondary);
+  color: var(--lv-on-secondary);
+  font-size: 44px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.pillMid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22px;
+}
+
+.pillClock {
+  font-size: 36px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pillLabel {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lv-accent);
+}
+
+/* ------------------------------------------------------------------ tag (our own): a name box with a tab above it */
+
+.tagWrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+  transition:
+    transform 0.55s cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 0.4s ease-out;
+}
+
+.tagTab {
+  margin-left: 28px;
+  padding: 6px 26px;
+  background: var(--lv-secondary);
+  color: var(--lv-on-secondary);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--lv-radius) var(--lv-radius) 0 0;
+}
+
+.tagName {
+  padding: 14px 46px 16px 36px;
+  background: var(--lv-primary);
+  color: var(--lv-text);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  border-bottom: 6px solid var(--lv-secondary);
+  border-radius: 0 var(--lv-radius) var(--lv-radius) var(--lv-radius);
+}
+
+/* ------------------------------------------------------------------ line (our own): type on the picture with a line under it */
+
+.lineWrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  transition: opacity 0.4s ease-out;
+}
+
+.lineName {
+  font-size: 78px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--lv-text);
+  text-shadow:
+    0 3px 14px rgba(0, 0, 0, 0.65),
+    0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.lineBar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, var(--lv-accent), transparent);
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.lineSub {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lv-accent);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.lineWrap.lowerHidden {
+  transform: none;
+  opacity: 0;
+}
+
+.lineWrap.lowerHidden .lineBar {
+  transform: scaleX(0);
 }

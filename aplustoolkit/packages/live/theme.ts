@@ -1,3 +1,6 @@
+import type { BoardKind } from './types';
+import { DEFAULT_THEMES } from './themes';
+
 /**
  * Overlay themes.
  *
@@ -13,7 +16,7 @@
  * carry a URL or a stray declaration into the page.
  */
 
-export type ThemeDesign = 'broadcast' | 'college' | 'bars' | 'pixel' | 'block' | 'league' | 'ribbon';
+export type ThemeDesign = 'broadcast' | 'college' | 'bars' | 'pixel' | 'block' | 'league' | 'ribbon' | 'stack' | 'pill' | 'tag' | 'line';
 export type ThemeFont = 'condensed' | 'sans' | 'display' | 'pixel' | 'mono';
 export type ThemeShadow = 'none' | 'soft' | 'deep';
 export type ThemeAnimation = 'pop' | 'slide' | 'flip' | 'none';
@@ -44,7 +47,29 @@ export interface Theme {
 
 /* ------------------------------------------------------------------ validation */
 
-export const DESIGNS: ThemeDesign[] = ['broadcast', 'college', 'bars', 'pixel', 'block', 'league', 'ribbon'];
+export const DESIGNS: ThemeDesign[] = ['broadcast', 'college', 'bars', 'pixel', 'block', 'league', 'ribbon', 'stack', 'pill', 'tag', 'line'];
+
+/**
+ * Which kinds of board each design can draw. A theme is offered only for boards it can dress: a name bar has
+ * nothing to say about a scoreboard. Table tennis has its own layout in three of the designs (the others fall
+ * back to the panel), and a leaderboard takes the paint of any design.
+ */
+export const DESIGN_KINDS: Record<ThemeDesign, BoardKind[]> = {
+  broadcast: ['score', 'pingis', 'handball', 'ranking'],
+  college: ['score', 'pingis', 'handball', 'ranking'],
+  stack: ['score', 'pingis', 'handball', 'ranking'],
+  bars: ['score', 'handball', 'ranking'],
+  pixel: ['score', 'handball', 'ranking', 'lower'],
+  league: ['score', 'handball', 'ranking'],
+  pill: ['score', 'handball', 'ranking'],
+  block: ['lower', 'ranking'],
+  ribbon: ['lower', 'ranking'],
+  tag: ['lower', 'ranking'],
+  line: ['lower', 'ranking'],
+};
+
+/** The built-in themes that can dress a board of this kind. */
+export const themesFor = (kind: BoardKind): Theme[] => DEFAULT_THEMES.filter((theme) => DESIGN_KINDS[theme.design].includes(kind));
 const FONTS: ThemeFont[] = ['condensed', 'sans', 'display', 'pixel', 'mono'];
 const SHADOWS: ThemeShadow[] = ['none', 'soft', 'deep'];
 const ANIMATIONS: ThemeAnimation[] = ['pop', 'slide', 'flip', 'none'];
@@ -147,6 +172,22 @@ const SHADOWS_CSS: Record<ThemeShadow, string> = {
   deep: '0 10px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.45)',
 };
 
+/**
+ * A readable colour to put on `background`: white or near-black, whichever contrasts more. Only hex colours can be
+ * measured here; anything else is taken to be dark, which is the safe guess for a panel behind white type.
+ */
+export function onColor(background: string): string {
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})([0-9a-f]{2})?$/i.exec(background);
+  if (!hex) return '#ffffff';
+  const digits = hex[1]!.length === 3 ? hex[1]!.replace(/./g, (c) => c + c) : hex[1]!;
+  const channel = (start: number) => {
+    const value = parseInt(digits.slice(start, start + 2), 16) / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+  return luminance > 0.42 ? '#0c0f16' : '#ffffff';
+}
+
 /** The CSS variables a board is drawn from. Values here are always the validated ones. */
 export function themeToCss(theme: Theme): Record<string, string> {
   return {
@@ -154,6 +195,9 @@ export function themeToCss(theme: Theme): Record<string, string> {
     '--lv-secondary': theme.secondary,
     '--lv-tertiary': theme.tertiary,
     '--lv-text': theme.text,
+    '--lv-on-primary': onColor(theme.primary),
+    '--lv-on-secondary': onColor(theme.secondary),
+    '--lv-on-tertiary': onColor(theme.tertiary),
     '--lv-accent': theme.accent,
     '--lv-side-a': theme.sides[0],
     '--lv-side-b': theme.sides[1],
@@ -166,124 +210,7 @@ export function themeToCss(theme: Theme): Record<string, string> {
 
 /* ------------------------------------------------------------------ the built-in themes */
 
-/**
- * Themes drawn after real broadcast graphics, one per design, so the first thing anyone sees is something that
- * already looks like television. The first is the default.
- */
-export const DEFAULT_THEMES: Theme[] = [
-  {
-    // The lower panel of a table tennis world tour broadcast: navy, a red sets box, a navy points box, a serve marker.
-    name: 'Bordtennis, sändning',
-    design: 'broadcast',
-    font: 'condensed',
-    primary: '#1d2a6a',
-    secondary: '#c8102e',
-    tertiary: '#141d4c',
-    text: '#ffffff',
-    accent: '#ffffff',
-    sides: ['#c8102e', '#1d2a6a'],
-    background: { angle: 90, stops: ['#1d2a6a', '#141d4c'] },
-    radius: 0,
-    shadow: 'soft',
-    animation: 'slide',
-  },
-  {
-    // Full-width bars over a bright blue swoosh, big white numbers either side of two logo blocks.
-    name: 'Handboll, slutresultat',
-    design: 'bars',
-    font: 'sans',
-    primary: '#2f8fd6',
-    secondary: '#ffffff',
-    tertiary: '#1d6db0',
-    text: '#ffffff',
-    accent: '#7cc4f5',
-    sides: ['#e2001a', '#0a0a0a'],
-    background: { angle: 100, stops: ['#3b9ae0', '#57aeea', '#2a86cd', '#4aa3e4'] },
-    radius: 0,
-    shadow: 'none',
-    animation: 'pop',
-  },
-  {
-    // A two-tone scorebug: a light row and a dark row, and a dark block for the clock and the period.
-    name: 'College, resultatplatta',
-    design: 'college',
-    font: 'condensed',
-    primary: '#1f3350',
-    secondary: '#c8202e',
-    tertiary: '#ffffff',
-    text: '#ffffff',
-    accent: '#ffffff',
-    sides: ['#c8202e', '#1f3350'],
-    background: { angle: 180, stops: ['#1f3350', '#16253b'] },
-    radius: 0,
-    shadow: 'soft',
-    animation: 'none',
-  },
-  {
-    // Gold blocks in a pixel typeface, with a window cut out for the game.
-    name: 'Minecraft, guld',
-    design: 'pixel',
-    font: 'pixel',
-    primary: '#e7cf45',
-    secondary: '#3a2a08',
-    tertiary: '#b8952a',
-    text: '#2a1a04',
-    accent: '#f08a1a',
-    sides: ['#3a2a08', '#3a2a08'],
-    background: { angle: 180, stops: ['#f3dd62', '#d9bb34'] },
-    radius: 0,
-    shadow: 'none',
-    animation: 'none',
-  },
-  {
-    // Our own: a wide bar with slanted colour ends, the scores in dark boxes and the clock between them.
-    name: 'Arena natt',
-    design: 'league',
-    font: 'condensed',
-    primary: '#150a33',
-    secondary: '#0a0518',
-    tertiary: '#2b1466',
-    text: '#ffffff',
-    accent: '#ff3fd0',
-    sides: ['#ff2f7d', '#1fd1ff'],
-    background: { angle: 180, stops: ['#2b1466', '#150a33'] },
-    radius: 0,
-    shadow: 'deep',
-    animation: 'pop',
-  },
-  {
-    // Our own: two slanted strips, the name over a lighter line for the title or place.
-    name: 'Band, magenta',
-    design: 'ribbon',
-    font: 'sans',
-    primary: '#150a33',
-    secondary: '#ff2f7d',
-    tertiary: '#2b1466',
-    text: '#ffffff',
-    accent: '#ffd1e6',
-    sides: ['#ff2f7d', '#1fd1ff'],
-    background: { angle: 180, stops: ['#2b1466', '#150a33'] },
-    radius: 0,
-    shadow: 'deep',
-    animation: 'slide',
-  },
-  {
-    // A chunky name bar with a white stripe at the end.
-    name: 'Namnskylt, blå',
-    design: 'block',
-    font: 'sans',
-    primary: '#0d1b4e',
-    secondary: '#ffffff',
-    tertiary: '#0d1b4e',
-    text: '#ffffff',
-    accent: '#ffffff',
-    sides: ['#ffffff', '#ffffff'],
-    background: { angle: 180, stops: ['#0d1b4e', '#0a1640'] },
-    radius: 0,
-    shadow: 'soft',
-    animation: 'slide',
-  },
-];
+export { DEFAULT_THEMES };
 
 /**
  * The theme format written out for a person or a model that has to produce one. Kept next to the validator so
@@ -292,7 +219,7 @@ export const DEFAULT_THEMES: Theme[] = [
 export const THEME_FORMAT = `A theme is one JSON object. Every key is optional; what is left out takes the default.
 {
   "name": "text, 1-40 characters",
-  "design": "broadcast | college | bars | pixel | block | league | ribbon",
+  "design": "broadcast | college | bars | pixel | block | league | ribbon | stack | pill | tag | line",
   "font": "condensed | sans | display | pixel | mono",
   "primary": "colour: the main panel",
   "secondary": "colour: the boxes that carry numbers",
@@ -308,5 +235,5 @@ export const THEME_FORMAT = `A theme is one JSON object. Every key is optional; 
 The design decides the structure: broadcast is a lower panel with a name row per side, a sets box and a points box
 (table tennis, scores); college is a light row and a dark row with a clock block; bars is a full-width top bar for
 a heading and a bottom bar with the two scores and two logo blocks (handball); pixel is a gold block frame with a
-window for the game; block is a name bar for lower thirds; league is a wide bar with angled colour ends, the two scores and a clock between them; ribbon is a slanted two-strip name bar. A colour is #rgb, #rrggbb, #rrggbbaa, rgb(), rgba(),
+window for the game; block is a name bar for lower thirds; league is a wide bar with angled colour ends, the two scores and a clock between them; ribbon is a slanted two-strip name bar; stack is two rows each in its side's colour with the score in a dark box; pill is a rounded capsule with round score badges; tag is a name box with a tab above it; line is type on the picture with a line under it. A colour is #rgb, #rrggbb, #rrggbbaa, rgb(), rgba(),
 hsl(), hsla(), transparent, white or black. Nothing else is accepted.`;

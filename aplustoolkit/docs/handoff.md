@@ -164,3 +164,7 @@ Byggt: poängtavla, pingis och namnskylt som OBS-browser source. **Kräver att a
 - Poängtabell (klart): typen `ranking` (`packages/live/ranking.ts`): namn med poäng, bästa först med staplar, radera flyttar sig mjukt (CSS `top`-övergång), delad placering vid lika poäng, markera en rad, snabbknappar +1 +2 +3 +5 +8 +10 +12 (jurypoäng). Det är grunden för Melodifestival-läget tillsammans med namnskylten (kö).
 - Timeout (klart): lagtimeout stoppar matchklockan och räknar en minut verklig tid (chip under tavlan), en åt gången; HTTP-namn `timeout-a`, `timeout-b`, `timeout-end`.
 - Kvar: tidskod (visa namnskylt vid en tid), fler egna designs, skärmdump av allt i riktiga OBS, fler egna designs, skärmdumpar i OBS.
+
+## Live: teman och designs (2026-09-20, senare)
+
+Temanamn beskriver utseende, aldrig användning ("Panel · Marin", inte en sport). 11 designs (broadcast, college, bars, pixel, block, league, ribbon, stack, pill, tag, line) och 39 teman i `packages/live/themes.ts`. `DESIGN_KINDS` säger vilka typer av tavla en design kan rita, `themesFor(kind)` filtrerar pickern; nya tavlor får ett passande starttema. Text på en färgyta väljs automatiskt (`onColor`, `--lv-on-*`), så ljusa färger fungerar. Bordtennis finns i broadcast, college och stack (övriga faller tillbaka på broadcast). Galleri: `/live/themes` (alla teman ritade på vald tavlatyp). Egna designs (utan direkt förebild): league, ribbon, stack, pill, tag, line.
