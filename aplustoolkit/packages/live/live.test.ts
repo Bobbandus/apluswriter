@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { applyLower, defaultLower } from './lower';
 import { applyPingis, defaultPingis, gameWinner, gamesToWin, serverAt } from './pingis';
 import { applyScore, defaultScore } from './score';
-import { DEFAULT_THEMES, THEME_FORMAT, isColor, themeToCss, validateTheme } from './theme';
+import { DEFAULT_THEMES, DESIGNS, THEME_FORMAT, isColor, themeToCss, validateTheme } from './theme';
 import type { PingisState, Side } from './types';
 
 describe('score', () => {
@@ -186,20 +186,21 @@ describe('themes', () => {
       const result = validateTheme(theme);
       expect(result, theme.name).toEqual({ ok: true, theme });
       const css = themeToCss(theme);
-      expect(css['--lv-bg']).toMatch(/^linear-gradient\(\d+deg, /);
-      expect(css['--lv-radius']).toBe(`${theme.radius}px`);
+      expect(css['--lv-primary'], theme.name).toBe(theme.primary);
+      expect(css['--lv-font']).toBe(`var(--font-live-${theme.font})`);
+      expect(css['--lv-backdrop']).toMatch(/^linear-gradient\(\d+deg, /);
     }
   });
 
-  it('has no flat themes: every built-in one is a gradient of at least two colours', () => {
-    for (const theme of DEFAULT_THEMES) expect(theme.background.stops.length, theme.name).toBeGreaterThanOrEqual(2);
+  it('has one built-in theme per design, with distinct names, drawn after real broadcast graphics', () => {
+    expect(new Set(DEFAULT_THEMES.map((theme) => theme.design))).toEqual(new Set(DESIGNS));
     expect(new Set(DEFAULT_THEMES.map((theme) => theme.name)).size).toBe(DEFAULT_THEMES.length);
   });
 
   it('fills in what is left out from the default', () => {
     const result = validateTheme({ name: 'Bara namn' });
     expect(result.ok && result.theme.name).toBe('Bara namn');
-    expect(result.ok && result.theme.background.stops.length).toBeGreaterThanOrEqual(2);
+    expect(result.ok && result.theme.design).toBe(DEFAULT_THEMES[0]!.design);
   });
 
   it('reports every problem at once, with the value that was wrong', () => {
@@ -217,18 +218,41 @@ describe('themes', () => {
     for (const good of ['#fff', '#1a2b3c', '#1a2b3c80', 'rgba(20, 30, 40, 0.8)', 'hsl(210, 80%, 50%)', 'rgb(0 0 0 / 50%)', 'transparent']) expect(isColor(good), good).toBe(true);
   });
 
-  it('is not fooled by a theme that is not an object', () => {
+  it('is not fooled by a theme that is not an object, and rejects a design it does not know', () => {
     for (const bad of [null, 'text', 3, [1, 2]]) expect(validateTheme(bad).ok).toBe(false);
+    expect(validateTheme({ design: 'hologram' }).ok).toBe(false);
   });
 
-  it('allows a null glow and writes it as no glow at all', () => {
-    const result = validateTheme({ glow: null });
-    expect(result.ok && result.theme.glow).toBeNull();
-    expect(result.ok && themeToCss(result.theme)['--lv-shadow']).not.toContain('0 0 0px');
+  it('describes the format it accepts, and names every design', () => {
+    expect(THEME_FORMAT).toContain('secondary');
+    for (const design of DESIGNS) expect(THEME_FORMAT).toContain(design);
+  });
+});
+
+import { applyAction, defaultState, normalizeState } from './board';
+
+describe('board state read from storage', () => {
+  it('gives a default for empty or nonsense state, whatever the kind', () => {
+    for (const kind of ['score', 'pingis', 'lower'] as const) {
+      expect(normalizeState(kind, {})).toEqual(defaultState(kind));
+      expect(normalizeState(kind, null)).toEqual(defaultState(kind));
+      expect(normalizeState(kind, 'nonsense')).toEqual(defaultState(kind));
+    }
   });
 
-  it('describes the format it accepts', () => {
-    expect(THEME_FORMAT).toContain('scoreStyle');
-    expect(THEME_FORMAT).toContain('background');
+  it('keeps what is valid, and sets right what is not', () => {
+    const score = normalizeState('score', { a: { name: 'X', score: 12.7 }, b: { score: -3 }, label: 5 });
+    expect(score).toMatchObject({ a: { name: 'X', score: 12 }, b: { score: 0 }, label: '' });
+    const pingis = normalizeState('pingis', { bestOf: 9, a: { points: 500 }, server: 'q', gameWon: 'z' });
+    expect(pingis).toMatchObject({ bestOf: 5, server: 'a', gameWon: null });
+    expect((pingis as { a: { points: number } }).a.points).toBe(99);
+    const lower = normalizeState('lower', { items: [{ title: 'A' }, 7], index: 4, visible: true });
+    expect(lower).toMatchObject({ items: [{ title: 'A', subtitle: '' }], index: 0, visible: true });
+  });
+
+  it('reads back what an action wrote', () => {
+    let state = defaultState('pingis');
+    for (let i = 0; i < 5; i += 1) state = applyAction('pingis', state, { type: 'point', side: 'a' });
+    expect(normalizeState('pingis', JSON.parse(JSON.stringify(state)))).toEqual(state);
   });
 });

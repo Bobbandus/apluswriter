@@ -1,0 +1,605 @@
+/*
+  The overlay designs, drawn at 1920×1080 in pixels (see Canvas.tsx). Each one follows a real broadcast graphic
+  closely: sharp panels, colour blocked rows, condensed caps, boxes for the numbers. A theme only supplies the
+  paint (--lv-*), so a design keeps its structure whatever it is dressed in.
+*/
+
+.root {
+  position: absolute;
+  inset: 0;
+  font-family: var(--lv-font);
+  color: var(--lv-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.slot {
+  position: absolute;
+  display: flex;
+  padding: 56px;
+  inset: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ number animations */
+
+.num {
+  display: inline-block;
+}
+
+[data-anim='pop'] .num {
+  animation: pop 0.34s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+[data-anim='slide'] .num {
+  animation: rise 0.28s ease-out;
+}
+
+[data-anim='flip'] .num {
+  animation: flip 0.45s ease-out;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1.6);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ broadcast panel
+   A lower panel: a logo, then a row per side (flag, name, serve marker, sets box, points box). */
+
+.panelWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.tag {
+  padding: 4px 18px;
+  background: var(--lv-tertiary);
+  border-left: 5px solid var(--lv-secondary);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  min-width: 620px;
+  background: linear-gradient(90deg, var(--lv-primary), var(--lv-tertiary));
+  border-radius: var(--lv-radius);
+  box-shadow: var(--lv-shadow);
+  overflow: hidden;
+}
+
+.crest {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  padding: 0 0 0 10px;
+}
+
+.crestDisc {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--lv-secondary);
+  font-size: 26px;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.crestDisc img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.rows {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+
+.rowLine {
+  display: grid;
+  grid-template-columns: 56px 1fr 34px auto auto;
+  align-items: stretch;
+  height: 48px;
+}
+
+.rowLine + .rowLine {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.flag {
+  align-self: center;
+  justify-self: center;
+  width: 38px;
+  height: 26px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.flagNone {
+  width: 38px;
+}
+
+.who {
+  align-self: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 27px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.who b {
+  font-weight: 700;
+}
+
+.who span {
+  font-weight: 400;
+  opacity: 0.92;
+  margin-right: 0.35em;
+}
+
+.serve {
+  align-self: center;
+  justify-self: center;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid var(--lv-accent);
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  min-width: 62px;
+  padding: 0 4px;
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cellSets {
+  background: linear-gradient(180deg, var(--lv-secondary), color-mix(in srgb, var(--lv-secondary) 78%, #000));
+}
+
+.cellPoints {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.strip {
+  display: flex;
+  gap: 22px;
+  padding: 3px 18px;
+  background: var(--lv-tertiary);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  align-self: stretch;
+}
+
+.won {
+  color: var(--lv-accent);
+}
+
+/* ------------------------------------------------------------------ college scorebug
+   A light row and a dark row, and one dark block for the clock and the period. */
+
+.bug {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: stretch;
+  box-shadow: var(--lv-shadow);
+  border-radius: var(--lv-radius);
+  overflow: hidden;
+}
+
+.bugRows {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+
+.bugRow {
+  display: grid;
+  grid-template-columns: 64px 290px 78px;
+  align-items: stretch;
+  height: 54px;
+}
+
+.bugRowLight {
+  background: var(--lv-tertiary);
+  color: var(--lv-secondary);
+}
+
+.bugRowDark {
+  background: var(--lv-primary);
+  color: var(--lv-text);
+}
+
+.bugLogo {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+}
+
+.bugLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bugBadge {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--badge);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.bugName {
+  align-self: center;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bugScore {
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bugRowLight .bugScore {
+  background: rgba(0, 0, 0, 0.09);
+  color: var(--lv-primary);
+}
+
+.bugRowDark .bugScore {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bugClock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 190px;
+  padding: 0 22px;
+  background: var(--lv-primary);
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.bugClockTime {
+  font-size: 46px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bugClockLabel {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ handball bars
+   Full-width bars over a bright swoosh: a heading on top, the two scores between two logo blocks below. */
+
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 146px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    linear-gradient(112deg, transparent 8%, rgba(255, 255, 255, 0.11) 8% 30%, transparent 30%),
+    linear-gradient(66deg, transparent 58%, rgba(0, 40, 110, 0.22) 58% 80%, transparent 80%),
+    linear-gradient(112deg, transparent 70%, rgba(255, 255, 255, 0.1) 70% 92%, transparent 92%),
+    var(--lv-backdrop);
+}
+
+.barTop {
+  top: 0;
+}
+
+.barBottom {
+  bottom: 0;
+  gap: 46px;
+}
+
+.barTitle {
+  font-size: 84px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 8px rgba(0, 30, 80, 0.35);
+}
+
+.barScore {
+  min-width: 150px;
+  font-size: 96px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  text-shadow: 0 3px 8px rgba(0, 30, 80, 0.35);
+}
+
+.blocks {
+  display: flex;
+}
+
+.block {
+  display: grid;
+  place-items: center;
+  width: 158px;
+  height: 146px;
+  background: var(--badge);
+  color: #ffffff;
+  font-size: 44px;
+  font-weight: 900;
+}
+
+.block img {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+}
+
+/* ------------------------------------------------------------------ Minecraft gold frame
+   Blocks of gold in a pixel face, with the middle left open for the game. */
+
+.frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tiles {
+  --tile: 40px;
+  background-color: var(--lv-primary);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.34) 5px, transparent 5px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.34) 5px, transparent 5px),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.16) 5px, transparent 5px),
+    linear-gradient(270deg, rgba(0, 0, 0, 0.16) 5px, transparent 5px),
+    linear-gradient(var(--lv-tertiary) 3px, transparent 3px),
+    linear-gradient(90deg, var(--lv-tertiary) 3px, transparent 3px);
+  background-size: var(--tile) var(--tile);
+}
+
+.frameTop,
+.frameLeft,
+.frameRight {
+  position: absolute;
+}
+
+.frameTop {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+}
+
+.frameLeft {
+  top: 0;
+  bottom: 330px;
+  left: 0;
+  width: 40px;
+}
+
+.frameRight {
+  top: 0;
+  bottom: 330px;
+  right: 0;
+  width: 40px;
+}
+
+.dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 330px;
+  display: grid;
+  grid-template-rows: 130px 80px 120px;
+}
+
+.dockRow {
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  color: var(--lv-text);
+  border-top: 4px solid var(--lv-tertiary);
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.25);
+}
+
+.pixelTitle {
+  flex: 1;
+  font-size: 84px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lv-text);
+  text-shadow: 3px 3px 0 rgba(255, 255, 255, 0.35);
+}
+
+.pixelIcon {
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  background: var(--lv-secondary);
+  color: var(--lv-accent);
+  font-size: 40px;
+  font-weight: 700;
+  border: 4px solid rgba(255, 255, 255, 0.25);
+}
+
+.pixelIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.pixelSub {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--lv-accent);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+.pixelStats {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr auto auto 1fr;
+  align-items: center;
+  gap: 26px;
+}
+
+.pixelStat {
+  font-size: 44px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pixelStatRight {
+  text-align: right;
+}
+
+.pixelBox {
+  display: grid;
+  place-items: center;
+  min-width: 130px;
+  height: 84px;
+  padding: 0 14px;
+  background: var(--lv-secondary);
+  border: 4px solid rgba(0, 0, 0, 0.45);
+  border-top-color: rgba(0, 0, 0, 0.7);
+  border-left-color: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 54px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ name block (lower third) */
+
+.lower {
+  display: inline-flex;
+  align-items: stretch;
+  box-shadow: var(--lv-shadow);
+  border-radius: var(--lv-radius);
+  overflow: hidden;
+  transition:
+    transform 0.55s cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 0.4s ease-out;
+}
+
+.lowerBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 520px;
+  padding: 16px 44px 16px 34px;
+  background: var(--lv-primary);
+}
+
+.lowerName {
+  font-size: 62px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+}
+
+.lowerSub {
+  margin-top: 4px;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.82;
+}
+
+.lowerStripe {
+  width: 26px;
+  background: var(--lv-secondary);
+}
+
+.lowerHidden[data-anim='slide'],
+.lowerHidden[data-anim='none'] {
+  transform: translateX(-130%);
+}
+
+.lowerHidden[data-anim='pop'] {
+  transform: scale(0.85);
+  opacity: 0;
+}
+
+.lowerHidden[data-anim='flip'] {
+  transform: perspective(600px) rotateX(80deg);
+  opacity: 0;
+}
+
+.lowerHidden[data-anim='none'] {
+  transition: none;
+  opacity: 0;
+}
+
+.lowerPixel .lowerBody {
+  background-color: var(--lv-primary);
+  border: 6px solid var(--lv-tertiary);
+  color: var(--lv-text);
+}

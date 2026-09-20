@@ -12,8 +12,8 @@ const GAME_POINTS = 11;
 const UNDO_STEPS = 20;
 
 export const defaultPingis = (): PingisState => ({
-  a: { name: 'Spelare A', color: '', logo: '', points: 0, sets: 0 },
-  b: { name: 'Spelare B', color: '', logo: '', points: 0, sets: 0 },
+  a: { name: 'Spelare A', color: '', logo: '', flag: '', points: 0, sets: 0 },
+  b: { name: 'Spelare B', color: '', logo: '', flag: '', points: 0, sets: 0 },
   bestOf: 5,
   firstServer: 'a',
   server: 'a',
@@ -101,7 +101,7 @@ export function applyPingis(state: PingisState, action: PingisAction): PingisSta
     }
 
     case 'reset':
-      return { ...defaultPingis(), a: { ...defaultPingis().a, name: state.a.name, color: state.a.color, logo: state.a.logo }, b: { ...defaultPingis().b, name: state.b.name, color: state.b.color, logo: state.b.logo }, bestOf: state.bestOf, label: state.label };
+      return { ...defaultPingis(), a: { ...defaultPingis().a, name: state.a.name, color: state.a.color, logo: state.a.logo, flag: state.a.flag }, b: { ...defaultPingis().b, name: state.b.name, color: state.b.color, logo: state.b.logo, flag: state.b.flag }, bestOf: state.bestOf, label: state.label };
 
     case 'rename':
       return { ...state, [action.side]: { ...state[action.side], name: text(action.name, 40) } };

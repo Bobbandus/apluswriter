@@ -21,6 +21,8 @@ export interface SideInfo {
   color: string;
   /** An image URL, or empty for none. */
   logo: string;
+  /** A two-letter country code for a flag beside the name (SE, DE), or empty for none. */
+  flag: string;
 }
 
 /* ------------------------------------------------------------------ score */
@@ -28,8 +30,10 @@ export interface SideInfo {
 export interface ScoreState {
   a: SideInfo & { score: number };
   b: SideInfo & { score: number };
-  /** A line above or beside the score: "Semifinal", "Omgång 2". */
+  /** A line above or beside the score: "Semifinal", "Omgång 2", "SLUTRESULTAT", "1st Half". */
   label: string;
+  /** Text for a clock, set by the operator: "15:00". A running clock comes later. */
+  clock: string;
 }
 
 /* ------------------------------------------------------------------ pingis */

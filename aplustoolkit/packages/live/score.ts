@@ -1,9 +1,10 @@
 import type { ScoreState, Side } from './types';
 
 export const defaultScore = (): ScoreState => ({
-  a: { name: 'Hemma', color: '', logo: '', score: 0 },
-  b: { name: 'Borta', color: '', logo: '', score: 0 },
+  a: { name: 'Hemma', color: '', logo: '', flag: '', score: 0 },
+  b: { name: 'Borta', color: '', logo: '', flag: '', score: 0 },
   label: '',
+  clock: '',
 });
 
 export type ScoreAction =
@@ -13,7 +14,8 @@ export type ScoreAction =
   | { type: 'reset' }
   | { type: 'swap' }
   | { type: 'rename'; side: Side; name: string }
-  | { type: 'label'; text: string };
+  | { type: 'label'; text: string }
+  | { type: 'clock'; text: string };
 
 const MAX = 999;
 const clamp = (n: number) => Math.max(0, Math.min(MAX, Math.trunc(Number.isFinite(n) ? n : 0)));
@@ -37,6 +39,8 @@ export function applyScore(state: ScoreState, action: ScoreAction): ScoreState {
       return { ...state, [action.side]: { ...state[action.side], name: text(action.name, 40) } };
     case 'label':
       return { ...state, label: text(action.text, 60) };
+    case 'clock':
+      return { ...state, clock: text(action.text, 12) };
     default:
       return state;
   }
