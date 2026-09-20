@@ -512,6 +512,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         pageSize={pageSize}
         pageCount={script.layout?.pageCount ?? null}
         todoCount={script.todos.length}
+        revisions={revisions.revisions}
       />
 
       <SettingsSheet

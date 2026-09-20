@@ -4,6 +4,7 @@ import type { Script, TitlePageField } from '../fountain/types';
 import { MARGINS, PAGE_SIZES, PT_PER_IN, type PageSize } from '../paginator/geometry';
 import { paginate, type PageLine, type Pagination } from '../paginator/paginate';
 import { styledChars, toRuns, type Run } from '../paginator/text';
+import { NOTHING_REVISED, revisionMarks } from './revisionMarks';
 
 /**
  * PDF export.
@@ -33,6 +34,13 @@ export interface PdfOptions {
   watermark?: string;
   /** Print the title page, if the script has one. */
   titlePage?: boolean;
+  /**
+   * An earlier draft to compare with. Every printed line that changed since
+   * then gets a `*` in the right margin, the way revised pages are issued.
+   */
+  revisionBaseline?: string;
+  /** Printed at the top of each page when comparing: "BLUE REVISION". */
+  revisionLabel?: string;
   moreLabel?: string;
   contdLabel?: string;
   /** Pagination to draw. Computed if not given. */
@@ -187,6 +195,10 @@ export async function renderPdf(script: Script, fontBytes: PdfFonts, options: Pd
   };
   const watermarkFont = await doc.embedFont(StandardFonts.HelveticaBold);
 
+  // Decided on the source, then looked up by where each printed line came from.
+  const isRevised =
+    options.revisionBaseline === undefined ? NOTHING_REVISED : revisionMarks(options.revisionBaseline, script.source);
+
   const size = PAGE_SIZES[options.pageSize];
   const widthPt = size.widthIn * PT_PER_IN;
   const heightPt = size.heightIn * PT_PER_IN;
@@ -218,10 +230,27 @@ export async function renderPdf(script: Script, fontBytes: PdfFonts, options: Pd
       });
     }
 
+    // Only a page that has something revised on it says so, as on real
+    // revised pages; an untouched page stays as it was.
+    if (options.revisionLabel && body.rows.some((row) => row.some((line) => isRevised(line.from)))) {
+      page.drawText(options.revisionLabel.toUpperCase(), {
+        x: MARGINS.left * PT_PER_IN,
+        y: heightPt - 0.5 * PT_PER_IN - 9.5,
+        size: FONT_SIZE,
+        font: fonts.regular,
+      });
+    }
+
     body.rows.forEach((row, index) => {
       const baseline = baselineFor(index, heightPt);
       for (const line of row) {
         drawRuns(page, line.runs, lineX(line), baseline, fonts);
+
+        // Outside the text block and clear of the scene numbers, which sit
+        // 0.75in in from the edge on a heading's row.
+        if (isRevised(line.from)) {
+          page.drawText('*', { x: widthPt - 0.4 * PT_PER_IN, y: baseline, size: FONT_SIZE, font: fonts.regular });
+        }
 
         if (line.sceneNumber && options.sceneNumbers) {
           // Both margins: left just outside the text block, right past the edge.

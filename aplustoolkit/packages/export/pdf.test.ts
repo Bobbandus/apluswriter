@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PDFDocument } from 'pdf-lib';
+import { PDFArray, PDFDocument, PDFRawStream, decodePDFRawStream } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { parse } from '../fountain/parse';
 import { paginate } from '../paginator/paginate';
@@ -76,5 +76,62 @@ describe('exportFileName', () => {
 
   it('falls back when there is no title', () => {
     expect(exportFileName(parse('INT. ROOM - DAY'), 'fountain')).toBe('Manus.fountain');
+  });
+});
+
+
+/**
+ * How many times text is drawn, counted in the page content streams.
+ *
+ * The fonts are embedded subsets, so a glyph shows up as a hex code and the
+ * text itself cannot be searched. Each draw is a `Tj`, though, and that is
+ * enough to say exactly how many things a revision added to the pages.
+ */
+async function textDraws(bytes: Uint8Array): Promise<number> {
+  const pdf = await PDFDocument.load(bytes);
+  let count = 0;
+  for (const page of pdf.getPages()) {
+    const contents = page.node.Contents();
+    const parts = contents instanceof PDFArray ? contents.asArray().map((ref) => pdf.context.lookup(ref)) : [contents];
+    for (const part of parts) {
+      if (part instanceof PDFRawStream) {
+        count += (Buffer.from(decodePDFRawStream(part).decode()).toString('latin1').match(/Tj/g) ?? []).length;
+      }
+    }
+  }
+  return count;
+}
+
+describe('revision marks', () => {
+  const OLD = 'INT. A - DAG\n\nEtt.\n\nEXT. B - NATT\n\nTvå.\n';
+  const render = (source: string, options: { revisionBaseline?: string; revisionLabel?: string } = {}) =>
+    renderPdf(parse(source), fonts, { pageSize: 'a4', titlePage: false, ...options });
+
+  it('draws nothing extra when nothing changed', async () => {
+    const plain = await textDraws(await render(OLD));
+    expect(await textDraws(await render(OLD, { revisionBaseline: OLD }))).toBe(plain);
+  });
+
+  it('draws one asterisk for each line that changed, and no more', async () => {
+    const plain = await textDraws(await render(OLD));
+
+    const oneChanged = OLD.replace('Ett.', 'Ett och lite till.');
+    expect(await textDraws(await render(oneChanged, { revisionBaseline: OLD }))).toBe(plain + 1);
+
+    const twoChanged = oneChanged.replace('Två.', 'Två också.');
+    expect(await textDraws(await render(twoChanged, { revisionBaseline: OLD }))).toBe(plain + 2);
+  });
+
+  it('names the revision on a page that has something revised on it', async () => {
+    const changed = OLD.replace('Ett.', 'Ett och lite till.');
+    const plain = await textDraws(await render(changed, { revisionBaseline: OLD }));
+    // One page, so one label on top of the asterisk.
+    expect(await textDraws(await render(changed, { revisionBaseline: OLD, revisionLabel: 'Blå revision' }))).toBe(plain + 1);
+  });
+
+  // A page nobody touched is left exactly as it was, label or no label.
+  it('leaves an untouched page unlabelled', async () => {
+    const plain = await textDraws(await render(OLD));
+    expect(await textDraws(await render(OLD, { revisionBaseline: OLD, revisionLabel: 'Blå revision' }))).toBe(plain);
   });
 });

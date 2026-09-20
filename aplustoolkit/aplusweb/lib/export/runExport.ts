@@ -15,6 +15,8 @@ export interface ExportRequest {
   titlePage: boolean;
   watermark: string;
   locale: 'sv' | 'en';
+  /** An earlier draft to mark changes against, and what to call it on the page. */
+  revision?: { baseline: string; label: string };
 }
 
 let fontCache: Promise<{
@@ -57,6 +59,7 @@ export async function runExport(request: ExportRequest): Promise<string> {
     sceneNumbers: request.sceneNumbers,
     titlePage: request.titlePage,
     ...(request.watermark.trim() ? { watermark: request.watermark.trim() } : {}),
+    ...(request.revision ? { revisionBaseline: request.revision.baseline, revisionLabel: request.revision.label } : {}),
     moreLabel: request.locale === 'en' ? '(MORE)' : '(MER)',
     contdLabel: request.locale === 'en' ? "(CONT'D)" : '(FORTS.)',
   });

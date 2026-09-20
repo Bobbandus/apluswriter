@@ -237,7 +237,11 @@
     "todosRemainHint": "Export anyway?",
     "titlePage": "Title page",
     "pageCount": "{count, plural, =1 {# page} other {# pages}}",
-    "exportFailed": "The export failed."
+    "exportFailed": "The export failed.",
+    "markChanges": "Mark changes since",
+    "markChangesNone": "None",
+    "markChangesHint": "An asterisk (*) in the right margin beside each changed line.",
+    "changesSince": "Changes since {name}"
   },
   "share": {
     "title": "Share",

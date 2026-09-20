@@ -237,7 +237,11 @@
     "todosRemainHint": "Vill du exportera ändå?",
     "titlePage": "Titelsida",
     "pageCount": "{count, plural, =1 {# sida} other {# sidor}}",
-    "exportFailed": "Exporten misslyckades."
+    "exportFailed": "Exporten misslyckades.",
+    "markChanges": "Markera ändringar sedan",
+    "markChangesNone": "Inget",
+    "markChangesHint": "En asterisk (*) i högermarginalen vid varje ändrad rad.",
+    "changesSince": "Ändringar sedan {name}"
   },
   "share": {
     "title": "Dela",
