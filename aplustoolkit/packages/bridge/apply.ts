@@ -189,6 +189,22 @@ export function editsFor(source: string, suggestion: Suggestion, selected?: read
       return { ok: true, edits: [{ from: at, to: at + suggestion.before.length, insert: choice.after }] };
     }
 
+    case 'insert': {
+      let at: number;
+      if ('afterScene' in suggestion.anchor) {
+        const scene = sceneFor(suggestion.anchor.afterScene);
+        if (!scene) return { ok: false, reason: 'sceneNotFound' };
+        // A scene runs to the start of the next one, which is where new
+        // material belongs: after everything in it, before the next heading.
+        at = scene.to;
+      } else {
+        const found = nearest(source, suggestion.anchor.after, 0);
+        if (found < 0) return { ok: false, reason: 'stale' };
+        at = found + suggestion.anchor.after.length;
+      }
+      return { ok: true, edits: [insertBlock(source, at, suggestion.text)] };
+    }
+
     // Production data, not script text: stored by the app, no edits here.
     case 'shotlist':
     case 'character':
@@ -198,6 +214,24 @@ export function editsFor(source: string, suggestion: Suggestion, selected?: read
     default:
       return { ok: false, reason: 'stale' };
   }
+}
+
+/**
+ * Drops a block of Fountain in at an offset with the blank lines it needs.
+ *
+ * Fountain is whitespace-sensitive: a scene heading is only a heading with a
+ * blank line after it, and a cue only a cue with one before it. Inserted text
+ * that lands flush against its neighbours silently becomes action.
+ */
+function insertBlock(source: string, at: number, text: string): TextEdit {
+  const body = text.replace(/^\n+/, '').replace(/\n+$/, '');
+  const before = source.slice(0, at);
+  const after = source.slice(at);
+
+  const lead = before === '' || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+  const tail = after === '' ? '\n' : after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+
+  return { from: at, to: at, insert: `${lead}${body}${tail}` };
 }
 
 /** The occurrence of `needle` closest to `near`, or -1. */

@@ -108,6 +108,15 @@ export type Suggestion =
       before: string;
       options: RewriteOption[];
     }
+  | {
+      kind: 'insert';
+      title: string;
+      explanation: string;
+      /** Where the new text goes. Nothing existing is touched. */
+      anchor: { afterScene: SceneRef } | { after: string };
+      /** Fountain, as it should read in the script. */
+      text: string;
+    }
   | { kind: 'character'; name: string; profile: CharacterProfile }
   | { kind: 'document'; title: string; body: string };
 

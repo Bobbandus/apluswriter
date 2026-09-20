@@ -25,6 +25,7 @@ const EDITS_SCRIPT = new Set<Suggestion['kind']>([
   'format',
   'rewrite',
   'alternatives',
+  'insert',
 ]);
 
 /**
@@ -154,6 +155,20 @@ export function SuggestionCardView({ card, onUse, onDiscard }: SuggestionCardVie
                 </li>
               ))}
             </ul>
+          </>
+        )}
+
+        {s.kind === 'insert' && (
+          <>
+            {s.explanation && <p className={styles.lead}>{s.explanation}</p>}
+            <p className={styles.where}>
+              {t('insertAfter', {
+                where: 'afterScene' in s.anchor ? s.anchor.afterScene.heading : s.anchor.after.trim().split('\n').pop() ?? '',
+              })}
+            </p>
+            {/* Nothing is removed, so a red-and-green diff would be theatre:
+                every line here is new. */}
+            <pre className={styles.newText}>{s.text.trim()}</pre>
           </>
         )}
 

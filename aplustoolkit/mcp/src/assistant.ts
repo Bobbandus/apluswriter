@@ -510,6 +510,47 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
   );
 
   server.registerTool(
+    'suggest_insert',
+    {
+      title: 'Suggest new material',
+      description:
+        'Deliver new Fountain — a scene, a beat, a few lines — as a card the writer can drop into the script. Nothing existing is ' +
+        'touched: this only adds. Say where it goes with EITHER `afterScene` OR `afterText` (an exact excerpt copied verbatim). ' +
+        'Write it as real Fountain: a heading on its own line, a cue in capitals above its dialogue. ' +
+        'Only when the writer explicitly asked you to write something new — never to "continue" a script on your own. ' +
+        CRAFT_SHORT,
+      inputSchema: {
+        path: PATH,
+        title: z.string().describe('Short label, e.g. "Ny scen i hallen"'),
+        explanation: z.string().describe('One sentence on what it adds and why it goes here'),
+        afterScene: SCENE.optional().describe('Put it after this scene, before the next heading'),
+        afterText: z.string().optional().describe('Or: put it straight after this exact excerpt from the script'),
+        text: z.string().describe('The new Fountain text'),
+      },
+    },
+    async ({ path, title, explanation, afterScene, afterText, text }) => {
+      const { source, script } = await open(path);
+
+      if ((afterScene === undefined) === (afterText === undefined)) {
+        throw new Error('Give exactly one of `afterScene` or `afterText`, so there is one answer to where this goes.');
+      }
+
+      let anchor: { afterScene: SceneRef } | { after: string };
+      if (afterText !== undefined) {
+        if (!source.includes(afterText)) {
+          throw new Error('`afterText` is not an exact excerpt of the current script. Copy it verbatim from get_current_scene.');
+        }
+        anchor = { after: afterText };
+      } else {
+        const { scene, index } = pick(script, afterScene);
+        anchor = { afterScene: refOf(scene, index) };
+      }
+
+      return deliver({ kind: 'insert', title, explanation, anchor, text }, title);
+    },
+  );
+
+  server.registerTool(
     'suggest_character_profile',
     {
       title: 'Suggest a character profile',

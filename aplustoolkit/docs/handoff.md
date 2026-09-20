@@ -61,8 +61,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 **Fas 1 — Claude får skriva**
 - [x] 1.1 `suggest_rewrite` med flera ändringar per kort
 - [x] 1.2 `suggest_alternatives`
-- [ ] **▶ NÄSTA: 1.3** `suggest_insert` (ny scen som grön diff)
-- [ ] 1.4 Stil & ton per projekt
+- [x] 1.3 `suggest_insert` (ny scen, visas som grönt block)
+- [ ] **▶ NÄSTA: 1.4** Stil & ton per projekt (fält i Inställningar, läses av Claude via bryggan)
 - [ ] 1.5 Nya kommandon i Claude Desktop
 
 **Fas 2 — Installer + auto-uppdatering**

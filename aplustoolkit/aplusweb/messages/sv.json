@@ -407,6 +407,7 @@
     "changes": "{count, plural, =1 {# ändring} other {# ändringar}}",
     "changeNumber": "Ändring {number}",
     "chooseThis": "Välj den här",
+    "insertAfter": "Läggs in efter: {where}",
     "partlyStale": "Klart. Några ändringar kunde inte placeras i texten och hoppades över.",
     "stale": "Texten har ändrats sedan förslaget gjordes, så det kan inte användas.",
     "sceneGone": "Scenen finns inte längre.",

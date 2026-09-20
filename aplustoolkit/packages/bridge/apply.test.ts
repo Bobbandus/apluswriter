@@ -217,6 +217,63 @@ describe('alternatives', () => {
   });
 });
 
+describe('inserting new material', () => {
+  it('puts a new scene after the one it was anchored to, with blank lines around it', () => {
+    const out = apply({
+      kind: 'insert',
+      title: 'En scen till',
+      explanation: '',
+      anchor: { afterScene: { index: 0, heading: 'INT. KÖK - DAG' } },
+      text: 'INT. HALL - DAG\n\nHan tar på sig jackan.',
+    });
+    expect(out).toContain('Erik lagar mat.\n\nINT. HALL - DAG\n\nHan tar på sig jackan.\n\nEXT. SKOLGÅRD - KVÄLL');
+    // And it really reads as a scene, not as action stuck to its neighbour.
+    expect(parse(out).scenes.map((scene) => scene.heading)).toEqual([
+      'INT. KÖK - DAG',
+      'INT. HALL - DAG',
+      'EXT. SKOLGÅRD - KVÄLL',
+      'INT. KÖK - DAG',
+    ]);
+  });
+
+  it('adds lines after an exact excerpt', () => {
+    const out = apply({
+      kind: 'insert',
+      title: 'En replik till',
+      explanation: '',
+      anchor: { after: 'Hej.' },
+      text: 'VILDE\nOch hej igen.',
+    });
+    expect(out).toContain('Hej.\n\nVILDE\nOch hej igen.');
+  });
+
+  it('does not leave a run of blank lines behind', () => {
+    const out = apply({
+      kind: 'insert',
+      title: '',
+      explanation: '',
+      anchor: { afterScene: { index: 0, heading: 'INT. KÖK - DAG' } },
+      text: '\n\nHan diskar.\n\n',
+    });
+    expect(out).not.toMatch(/\n{3}/);
+  });
+
+  it('reports an anchor that is no longer in the script', () => {
+    expect(
+      editsFor(SCRIPT, { kind: 'insert', title: '', explanation: '', anchor: { after: 'Finns inte.' }, text: 'Nytt.' }),
+    ).toEqual({ ok: false, reason: 'stale' });
+    expect(
+      editsFor(SCRIPT, {
+        kind: 'insert',
+        title: '',
+        explanation: '',
+        anchor: { afterScene: { index: 9, heading: 'INT. INGENSTANS - DAG' } },
+        text: 'Nytt.',
+      }),
+    ).toEqual({ ok: false, reason: 'sceneNotFound' });
+  });
+});
+
 describe('applying several fixes as one edit', () => {
   // "Use all format fixes" must be a single Ctrl+Z. The batch is resolved fix
   // by fix against the evolving text, then handed to the editor as one edit;

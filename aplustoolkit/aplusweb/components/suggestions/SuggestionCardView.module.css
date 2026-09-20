@@ -144,6 +144,28 @@
   margin: 0;
 }
 
+.where {
+  margin-bottom: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+/* New material: all of it is added, so it is shown as the page would read it. */
+.newText {
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  background: var(--accent-soft);
+  font-family: var(--font-script);
+  font-size: var(--t-small);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
 /* One change, or one version of a line, inside a card. */
 .parts {
   display: flex;

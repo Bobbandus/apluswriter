@@ -407,6 +407,7 @@
     "changes": "{count, plural, =1 {# change} other {# changes}}",
     "changeNumber": "Change {number}",
     "chooseThis": "Use this one",
+    "insertAfter": "Goes in after: {where}",
     "partlyStale": "Done. Some changes no longer matched the text and were skipped.",
     "stale": "The text has changed since this was suggested, so it cannot be used.",
     "sceneGone": "The scene no longer exists.",
