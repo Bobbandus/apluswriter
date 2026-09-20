@@ -2,13 +2,63 @@
   "name": "aplusdesktop",
   "version": "0.1.0",
   "private": true,
-  "description": "A+ Write desktop shell (Electron).",
+  "description": "A+ Toolkit desktop shell (Electron).",
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "smoke": "electron ."
+    "smoke": "electron .",
+    "pack": "electron-builder --win --dir",
+    "dist": "electron-builder --win --publish never"
+  },
+  "build": {
+    "appId": "se.aplusfilm.toolkit",
+    "productName": "A+ Toolkit",
+    "copyright": "A+ Studios",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "claudeConfig.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "bundle",
+        "to": "bundle",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "A+ Toolkit",
+      "artifactName": "A-Plus-Toolkit-Setup.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Bobbandus",
+        "repo": "apluswriter"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   },
   "devDependencies": {
-    "electron": "^33.2.1"
+    "electron": "^33.2.1",
+    "electron-builder": "^26.15.3"
   }
 }

@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cp, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +28,11 @@ const run = (command, args, env = {}) =>
   execFileSync(command, args, { cwd: root, stdio: 'inherit', env: { ...process.env, ...env }, shell: process.platform === 'win32' });
 
 async function main() {
+  // The icon is generated rather than stored, so there is one description of
+  // the mark and no binary in the repository to drift from it.
+  console.log('• drawing the icon');
+  run('node', ['scripts/make-icon.mjs']);
+
   console.log('• building the web app (standalone)');
   await rm(out, { recursive: true, force: true });
   await rm(join(web, DIST), { recursive: true, force: true });
@@ -53,6 +58,15 @@ async function main() {
     await cp(join(web, 'public'), join(appDir, 'public'), { recursive: true });
   }
 
+  /* electron-builder drops any folder called node_modules from extraResources,
+     so the dependency tree travels under a different name and the shell points
+     NODE_PATH at it. Nested node_modules inside the tree keep their own name
+     and resolve normally. */
+  const modules = 'modules';
+  if (existsSync(join(out, 'node_modules'))) {
+    await rename(join(out, 'node_modules'), join(out, modules));
+  }
+
   console.log('• building the MCP server');
   run('node', ['mcp/build.mjs']);
   await mkdir(join(out, 'mcp'), { recursive: true });
@@ -61,7 +75,11 @@ async function main() {
   // A note for the shell, so it does not have to guess at the layout either.
   await writeFile(
     join(out, 'aplus-app.json'),
-    `${JSON.stringify({ server: relative(out, entry).split('\\').join('/'), mcp: 'mcp/server.mjs' }, null, 2)}\n`,
+    `${JSON.stringify(
+      { server: relative(out, entry).split('\\').join('/'), modules, mcp: 'mcp/server.mjs' },
+      null,
+      2,
+    )}\n`,
   );
 
   await rm(join(web, DIST), { recursive: true, force: true });

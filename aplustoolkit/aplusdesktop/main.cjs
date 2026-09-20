@@ -47,7 +47,13 @@ function bundle() {
   try {
     const manifest = JSON.parse(fs.readFileSync(path.join(base, 'aplus-app.json'), 'utf8'));
     const entry = path.join(base, manifest.server);
-    return fs.existsSync(entry) ? { base, entry, mcp: path.join(base, manifest.mcp) } : null;
+    if (!fs.existsSync(entry)) return null;
+    return {
+      base,
+      entry,
+      mcp: path.join(base, manifest.mcp),
+      modules: manifest.modules ? path.join(base, manifest.modules) : null,
+    };
   } catch {
     return null;
   }
@@ -88,10 +94,26 @@ async function startServer(found) {
 
   server = spawn(process.execPath, [found.entry], {
     cwd: path.dirname(found.entry),
-    env: { ...process.env, ELECTRON_RUN_AS_NODE: '1', NODE_ENV: 'production', PORT: String(port), HOSTNAME: '127.0.0.1' },
+    env: {
+      ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
+      NODE_ENV: 'production',
+      PORT: String(port),
+      HOSTNAME: '127.0.0.1',
+      // The dependency tree ships under a name electron-builder will carry;
+      // this is what lets `require('next')` find it. See build-desktop.mjs.
+      ...(found.modules ? { NODE_PATH: found.modules } : {}),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   });
+
+  // Without this, a server that dies on startup says nothing at all.
+  let complaint = '';
+  const listen = (stream) => stream?.on('data', (chunk) => { complaint += chunk.toString().slice(0, 400); });
+  listen(server.stderr);
+  listen(server.stdout);
+
   server.on('exit', () => {
     server = null;
   });
@@ -100,7 +122,7 @@ async function startServer(found) {
   // is a different story. Give it room rather than showing an error page.
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
-    if (!server) throw new Error('the bundled server stopped while starting');
+    if (!server) throw new Error(`the bundled server stopped while starting. ${complaint.trim()}`);
     if (await reachable(url)) return url;
     await new Promise((resolve) => setTimeout(resolve, 150));
   }

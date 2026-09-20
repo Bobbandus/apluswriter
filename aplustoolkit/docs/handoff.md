@@ -66,10 +66,10 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 1.5 Nya kommandon i Claude Desktop (`rewrite`, `alternatives`, `new_scene`, `polish_dialogue`)
 
 **Fas 2 — Installer + auto-uppdatering**
-- [ ] **▶ NÄSTA: 2.1** Bygg-kedja (Next standalone)
-- [ ] 2.2 Desktop startar inbyggd server
-- [ ] 2.3 electron-builder, ikon, NSIS
-- [ ] 2.4 Auto-uppdatering + bevis A (lokalt)
+- [x] 2.1 Bygg-kedja (Next standalone)
+- [x] 2.2 Desktop startar inbyggd server
+- [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
+- [ ] **▶ NÄSTA: 2.4** Auto-uppdatering + bevis A (lokalt)
 - [ ] 2.5 GitHub Actions + bevis B (kräver ok för tagg)
 - [ ] 2.6 MCPB-tillägg + nedladdningsbanner
 
