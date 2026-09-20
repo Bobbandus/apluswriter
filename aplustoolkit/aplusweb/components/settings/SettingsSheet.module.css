@@ -47,6 +47,17 @@
   flex: 0 0 auto;
 }
 
+.link {
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
 .textarea {
   display: block;
   width: 100%;

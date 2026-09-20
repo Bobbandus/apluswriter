@@ -71,6 +71,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --win --publish always
 
+      # The Claude Desktop extension goes on the same release, so a web user
+      # who cannot open the desktop app can still install it.
+      - name: Attach the Claude extension to the release
+        working-directory: aplustoolkit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          npm run mcpb
+          gh release upload "$GITHUB_REF_NAME" aplusdesktop/release/aplus-toolkit.mcpb --clobber
+
       - uses: actions/upload-artifact@v4
         with:
           name: A-Plus-Toolkit-Setup

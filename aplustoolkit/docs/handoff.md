@@ -71,7 +71,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
 - [x] 2.4 Auto-uppdatering + bevis A (lokalt, 0.1.0 → 0.1.1 bevisat)
 - [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
-- [~] 2.6 Nedladdningsbannern klar. **▶ NÄSTA:** MCPB-tillägget (`manifest.json`, packas med `mcpb pack`, öppnas med `shell.openPath`)
+- [x] 2.6 MCPB-tillägget (`scripts/build-mcpb.mjs`, validerat och uppackat + kört) och nedladdningsbannern. Ej verifierat: Claude Desktops installationsruta, och flera mappar i mappväljaren.
 
 **Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [ ] **▶ NÄSTA: 3.4** roll-/platspaneler + relationskarta · [x] 3.5 Att göra-panel (`components/todos/`, `packages/fountain/todos.ts`)
 

@@ -14,6 +14,9 @@ import { applyTheme, persistLocale } from '@/lib/preferences';
 import type { PageSize } from '@aplus/paginator/geometry';
 import styles from './SettingsSheet.module.css';
 
+/** Published with every release, at an address that never changes. */
+const EXTENSION_URL = 'https://github.com/Bobbandus/apluswriter/releases/latest/download/aplus-toolkit.mcpb';
+
 export interface SettingsSheetProps {
   open: boolean;
   onClose: () => void;
@@ -207,6 +210,20 @@ export function SettingsSheet({
             onChange={(event) => onStyleGuideChange(event.target.value)}
           />
         </div>
+
+        {!desktopApi?.setupClaude && (
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
+              <p className={styles.fieldLabel}>{tAssistant('connectClaude')}</p>
+              <p className={styles.fieldHint}>{tAssistant('extensionHint')}</p>
+            </div>
+            <div className={styles.fieldControl}>
+              <a className={styles.link} href={EXTENSION_URL}>
+                {tAssistant('extensionDownload')}
+              </a>
+            </div>
+          </div>
+        )}
 
         {desktopApi?.setupClaude && (
           <div className={styles.field}>

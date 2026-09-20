@@ -2,7 +2,9 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { configPath, isInstalled, parseConfig, serialize, withServer } = require('./claudeConfig.cjs') as {
+const { configPath, hasServer, isInstalled, parseConfig, serialize, withServer, withoutServer } = require('./claudeConfig.cjs') as {
+  hasServer: (c: unknown) => boolean;
+  withoutServer: (c: Record<string, unknown>) => Record<string, unknown>;
   configPath: (platform: string, env: Record<string, string>, home: string) => string;
   isInstalled: (c: unknown, o: { serverPath: string; scriptsDirs: string[] }) => boolean;
   parseConfig: (t: string) => { ok: boolean; config?: Record<string, unknown> };
@@ -82,4 +84,40 @@ it('writes JSON that round-trips and ends with a newline', () => {
   const text = serialize(withServer({}, options));
   expect(text.endsWith('\n')).toBe(true);
   expect(parseConfig(text).ok).toBe(true);
+});
+
+describe('moving from a hand-made entry to the extension', () => {
+  const both = {
+    theme: 'dark',
+    mcpServers: {
+      blender: { command: 'uvx', args: ['blender-mcp'] },
+      'aplus-write': { command: 'node', args: ['C:\dev\server.mjs', 'C:\Manus'] },
+    },
+  };
+
+  it('knows whether it has an entry, whatever that entry points at', () => {
+    expect(hasServer(both)).toBe(true);
+    expect(hasServer({ mcpServers: { blender: {} } })).toBe(false);
+    expect(hasServer({})).toBe(false);
+  });
+
+  // The whole reason this needs to be careful: the same file holds every other
+  // server the writer has, and Claude Desktop ignores all of them if it breaks.
+  it('takes out only its own entry and leaves every other server and setting', () => {
+    expect(withoutServer(both)).toEqual({
+      theme: 'dark',
+      mcpServers: { blender: { command: 'uvx', args: ['blender-mcp'] } },
+    });
+  });
+
+  it('does not mutate what it was given', () => {
+    const copy = JSON.parse(JSON.stringify(both));
+    withoutServer(both);
+    expect(both).toEqual(copy);
+  });
+
+  it('hands back a config with no entry unchanged', () => {
+    const plain = { mcpServers: { blender: {} } };
+    expect(withoutServer(plain)).toBe(plain);
+  });
 });

@@ -19,6 +19,7 @@
     "desktop": "npm --prefix aplusdesktop start",
     "desktop:build": "node scripts/build-desktop.mjs",
     "desktop:icon": "node scripts/make-icon.mjs",
+    "mcpb": "node scripts/build-mcpb.mjs",
     "desktop:pack": "npm --prefix aplusdesktop run pack",
     "desktop:dist": "npm --prefix aplusdesktop run dist"
   },

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
  * should stop working because the wifi did. So the desktop build carries its
  * own Next server and serves it from 127.0.0.1.
  *
- * Output lands in `aplusdesktop/app/`, which electron-builder copies into the
+ * Output lands in `aplusdesktop/bundle/`, which electron-builder copies into the
  * installer's resources. Nothing here touches `aplusweb/.next`, so a dev
  * server can keep running while this builds.
  */
@@ -41,7 +41,7 @@ async function main() {
   const standalone = join(web, DIST, 'standalone');
   if (!existsSync(standalone)) throw new Error(`no standalone output at ${standalone}`);
 
-  console.log('• collecting it into aplusdesktop/app');
+  console.log('• collecting it into aplusdesktop/bundle');
   await cp(standalone, out, { recursive: true });
 
   // Where server.js ended up: tracing from the repo root mirrors the path, so
@@ -71,6 +71,11 @@ async function main() {
   run('node', ['mcp/build.mjs']);
   await mkdir(join(out, 'mcp'), { recursive: true });
   await cp(join(root, 'mcp', 'dist', 'server.mjs'), join(out, 'mcp', 'server.mjs'));
+
+  // The Claude Desktop extension travels inside the app, so "Connect Claude"
+  // can open it with no download. It also lands in release/ for publishing.
+  console.log('• packing the Claude extension');
+  run('node', ['scripts/build-mcpb.mjs']);
 
   // A note for the shell, so it does not have to guess at the layout either.
   await writeFile(

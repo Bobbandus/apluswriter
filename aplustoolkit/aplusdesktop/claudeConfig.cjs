@@ -64,6 +64,25 @@ function withServer(config, { serverPath, scriptsDirs }) {
   };
 }
 
+/** Is there an entry for us at all — whatever it points at? */
+function hasServer(config) {
+  return Boolean(config && config.mcpServers && config.mcpServers[SERVER_KEY]);
+}
+
+/**
+ * The same config without our entry, every other server exactly as it was.
+ *
+ * For the writer who set A+ Toolkit up by hand and is moving to the extension:
+ * left alone, both would start, each opening its own bridge, and Claude would
+ * list every tool twice.
+ */
+function withoutServer(config) {
+  if (!hasServer(config)) return config;
+  const { [SERVER_KEY]: removed, ...rest } = config.mcpServers;
+  void removed;
+  return { ...config, mcpServers: rest };
+}
+
 /** True if the entry is already exactly what we would write. */
 function isInstalled(config, { serverPath, scriptsDirs }) {
   const entry = config && config.mcpServers && config.mcpServers[SERVER_KEY];
@@ -76,4 +95,4 @@ function serialize(config) {
   return `${JSON.stringify(config, null, 2)}\n`;
 }
 
-module.exports = { SERVER_KEY, configPath, parseConfig, withServer, isInstalled, serialize };
+module.exports = { SERVER_KEY, configPath, parseConfig, withServer, withoutServer, hasServer, isInstalled, serialize };

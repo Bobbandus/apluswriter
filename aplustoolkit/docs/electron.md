@@ -6,9 +6,8 @@ för det en webbläsarflik inte kan:
 - **Appen bär med sig hela webbappen.** Den startar en egen Next-server på en
   loopback-port vid start, så den fungerar utan dev-server och utan internet.
 - **Ett klick kopplar in Claude Desktop** (Inställningar → Skrivande → Claude Desktop,
-  eller menyn *Claude*). Appen frågar först, sparar en säkerhetskopia av
-  `claude_desktop_config.json` och rör aldrig andra servrar. Går filen inte att läsa
-  rör den den inte alls.
+  eller menyn *Claude*). Appen öppnar ett **tillägg** (`.mcpb`) och Claude Desktop visar
+  sin egen installationsruta, där du väljer manusmappen. Se "Claude-tillägget" nedan.
 - Ett riktigt fönster med macOS-lika titelrad (riktiga fönsterkontroller, ingen falsk).
 - Filer sparas via operativsystemets sparadialog.
 - Hittar MCP-bryggan automatiskt via `~/.aplus-write/bridge.json`.
@@ -88,9 +87,34 @@ inget mer: `bridgeInfo`, `saveFile`, `setupClaude`, `platform`. Länkar till and
 sajter öppnas i den vanliga webbläsaren, och navigering bort från appens egen adress
 stoppas.
 
+## Claude-tillägget
+
+`npm run mcpb` (och `desktop:build`) packar MCP-servern som ett Claude Desktop-tillägg:
+`aplusdesktop/release/aplus-toolkit.mcpb`, 283 kB. Det ligger också i appens bunt, så
+"Koppla in" kan öppna det utan nedladdning, och publiceras på varje release.
+
+Varför ett tillägg och inte en post i `claude_desktop_config.json`: Claude Desktop kör
+tillägg med sin egen inbyggda Node, så ingen behöver ha Node installerat. Den visar sin
+egen ruta med mappväljare, och det finns ingen konfigfil att sätta ett kommatecken fel i.
+
+Manifestet valideras av `@anthropic-ai/mcpb` vid varje bygge.
+
+**Reserv:** menyn *Claude → Koppla in via konfigurationsfil* gör som förut — frågar först,
+sparar en säkerhetskopia och rör aldrig andra servrar. Har du en gammal manuell post
+erbjuder installationen att ta bort just den (med säkerhetskopia), annars startar två
+kopior av servern.
+
+**Ej verifierat:** att flera manusmappar i mappväljaren skickas som flera argument. En
+mapp fungerar. Prova med två när du kan, och säg till om den andra saknas.
+
+## Publicera
+
+En tagg `v*` bygger och publicerar via `.github/workflows/release.yml`. Publiceringen är
+satt till `releaseType: release`. electron-builders standard är *utkast*, och ett utkast
+syns varken för uppdateraren eller på den fasta nedladdningslänken.
+
 ## Kvar
 
 - Mac-bygge (kräver en Mac eller GitHub Actions).
 - Filsystemsadapter för `.fountain`-filer direkt på disk (lokal lagring ligger i
   IndexedDB tills dess).
-- MCPB-tillägg, så att Claude Desktop kopplas in med ett dubbelklick.

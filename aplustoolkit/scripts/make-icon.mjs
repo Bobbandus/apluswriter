@@ -15,14 +15,14 @@ import { fileURLToPath } from 'node:url';
  * Windows and electron-builder both accept.
  */
 
-const SIZE = 256;
 const BG = [0x13, 0x13, 0x17]; // --bg-app, dark theme
 const ACCENT = [0x3b, 0xe3, 0x89]; // --accent, studio green
-const RADIUS = 56;
-const BAR = 34; // thickness of the plus
-const REACH = 76; // half-length of each arm
 
-function pixels() {
+/** Drawn as proportions of the size, so the mark is the same mark at every size. */
+function pixels(SIZE) {
+  const RADIUS = SIZE * 0.219;
+  const BAR = SIZE * 0.133; // thickness of the plus
+  const REACH = SIZE * 0.297; // half-length of each arm
   const data = Buffer.alloc(SIZE * SIZE * 4);
   const centre = (SIZE - 1) / 2;
 
@@ -75,7 +75,7 @@ function chunk(type, body) {
   return Buffer.concat([length, typed, crc]);
 }
 
-function png(rgba) {
+function png(rgba, SIZE) {
   const header = Buffer.alloc(13);
   header.writeUInt32BE(SIZE, 0);
   header.writeUInt32BE(SIZE, 4);
@@ -119,9 +119,12 @@ function ico(pngBuffer) {
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'aplusdesktop', 'build');
-const image = png(pixels());
+// 256 is the largest an .ico entry can be; the extension wants 512.
+const small = png(pixels(256), 256);
+const large = png(pixels(512), 512);
 
 await mkdir(out, { recursive: true });
-await writeFile(join(out, 'icon.png'), image);
-await writeFile(join(out, 'icon.ico'), ico(image));
-console.log(`wrote ${join('aplusdesktop', 'build')}/icon.ico (${SIZE}×${SIZE})`);
+await writeFile(join(out, 'icon.png'), small);
+await writeFile(join(out, 'icon.ico'), ico(small));
+await writeFile(join(out, 'icon-512.png'), large);
+console.log(`wrote ${join('aplusdesktop', 'build')}/icon.ico (256×256) and icon-512.png`);

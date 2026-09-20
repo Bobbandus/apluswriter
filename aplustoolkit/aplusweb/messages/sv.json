@@ -435,7 +435,9 @@
     "format": "Formatering",
     "remove": "Ta bort",
     "connectClaude": "Claude Desktop",
-    "connectClaudeHint": "Lägger till A+ Write bland Claudes verktyg. Frågar först, sparar en säkerhetskopia och rör inga andra servrar.",
+    "connectClaudeHint": "Installerar A+ Toolkit som ett tillägg i Claude Desktop. Du väljer din manusmapp i Claudes egen ruta, och ingen Node behövs.",
+    "extensionHint": "Ladda ner tillägget och dubbelklicka på filen, så installerar Claude Desktop det. Du väljer din manusmapp i Claudes egen ruta.",
+    "extensionDownload": "Ladda ner",
     "connectClaudeButton": "Koppla in …"
   },
   "todos": {

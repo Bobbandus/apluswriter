@@ -235,10 +235,82 @@ async function saveFile(name, bytes) {
 }
 
 /**
- * Plugs A+ Write into Claude Desktop.
+ * Connects Claude Desktop by installing A+ Toolkit as an extension.
  *
- * Asks first, backs the existing file up, and refuses to touch a config it
- * cannot parse — see claudeConfig.cjs for why each of those matters.
+ * The .mcpb ships inside the app; opening it makes Claude Desktop show its own
+ * install dialog, which asks for the scripts folder and runs the server on its
+ * own Node. No Node needed on this machine, and no config file to get wrong.
+ *
+ * Someone who set it up by hand earlier has an entry in claude_desktop_config
+ * that would start a second copy of the server. That is offered for removal —
+ * with a backup, and only that one entry — rather than left as a puzzle.
+ * If the extension is not there to open, the manual route below still works.
+ */
+async function connectClaude() {
+  const found = bundle();
+  const extension = found && path.join(found.base, 'aplus-toolkit.mcpb');
+  if (!extension || !fs.existsSync(extension)) return setupClaude();
+
+  const target = claude.configPath(process.platform, process.env, os.homedir());
+  let stale = false;
+  let text = '';
+  try {
+    text = fs.readFileSync(target, 'utf8');
+    const parsed = claude.parseConfig(text);
+    stale = parsed.ok && claude.hasServer(parsed.config);
+  } catch {
+    // No config, or no access to it: nothing old to clean up.
+  }
+
+  const answer = await dialog.showMessageBox(win, {
+    type: 'question',
+    buttons: stale
+      ? [say('Installera och ta bort den gamla', 'Install and remove the old one'), say('Installera, behåll båda', 'Install, keep both'), say('Avbryt', 'Cancel')]
+      : [say('Fortsätt', 'Continue'), say('Avbryt', 'Cancel')],
+    defaultId: 0,
+    cancelId: stale ? 2 : 1,
+    message: say('Installera A+ Toolkit i Claude Desktop?', 'Install A+ Toolkit in Claude Desktop?'),
+    detail: stale
+      ? say(
+          'Claude Desktop öppnar en installationsruta där du väljer din manusmapp. Du har också en manuell koppling sedan tidigare, som skulle starta en andra kopia av servern. Jag kan ta bort just den posten (en säkerhetskopia sparas, inget annat rörs).',
+          'Claude Desktop opens an install dialog where you pick your scripts folder. You also have a manual entry from before, which would start a second copy of the server. I can remove just that entry (a backup is saved, nothing else is touched).',
+        )
+      : say(
+          'Claude Desktop öppnar en installationsruta där du väljer din manusmapp. Starta om Claude Desktop efteråt.',
+          'Claude Desktop opens an install dialog where you pick your scripts folder. Restart Claude Desktop afterwards.',
+        ),
+  });
+
+  const cancelled = answer.response === (stale ? 2 : 1);
+  if (cancelled) return { ok: false, reason: 'canceled' };
+
+  if (stale && answer.response === 0) {
+    const parsed = claude.parseConfig(text);
+    if (parsed.ok) {
+      fs.writeFileSync(`${target}.aplus-backup`, text);
+      fs.writeFileSync(target, claude.serialize(claude.withoutServer(parsed.config)));
+    }
+  }
+
+  const failed = await shell.openPath(extension);
+  if (failed) {
+    await dialog.showMessageBox(win, {
+      type: 'error',
+      message: say('Kunde inte öppna tillägget', 'Could not open the extension'),
+      detail: failed,
+    });
+    return { ok: false, reason: 'open-failed' };
+  }
+  return { ok: true, changed: true };
+}
+
+/**
+ * Plugs A+ Write into Claude Desktop by editing its config file.
+ *
+ * The fallback, for a checkout with no bundled extension or a Claude Desktop
+ * that cannot install one. Asks first, backs the existing file up, and refuses
+ * to touch a config it cannot parse — see claudeConfig.cjs for why each of
+ * those matters.
  */
 async function setupClaude() {
   const target = claude.configPath(process.platform, process.env, os.homedir());
@@ -417,7 +489,10 @@ function buildMenu() {
     { role: 'viewMenu' },
     {
       label: 'Claude',
-      submenu: [{ label: say('Koppla in Claude Desktop …', 'Connect Claude Desktop …'), click: () => void setupClaude() }],
+      submenu: [
+        { label: say('Koppla in Claude Desktop …', 'Connect Claude Desktop …'), click: () => void connectClaude() },
+        { label: say('Koppla in via konfigurationsfil (reserv) …', 'Connect via config file (fallback) …'), click: () => void setupClaude() },
+      ],
     },
     {
       label: say('Hjälp', 'Help'),
@@ -448,7 +523,7 @@ if (!app.requestSingleInstanceLock()) {
 
   ipcMain.handle('aplus:bridgeInfo', () => bridgeInfo());
   ipcMain.handle('aplus:saveFile', (_event, name, bytes) => saveFile(String(name), bytes));
-  ipcMain.handle('aplus:setupClaude', () => setupClaude());
+  ipcMain.handle('aplus:setupClaude', () => connectClaude());
 
   app.on('before-quit', stopServer);
   app.on('will-quit', stopServer);

@@ -435,7 +435,9 @@
     "format": "Formatting",
     "remove": "Remove",
     "connectClaude": "Claude Desktop",
-    "connectClaudeHint": "Adds A+ Write to Claude's tools. Asks first, keeps a backup and leaves other servers alone.",
+    "connectClaudeHint": "Installs A+ Toolkit as an extension in Claude Desktop. You pick your scripts folder in Claude's own dialog, and no Node is needed.",
+    "extensionHint": "Download the extension and double-click the file, and Claude Desktop installs it. You pick your scripts folder in Claude's own dialog.",
+    "extensionDownload": "Download",
     "connectClaudeButton": "Connect …"
   },
   "todos": {
