@@ -374,7 +374,8 @@
     "startInFocusOn": "Always open in focus mode",
     "startInFocusOff": "Do not open in focus mode",
     "plain": "Plain text: toggle the paper",
-    "dual": "Dual dialogue: toggle for this speech"
+    "dual": "Dual dialogue: toggle for this speech",
+    "shortcuts": "Shortcuts (change keys)"
   },
   "settings": {
     "title": "Settings",
@@ -645,5 +646,27 @@
   },
   "dual": {
     "unavailable": "Dual dialogue needs a speech directly before it."
+  },
+  "shortcuts": {
+    "title": "Shortcuts",
+    "press": "Press keys …",
+    "resetAll": "Reset all",
+    "reset": "Reset {action}",
+    "taken": "{keys} is already used for \"{action}\".",
+    "reserved": "{keys} belongs to the browser or the editor and cannot be changed.",
+    "actions": {
+      "palette": "Command palette",
+      "focus": "Focus mode",
+      "sidebar": "Show/hide the navigator",
+      "inspector": "Show/hide the inspector",
+      "settings": "Settings",
+      "export": "Export",
+      "find": "Find",
+      "replace": "Find and replace",
+      "quickNote": "Quick note",
+      "dual": "Dual dialogue",
+      "sceneUp": "Move scene up",
+      "sceneDown": "Move scene down"
+    }
   }
 }

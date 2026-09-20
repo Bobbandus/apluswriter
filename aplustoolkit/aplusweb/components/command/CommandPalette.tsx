@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { rankCommands, type Command } from '@/lib/commands';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
+import { formatBinding } from '@/lib/shortcuts';
 import styles from './CommandPalette.module.css';
 
 export interface CommandPaletteProps {
@@ -118,7 +119,7 @@ export function CommandPalette({ open, onClose, commands }: CommandPaletteProps)
                     onClick={() => run(command)}
                   >
                     <span className={styles.label}>{command.label}</span>
-                    {command.shortcut && <span className={styles.shortcut}>{formatShortcut(command.shortcut)}</span>}
+                    {command.shortcut && <span className={styles.shortcut}>{formatBinding(command.shortcut)}</span>}
                   </div>
                 </li>
               );
@@ -132,10 +133,3 @@ export function CommandPalette({ open, onClose, commands }: CommandPaletteProps)
 }
 
 /** `mod+e` as it reads on this machine. */
-function formatShortcut(shortcut: string): string {
-  const mac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
-  return shortcut
-    .split('+')
-    .map((key) => (key === 'mod' ? (mac ? '⌘' : 'Ctrl') : key.length === 1 ? key.toUpperCase() : key))
-    .join(mac ? '' : '+');
-}

@@ -127,6 +127,6 @@ Ordning: **skrivupplevelsen först**, sedan Shoot/Live, molnet (datasynk, delnin
 
 - **Claude (bara kort, aldrig ändring före Använd):** läs högt-feedback (stela repliker, alla låter lika), scenmål-koll (mål, hinder, förändring per scen), fråga-Claude på markering (markera, tangent, skriv fråga, svar som kort). Nej till: kontinuitetskoll, autouse för småsaker (reglerna i ideas.txt står fast).
 - **Skriva:** dubbel dialog (`^`, med sidvisning och export), minnesbubblor (taggar i noter, listade i inspektorn). Nej till: snabbtecken `//`, parkeringsruta.
-- **UI:** ren text-tema (läge oberoende av färgtema), mobil skrivvy (text + snabbanteckning), splittvy, egna genvägar i inställningarna. **Teman: Ljust, Mörkt, System (auto). Midnatt är borttaget och System finns (klart 2026-09-20; `lib/theme.ts`, `data-theme-pref`).**
+- **UI:** ren text-tema (läge oberoende av färgtema), mobil skrivvy (text + snabbanteckning), splittvy, egna genvägar (klart: Ctrl+K "genvägar", `lib/shortcuts.ts`, krockskydd och reserverade tangenter; dubbel dialog klar: Ctrl+Skift+D + FDX). **Teman: Ljust, Mörkt, System (auto). Midnatt är borttaget och System finns (klart 2026-09-20; `lib/theme.ts`, `data-theme-pref`).**
 - **Shoot:** klappa och logga tagningar (scen, tagning, anteckning, per dag, export). **Live:** overlay för OBS (webbsida som lager, operatörsvy). Nej för nu: dagens inspelningslista, bordsläsning.
 - **Release:** jag får tagga v0.1.0 själv när nästa större del är klar och checklistan ovan är grön; be då bara användaren provköra installern.

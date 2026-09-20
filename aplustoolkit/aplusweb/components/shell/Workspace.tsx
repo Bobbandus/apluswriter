@@ -7,6 +7,7 @@ import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { Titlebar } from './Titlebar';
 import type { SaveState } from './SaveStatus';
 import { readFocusPrefs, TOGGLE_FOCUS_EVENT } from '@/lib/focusPrefs';
+import { useShortcuts } from '@/lib/shortcuts';
 import { FocusModeContext } from './FocusModeContext';
 import styles from './Workspace.module.css';
 
@@ -123,11 +124,12 @@ export function Workspace({
   const toggleInspector = useCallback(() => setInspectorOpen((v) => !v), [setInspectorOpen]);
   const toggleFocus = useCallback(() => setFocusMode((v) => !v), []);
 
+  const shortcuts = useShortcuts();
   useHotkeys({
-    'mod+1': toggleSidebar,
-    'mod+2': toggleInspector,
-    'mod+shift+f': toggleFocus,
-    'mod+k': () => onOpenCommandPalette?.(),
+    [shortcuts.binding('sidebar')]: toggleSidebar,
+    [shortcuts.binding('inspector')]: toggleInspector,
+    [shortcuts.binding('focus')]: toggleFocus,
+    [shortcuts.binding('palette')]: () => onOpenCommandPalette?.(),
   });
 
   // Escape leaves focus mode — the one way out that needs no chrome to find.

@@ -39,6 +39,8 @@ import { TimelineSheet } from '@/components/timeline/TimelineSheet';
 import { QuickNote } from '@/components/quicknote/QuickNote';
 import { quickNoteEdit } from '@/lib/quickNote';
 import { toggleDualEdit } from '@aplus/fountain/dual';
+import { ShortcutsSheet } from '@/components/shortcuts/ShortcutsSheet';
+import { useShortcuts } from '@/lib/shortcuts';
 import { TOGGLE_FOCUS_EVENT, useFocusPrefs } from '@/lib/focusPrefs';
 import { sceneNoteEdit } from '@aplus/bridge/apply';
 import { useMirror } from '@/lib/hooks/useMirror';
@@ -101,6 +103,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [replaceMode, setReplaceMode] = useState(false);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [quickNoteOpen, setQuickNoteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const shortcuts = useShortcuts();
   const [focusPrefs, setFocusPrefs] = useFocusPrefs();
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
@@ -470,19 +474,19 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const tCommand = useTranslations('command');
   const commands = useMemo<Command[]>(
     () => [
-      { id: 'export', label: tCommand('export'), group: tCommand('groupScript'), keywords: 'pdf fdx html csv fountain sidor rapport', shortcut: 'mod+e', run: () => setExportOpen(true) },
+      { id: 'export', label: tCommand('export'), group: tCommand('groupScript'), keywords: 'pdf fdx html csv fountain sidor rapport', shortcut: shortcuts.binding('export'), run: () => setExportOpen(true) },
       { id: 'titlePage', label: tCommand('titlePage'), group: tCommand('groupScript'), keywords: 'titel författare kontakt', run: () => setTitleOpen(true) },
       { id: 'versions', label: tCommand('versions'), group: tCommand('groupScript'), keywords: 'revision utkast ögonblicksbild historik', run: () => setVersionsOpen(true) },
       { id: 'cast', label: tCommand('cast'), group: tCommand('groupScript'), keywords: 'roller platser relationer karaktärer', run: () => setCastOpen(true) },
       { id: 'dictionary', label: tCommand('dictionary'), group: tCommand('groupScript'), keywords: 'ordlista autocomplete', run: () => setDictionaryOpen(true) },
-      { id: 'find', label: tCommand('find'), group: tCommand('groupScript'), keywords: 'sök search', shortcut: 'mod+f', run: () => { setView('script'); setReplaceMode(false); setFindOpen(true); } },
-      { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: 'mod+h', run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
+      { id: 'find', label: tCommand('find'), group: tCommand('groupScript'), keywords: 'sök search', shortcut: shortcuts.binding('find'), run: () => { setView('script'); setReplaceMode(false); setFindOpen(true); } },
+      { id: 'replace', label: tCommand('replace'), group: tCommand('groupScript'), keywords: 'ersätt byt namn replace regex', shortcut: shortcuts.binding('replace'), run: () => { setView('script'); setReplaceMode(true); setFindOpen(true); } },
       { id: 'counter', label: writing.enabled ? tCommand('counterOff') : tCommand('counterOn'), group: tCommand('groupView'), keywords: 'ord räknare idag skrivpass', run: () => writing.setEnabled(!writing.enabled) },
       { id: 'pass', label: writing.pass ? tCommand('passEnd') : tCommand('passStart'), group: tCommand('groupScript'), keywords: 'skrivpass timer sprint', run: () => { writing.setEnabled(true); togglePass(); } },
       { id: 'timeline', label: tCommand('timeline'), group: tCommand('groupScript'), keywords: 'dag dagar energi kurva rytm story tidslinje', run: () => setTimelineOpen(true) },
-      { id: 'dual', label: tCommand('dual'), group: tCommand('groupElement'), keywords: 'dubbel dialog samtidigt två pratar', shortcut: 'mod+shift+d', run: toggleDual },
-      { id: 'quickNote', label: tCommand('quickNote'), group: tCommand('groupScript'), keywords: 'todo anteckning notera påminnelse', shortcut: 'mod+shift+n', run: () => setQuickNoteOpen(true) },
-      { id: 'focus', label: tCommand('focus'), group: tCommand('groupView'), keywords: 'fokus lock in zen ostörd', shortcut: 'mod+shift+f', run: () => window.dispatchEvent(new Event(TOGGLE_FOCUS_EVENT)) },
+      { id: 'dual', label: tCommand('dual'), group: tCommand('groupElement'), keywords: 'dubbel dialog samtidigt två pratar', shortcut: shortcuts.binding('dual'), run: toggleDual },
+      { id: 'quickNote', label: tCommand('quickNote'), group: tCommand('groupScript'), keywords: 'todo anteckning notera påminnelse', shortcut: shortcuts.binding('quickNote'), run: () => setQuickNoteOpen(true) },
+      { id: 'focus', label: tCommand('focus'), group: tCommand('groupView'), keywords: 'fokus lock in zen ostörd', shortcut: shortcuts.binding('focus'), run: () => window.dispatchEvent(new Event(TOGGLE_FOCUS_EVENT)) },
       ...(['paragraph', 'scene', 'off'] as const)
         .filter((dim) => dim !== focusPrefs.dim)
         .map((dim) => ({ id: `dim:${dim}`, label: tCommand(`dim.${dim}`), group: tCommand('groupView'), keywords: 'fokus dämpa tona', run: () => setFocusPrefs({ dim }) })),
@@ -490,6 +494,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         .filter((mode) => mode !== focusPrefs.typewriter)
         .map((mode) => ({ id: `typewriter:${mode}`, label: tCommand(`typewriter.${mode}`), group: tCommand('groupView'), keywords: 'typewriter skrivmaskin mitten scroll', run: () => setFocusPrefs({ typewriter: mode }) })),
       { id: 'startInFocus', label: focusPrefs.startInFocus ? tCommand('startInFocusOff') : tCommand('startInFocusOn'), group: tCommand('groupView'), keywords: 'fokus starta öppna alltid', run: () => setFocusPrefs({ startInFocus: !focusPrefs.startInFocus }) },
+      { id: 'shortcuts', label: tCommand('shortcuts'), group: tCommand('groupView'), keywords: 'genvägar tangenter tangentbord hotkeys', run: () => setShortcutsOpen(true) },
       {
         id: 'plain',
         label: tCommand('plain'),
@@ -509,7 +514,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       },
       { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
-      { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
+      { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: shortcuts.binding('settings'), run: () => setSettingsOpen(true) },
       { id: 'projects', label: tCommand('projects'), group: tCommand('groupProject'), keywords: 'hem alla', run: () => router.push('/plan/write') },
       ...script.sections.map((section, index) => ({
         id: `scene:section:${index}`,
@@ -530,25 +535,25 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts],
   );
 
   useHotkeys({
-    'mod+,': openSettings,
-    'mod+shift+d': () => view === 'script' && toggleDual(),
-    'mod+shift+n': () => view === 'script' && setQuickNoteOpen(true),
+    [shortcuts.binding('settings')]: openSettings,
+    [shortcuts.binding('dual')]: () => view === 'script' && toggleDual(),
+    [shortcuts.binding('quickNote')]: () => view === 'script' && setQuickNoteOpen(true),
     // Move the scene the caret is in, without leaving the keyboard.
-    'mod+shift+arrowup': () => view === 'script' && moveCaretScene(-1),
-    'mod+shift+arrowdown': () => view === 'script' && moveCaretScene(1),
-    'mod+e': () => setExportOpen(true),
+    [shortcuts.binding('sceneUp')]: () => view === 'script' && moveCaretScene(-1),
+    [shortcuts.binding('sceneDown')]: () => view === 'script' && moveCaretScene(1),
+    [shortcuts.binding('export')]: () => setExportOpen(true),
     // Our own panel replaces the editor's, and only makes sense over the script.
-    'mod+f': (event) => {
+    [shortcuts.binding('find')]: (event) => {
       if (view !== 'script') return;
       event.preventDefault();
       setReplaceMode(false);
       setFindOpen(true);
     },
-    'mod+h': (event) => {
+    [shortcuts.binding('replace')]: (event) => {
       if (view !== 'script') return;
       event.preventDefault();
       setReplaceMode(true);
@@ -735,6 +740,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onApply={(edits) => editorRef.current?.applyChanges(edits)}
       />
 
+      <ShortcutsSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <QuickNote
         open={quickNoteOpen}
         onClose={() => {

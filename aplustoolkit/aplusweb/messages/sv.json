@@ -374,7 +374,8 @@
     "startInFocusOn": "Öppna alltid i fokusläge",
     "startInFocusOff": "Öppna inte i fokusläge",
     "plain": "Ren text: växla pappersyta av/på",
-    "dual": "Dubbeldialog: växla för repliken"
+    "dual": "Dubbeldialog: växla för repliken",
+    "shortcuts": "Genvägar (ändra tangenter)"
   },
   "settings": {
     "title": "Inställningar",
@@ -645,5 +646,27 @@
   },
   "dual": {
     "unavailable": "Dubbeldialog kräver en replik direkt före."
+  },
+  "shortcuts": {
+    "title": "Genvägar",
+    "press": "Tryck tangenter …",
+    "resetAll": "Återställ alla",
+    "reset": "Återställ {action}",
+    "taken": "{keys} används redan för \"{action}\".",
+    "reserved": "{keys} används av webbläsaren eller editorn och kan inte ändras.",
+    "actions": {
+      "palette": "Kommandopalett",
+      "focus": "Fokusläge",
+      "sidebar": "Visa/dölj navigatorn",
+      "inspector": "Visa/dölj inspektorn",
+      "settings": "Inställningar",
+      "export": "Exportera",
+      "find": "Sök",
+      "replace": "Sök och ersätt",
+      "quickNote": "Snabbanteckning",
+      "dual": "Dubbeldialog",
+      "sceneUp": "Flytta scenen upp",
+      "sceneDown": "Flytta scenen ner"
+    }
   }
 }
