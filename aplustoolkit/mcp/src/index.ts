@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Library } from './library';
 import { Bridge } from './bridge';
 import { registerAssistant } from './assistant';
+import { CRAFT } from './craft';
 import { serialize, serializeSides } from '../../packages/fountain/serialize';
 import { estimateMinutes } from '../../packages/paginator/geometry';
 import type { Element, Script, SceneIndexEntry } from '../../packages/fountain/types';
@@ -22,24 +23,31 @@ import type { Element, Script, SceneIndexEntry } from '../../packages/fountain/t
  *
  *   - **Reading is unrestricted.** Outline, scenes, characters, locations,
  *     stats, search — all of it returns structured data, not prose.
- *   - **Writing is mechanical only.** Synopses, scene metadata, notes and
- *     to-dos. Nothing here can touch a line of action or dialogue. That is not
- *     a limitation to be lifted later; it is the point. A writer's prose is
- *     theirs, and a tool that can quietly rewrite it is a tool you cannot
- *     leave running.
+ *   - **Writing to a file is mechanical only.** The tools in this file reach
+ *     synopses, scene metadata, notes, to-dos and whitespace. None of them can
+ *     touch a line of action or dialogue, because they write to disk directly,
+ *     with nobody looking.
+ *
+ * The one thing that can change the writer's own words lives in `assistant.ts`
+ * and goes the other way: `suggest_rewrite` sends a diff to the open app,
+ * where the writer accepts or discards it. A tool that can quietly rewrite
+ * prose is one you cannot leave running; a tool that can only *propose* a
+ * rewrite is one you can.
  *
  * Every write is line-scoped and reports what it changed.
  */
 
 const server = new McpServer(
-  { name: 'aplus-write', version: '0.2.0' },
+  { name: 'aplus-write', version: '0.3.0' },
   {
     instructions: [
       'You are helping a screenwriter with their Fountain screenplay in A+ Write.',
-      'The writer writes; you assist when asked. NEVER write, rewrite or "improve" their action or dialogue, and never offer replacement lines unless they explicitly ask for options in the chat.',
+      'The writer writes; you assist when asked. Never rewrite their action or dialogue on your own initiative, and never "improve" something they did not ask about.',
+      'When they DO ask you to rewrite a line, a speech or a scene, use suggest_rewrite. It arrives in the app as a red/green diff card: nothing changes until the writer clicks Use, and one undo takes it back. That is what makes it safe to ask for — so do it properly when asked, rather than refusing.',
       'Read first: get_open_script (what is open, where the caret is), get_current_scene, get_selection, and the analysis tools (get_structure, get_difficulty, get_schedule_groups, get_character_lines).',
       'Hand results back with the suggest_* tools. They arrive in the app as cards the writer accepts or discards; nothing changes until they do. If a suggest_* tool says no app is connected, give the result in the chat.',
       'Answer in the language the writer uses (usually Swedish). Be concrete: cite scenes, pages and lines. Give reasons, not just verdicts.',
+      CRAFT,
     ].join(' '),
   },
 );

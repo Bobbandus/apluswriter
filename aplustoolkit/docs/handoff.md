@@ -40,7 +40,7 @@ Claude får skriva om min text bara när jag ber om det, alltid som diff-kort ja
 - Senare, endast i `ideas.txt`: bordsläsning/replikträning, pitch-PDF, Discord-bot/webhook, filmklappa, Casting, Live, realtidsskrivning.
 - Avslagna: inline-diff i texten, beat-tavla, Fråga-Claude-meny, Google Kalender.
 
-**Craft-regler (Claude ska följa vid omskrivning).**
+**Craft-regler (Claude ska följa vid omskrivning).** Lever i `mcp/src/craft.ts` och vaktas av `mcp/src/craft.test.ts`. Lägg till rader där om du ser något som skaver.
 - Skriv i skribentens röst, ordförråd och genre. Komedi förblir komedi. Gör inte en lätt scen mörkare eller "djupare" om det inte efterfrågats.
 - Ingen olycksbådande förkänsla eller mörker utan upplösning som standard. En scen ska landa.
 - Förbjudet: "Han vet mer än han ska", "De borde inte vara så här stora", "Något är fel", "Det är aldrig bara X", "Tystnad." som utfyllnad, karaktärer som deklarerar sina känslor, samma putsade terapispråk hos alla, snygga tretal, "inte X utan Y", scenslut på en tyst blick eller en sensmoral.
@@ -56,10 +56,10 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 0.1 Bygget grönt (`sections` i `Script`)
 - [x] 0.2 Inloggning (env-mapp, konto-knapp på alla sidor, Supabase-guide)
 - [x] 0.3 Ordboken: spara först när färdig (E-buggen)
-- [ ] **▶ NÄSTA: 0.4** MCP-instruktioner + craft-regler (`mcp/src/craft.ts`, sedan `npm run mcp:build`)
+- [x] 0.4 MCP-instruktioner + craft-regler (`mcp/src/craft.ts`)
 
 **Fas 1 — Claude får skriva**
-- [ ] 1.1 `suggest_rewrite` med flera ändringar per kort
+- [ ] **▶ NÄSTA: 1.1** `suggest_rewrite` med flera ändringar per kort
 - [ ] 1.2 `suggest_alternatives`
 - [ ] 1.3 `suggest_insert`
 - [ ] 1.4 Stil & ton per projekt
@@ -91,7 +91,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 2. **Ögna i webbläsaren när du är vid datorn** (inget av det blockerar arbetet):
    - konto-knappen uppe till höger på `/`, `/plan`, `/plan/write` och att `/login` renderar formuläret;
    - ordboken: skriv en ny roll bokstav för bokstav, radera, och kontrollera att inga halva namn ligger kvar i Manusordlistan (Inspektorn → ikonen Rollfigurer).
-3. Kör `npm run check`, ta sedan **0.4**.
+3. **Starta om Claude Desktop** en gång — MCP-servern är ombyggd (0.4), och det är omstarten som gör att Claude börjar skriva om när du ber om det. Prova med "skriv om dialogen i scen 1 så den blir vassare".
+4. Kör `npm run check`, ta sedan **1.1**.
 
 ## Det du måste göra själv
 

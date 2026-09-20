@@ -45,6 +45,21 @@ continuity · difficulty · casting_call · format_check
 
 ## Regeln
 
-**Inget verktyg kan skriva om din beskrivning eller dialog.** Förslag är data som
-appen visar. Det enda som redigerar text, formatfix, kontrolleras två gånger och
-avvisas om ett enda ord ändras. Sökvägar är låsta till dina manusmappar.
+**Claude skriver aldrig om ditt manus på eget initiativ**, och "förbättrar" aldrig
+något du inte frågat om.
+
+Ber du om en omskrivning kommer den som ett **kort med diff** — gammal text i rött,
+ny i grönt. Ingenting ändras förrän du klickar **Använd**, och Ctrl+Z tar tillbaka
+det. Gränsen går alltså inte vid *att* Claude kan skriva, utan vid att ingenting
+når sidan utan ett klick från dig.
+
+Resten står kvar: förslag är data som appen ritar, formatfix kontrolleras två
+gånger och avvisas om ett enda ord ändras, och de verktyg som skriver rakt ner i
+en fil når bara synopsis, scenmetadata, anteckningar och blankrader. Sökvägar är
+låsta till dina manusmappar.
+
+**Hantverksreglerna.** Claude följer en fast lista när den skriver: din röst och
+din genre, ingen pålagd dystrare ton, inga AI-klyschor ("Han vet mer än han ska",
+"Något är fel", scener som slutar i en tyst blick). Listan står i
+[`src/craft.ts`](src/craft.ts) och följer med både serverns instruktioner och de
+verktyg som kan ändra ord — lägg till nya rader där om du ser något som skaver.

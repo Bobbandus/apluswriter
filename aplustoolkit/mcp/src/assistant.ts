@@ -12,6 +12,7 @@ import {
   structureReport,
 } from '../../packages/production/analysis';
 import type { Bridge } from './bridge';
+import { CRAFT_SHORT, RULES } from './craft';
 import type { Library } from './library';
 
 /**
@@ -21,7 +22,13 @@ import type { Library } from './library';
  * writing-down.** These tools give Claude the facts (what is open, what a
  * scene says, how long things are) and give it one way to hand something
  * back: a *suggestion*, which lands in the app as a card the writer accepts
- * or discards. Nothing here edits a line of action or dialogue.
+ * or discards.
+ *
+ * One of them, `suggest_rewrite`, can change the writer's own words — but
+ * only as a diff the writer has to accept, and only when they asked for it.
+ * That is the whole safety model: the boundary is not "the assistant cannot
+ * write", it is "nothing reaches the page without a click", and one undo
+ * takes it back. The craft rules in `craft.ts` ride along with it.
  *
  * If no app is connected, or the writer has cards turned off, the suggestion
  * is returned as plain structured data so Claude can say it in the chat.
@@ -388,7 +395,10 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
     async ({ path, title, explanation, before, after }) => {
       const { source } = await open(path);
       if (!onlyFormattingChanged(before, after)) {
-        throw new Error('Refused: this changes the words of the script. This tool only fixes formatting. Say it in the chat instead, or use suggest_note.');
+        throw new Error(
+          'Refused: this changes the words of the script, and this tool only fixes formatting. If the writer asked for a ' +
+            'rewrite, use suggest_rewrite. If they did not, say it in the chat or leave a note with suggest_note.',
+        );
       }
       const near = source.indexOf(before);
       if (near < 0) throw new Error('`before` is not an exact excerpt of the current script. Copy it verbatim from get_current_scene.');
@@ -401,10 +411,11 @@ export function registerAssistant({ server, bridge, library, findScene }: Ctx): 
     {
       title: 'Suggest a rewrite',
       description:
-        'Deliver a rewrite suggestion as a +/− diff card. Unlike suggest_format_fix this tool CAN change words — it is for dialogue and action rewrites ' +
-        'the writer explicitly asked for. `before` must be an EXACT excerpt copied verbatim from the script. ' +
-        'The writer sees both versions in a red/green diff and must click "Use" before anything changes. ' +
-        'Never call this speculatively — only when the writer asks you to rewrite something.',
+        'Deliver a rewrite as a +/− diff card. Unlike suggest_format_fix this tool CAN change words: it is for the dialogue and action ' +
+        'rewrites the writer explicitly asked for. `before` must be an EXACT excerpt copied verbatim from the script — read the scene ' +
+        'with get_current_scene first. The writer sees both versions in a red/green diff and must click "Use" before anything changes. ' +
+        'Never call this speculatively, and never to "improve" something they did not ask about. ' +
+        CRAFT_SHORT,
       inputSchema: {
         path: PATH,
         scene: SCENE.optional(),
@@ -504,11 +515,6 @@ const FORMAT_EXPLANATIONS = {
 /* Prompts — ready-made commands in Claude Desktop's menu                     */
 /* ========================================================================== */
 
-const RULES =
-  'Rules: never rewrite the writer\'s dialogue or action on your own initiative. When the writer explicitly asks you to rewrite something, ' +
-  'use suggest_rewrite — it shows a diff card the writer must accept. All other results go via the suggest_* tools or plain chat answers. ' +
-  'Answer in the language the writer uses. Be concrete and brief; give reasons.';
-
 function registerPrompts(server: McpServer): void {
   const sceneArg = { scene: z.string().optional().describe('Scene number or heading. Leave empty for the scene you are in.') };
   const msg = (text: string) => ({ messages: [{ role: 'user' as const, content: { type: 'text' as const, text } }] });
@@ -561,8 +567,8 @@ function registerPrompts(server: McpServer): void {
     ({ character }) =>
       msg(
         `Call get_selection. Then call get_character_lines for ${character ? `"${character}"` : 'the character who speaks the selected line'} and compare: ` +
-          `does the selected line sound like them — vocabulary, rhythm, how they answer? Quote the lines you compare with. Feedback only; do not rewrite ` +
-          `the line. ${RULES}`,
+          `does the selected line sound like them — vocabulary, rhythm, how they answer? Quote the lines you compare with. Feedback only: ` +
+          `do not rewrite the line unless I ask you to, and then use suggest_rewrite. ${RULES}`,
       ),
   );
 
