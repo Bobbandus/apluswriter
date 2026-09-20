@@ -155,6 +155,9 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [selection, setSelection] = useState({ from: 0, to: 0, text: '' });
   const [tab, setTab] = useState<InspectorTab>('scene');
   const [cardsEnabled, setCardsEnabled] = usePersistentState('aplus.ui.cards', true);
+  // The row of element buttons over the page is a teaching aid, and off unless asked for:
+  // Enter on an empty line already shows the same choices, and the page stays clear.
+  const [elementBar, setElementBar] = usePersistentState('aplus.ui.elementBar', false);
   /* Per project, not per device: how a script should sound belongs to the
      script, and it is what Claude reads before it writes anything. */
   const [styleGuide, setStyleGuide] = useProjectData<string>(projectId, 'styleGuide', '');
@@ -494,6 +497,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         .filter((mode) => mode !== focusPrefs.typewriter)
         .map((mode) => ({ id: `typewriter:${mode}`, label: tCommand(`typewriter.${mode}`), group: tCommand('groupView'), keywords: 'typewriter skrivmaskin mitten scroll', run: () => setFocusPrefs({ typewriter: mode }) })),
       { id: 'startInFocus', label: focusPrefs.startInFocus ? tCommand('startInFocusOff') : tCommand('startInFocusOn'), group: tCommand('groupView'), keywords: 'fokus starta öppna alltid', run: () => setFocusPrefs({ startInFocus: !focusPrefs.startInFocus }) },
+      { id: 'elementBar', label: elementBar ? tCommand('elementBarOff') : tCommand('elementBarOn'), group: tCommand('groupView'), keywords: 'element rad knappar verktygsfält', run: () => setElementBar(!elementBar) },
       { id: 'shortcuts', label: tCommand('shortcuts'), group: tCommand('groupView'), keywords: 'genvägar tangenter tangentbord hotkeys', run: () => setShortcutsOpen(true) },
       {
         id: 'plain',
@@ -535,7 +539,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts],
+    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts, elementBar, setElementBar],
   );
 
   useHotkeys({
@@ -664,7 +668,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         <PageCanvas
           pageSize={pageSize}
           toolbar={
-            hydrated ? (
+            hydrated && elementBar ? (
               <ElementBar
                 current={element}
                 onChoose={(type) => editorRef.current?.switchElement(type)}

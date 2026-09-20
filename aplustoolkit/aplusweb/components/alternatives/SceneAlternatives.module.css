@@ -1,4 +1,4 @@
-.root { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); }
+.root { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); margin-top: var(--s-5); }
 .title { font-family: var(--font-mono); font-size: var(--t-micro); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); }
 .list { width: 100%; margin: 0; padding: 0; list-style: none; border: var(--hairline) solid var(--line-faint); border-radius: var(--r-md); overflow: hidden; }
 .row { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-2) var(--s-1) var(--s-3); border-bottom: var(--hairline) solid var(--line-faint); }

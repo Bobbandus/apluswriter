@@ -375,7 +375,9 @@
     "startInFocusOff": "Öppna inte i fokusläge",
     "plain": "Ren text: växla pappersyta av/på",
     "dual": "Dubbeldialog: växla för repliken",
-    "shortcuts": "Genvägar (ändra tangenter)"
+    "shortcuts": "Genvägar (ändra tangenter)",
+    "elementBarOn": "Visa elementraden över sidan",
+    "elementBarOff": "Dölj elementraden"
   },
   "settings": {
     "title": "Inställningar",

@@ -115,11 +115,11 @@ export function ExportSheet({ open, onClose, source, pageSize, pageCount, todoCo
           onChange={setFormat}
           fullWidth
           options={[
-            { value: 'pdf', label: t('formatPdf'), icon: 'export' },
-            { value: 'fountain', label: t('formatFountain'), icon: 'write' },
-            { value: 'fdx', label: t('formatFdx'), icon: 'export' },
-            { value: 'html', label: t('formatHtml'), icon: 'export' },
-            { value: 'csv', label: t('formatReport'), icon: 'reports' },
+            { value: 'pdf', label: t('formatPdf') },
+            { value: 'fountain', label: t('formatFountain') },
+            { value: 'fdx', label: t('formatFdx') },
+            { value: 'html', label: t('formatHtml') },
+            { value: 'csv', label: t('formatReport') },
           ]}
         />
 

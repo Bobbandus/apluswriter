@@ -375,7 +375,9 @@
     "startInFocusOff": "Do not open in focus mode",
     "plain": "Plain text: toggle the paper",
     "dual": "Dual dialogue: toggle for this speech",
-    "shortcuts": "Shortcuts (change keys)"
+    "shortcuts": "Shortcuts (change keys)",
+    "elementBarOn": "Show the element bar over the page",
+    "elementBarOff": "Hide the element bar"
   },
   "settings": {
     "title": "Settings",
