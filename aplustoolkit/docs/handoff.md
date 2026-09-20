@@ -130,3 +130,11 @@ Ordning: **skrivupplevelsen först**, sedan Shoot/Live, molnet (datasynk, delnin
 - **UI:** ren text-tema (läge oberoende av färgtema), mobil skrivvy (klart: under 900 px startar panelerna stängda och öppnas med sina knappar utan att ändra desktop-valet; snabbanteckning finns i Ctrl+K), splittvy, egna genvägar (klart: Ctrl+K "genvägar", `lib/shortcuts.ts`, krockskydd och reserverade tangenter; dubbel dialog klar: Ctrl+Skift+D + FDX). **Teman: Ljust, Mörkt, System (auto). Midnatt är borttaget och System finns (klart 2026-09-20; `lib/theme.ts`, `data-theme-pref`).**
 - **Shoot:** klappa och logga tagningar (scen, tagning, anteckning, per dag, export). **Live:** overlay för OBS (webbsida som lager, operatörsvy). Nej för nu: dagens inspelningslista, bordsläsning.
 - **Release:** jag får tagga v0.1.0 själv när nästa större del är klar och checklistan ovan är grön; be då bara användaren provköra installern.
+
+## Läge 2026-09-20: v0.1.0
+
+Allt som är planerat för skrivvyn är byggt: import/export (FDX, Highland, Word, rollsidor, titelsida), kommandopalett, sök och ersätt, stavningskontroll, ordräknare, story-dagar och energi, spegling till .fountain (desktop), fokusläge (dämpning, typewriter), snabbanteckning, dubbel dialog, egna genvägar, teman Ljust/Mörkt/System, ren text-läge, telefonbredd, Claude-kommandon (kort, aldrig ändring före Använd).
+
+Medvetet inte gjort (ur "färdigt nu", inte för många features): splittvy, minnesbubblor, Shoot (klappa/logga), Live (OBS-overlay), datasynk och delning/kommentarer/roller, MCP-läsare för revisioner. De ligger kvar i listorna ovan.
+
+**Taggad v0.1.0.** Release-flödet (`.github/workflows/release.yml`) stannar med ett tydligt fel om repo-secrets `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY` saknas, och publicerar Windows-installern om de finns. Det som kräver användaren: lägg in de två secrets (och kör om workflowen), Supabase-stegen, starta om Claude Desktop, provköra installern och punkterna i steg 5 ovan.
