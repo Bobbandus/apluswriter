@@ -440,6 +440,23 @@
     "extensionDownload": "Ladda ner",
     "connectClaudeButton": "Koppla in …"
   },
+  "cast": {
+    "title": "Roller och platser",
+    "characters": "Roller",
+    "locations": "Platser",
+    "relations": "Relationer",
+    "dictionary": "Manusordlistan …",
+    "noCharacters": "Ingen har någon replik än.",
+    "noLocations": "Inga scenrubriker än.",
+    "characterFacts": "{cues, plural, =1 {# replik} other {# repliker}} · {words} ord · {scenes, plural, =1 {# scen} other {# scener}}",
+    "nodeFacts": "{cues, plural, =1 {# replik} other {# repliker}} · {words} ord",
+    "sceneCount": "{count, plural, =1 {# scen} other {# scener}}",
+    "rename": "Byt namn",
+    "renameEverywhere": "Byt namn överallt",
+    "needTwo": "Relationskartan behöver minst två talande roller.",
+    "mapCaption": "Ju tjockare linje, desto fler scener delar de. Ju större cirkel, desto fler ord.",
+    "omitted": "{count, plural, =1 {# roll till visas inte.} other {# roller till visas inte.}}"
+  },
   "todos": {
     "title": "Att göra",
     "tab": "Att göra",

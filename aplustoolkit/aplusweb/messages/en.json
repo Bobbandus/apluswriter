@@ -440,6 +440,23 @@
     "extensionDownload": "Download",
     "connectClaudeButton": "Connect …"
   },
+  "cast": {
+    "title": "Characters and locations",
+    "characters": "Characters",
+    "locations": "Locations",
+    "relations": "Relationships",
+    "dictionary": "Script dictionary …",
+    "noCharacters": "Nobody has a line yet.",
+    "noLocations": "No scene headings yet.",
+    "characterFacts": "{cues, plural, =1 {# line} other {# lines}} · {words} words · {scenes, plural, =1 {# scene} other {# scenes}}",
+    "nodeFacts": "{cues, plural, =1 {# line} other {# lines}} · {words} words",
+    "sceneCount": "{count, plural, =1 {# scene} other {# scenes}}",
+    "rename": "Rename",
+    "renameEverywhere": "Rename everywhere",
+    "needTwo": "The relationship map needs at least two speaking characters.",
+    "mapCaption": "The thicker the line, the more scenes they share. The bigger the circle, the more words.",
+    "omitted": "{count, plural, =1 {# more character is not shown.} other {# more characters are not shown.}}"
+  },
   "todos": {
     "title": "To do",
     "tab": "To do",

@@ -73,9 +73,9 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
 - [x] 2.6 MCPB-tillägget (`scripts/build-mcpb.mjs`, validerat och uppackat + kört) och nedladdningsbannern. Ej verifierat: Claude Desktops installationsruta, och flera mappar i mappväljaren.
 
-**Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [ ] **▶ NÄSTA: 3.4** roll-/platspaneler + relationskarta · [x] 3.5 Att göra-panel (`components/todos/`, `packages/fountain/todos.ts`)
+**Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [x] 3.4 roll-/platspaneler + relationskarta (`components/cast/`, `packages/fountain/relations.ts`) · [x] 3.5 Att göra-panel (`components/todos/`, `packages/fountain/todos.ts`)
 
-**Fas 4 — M8 Revisioner:** [ ] 4.1 lagring · [ ] 4.2 versionsmeny + auto-ögonblicksbilder · [ ] 4.3 PDF-asterisker · [ ] 4.4 scenalternativ · [ ] 4.5 MCP-läsverktyg
+**Fas 4 — M8 Revisioner:** [ ] **▶ NÄSTA: 4.1** lagring · [ ] 4.2 versionsmeny + auto-ögonblicksbilder · [ ] 4.3 PDF-asterisker · [ ] 4.4 scenalternativ · [ ] 4.5 MCP-läsverktyg
 
 **Fas 5 — M9 Import/export:** [ ] FDX/HTML/sidor/rapporter ut · [ ] FDX/Highland/Word in · [ ] titelsidesformulär
 

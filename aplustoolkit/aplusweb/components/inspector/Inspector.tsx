@@ -12,7 +12,8 @@ import styles from './Inspector.module.css';
 
 export interface InspectorProps {
   onOpenSettings: () => void;
-  onOpenDictionary: () => void;
+  /** Who is in the script and where it takes place. */
+  onOpenCast: () => void;
   scene?: SceneIndexEntry | undefined;
   script: ScriptSummary;
   /** Extra sections for the scene, such as its shotlist. */
@@ -26,7 +27,7 @@ export interface InspectorProps {
  * tags. With nothing selected it falls back to the shape of the whole script,
  * which is the number a writer actually wants at a glance.
  */
-export function Inspector({ onOpenSettings, onOpenDictionary, scene, script, extra }: InspectorProps) {
+export function Inspector({ onOpenSettings, onOpenCast, scene, script, extra }: InspectorProps) {
   const t = useTranslations('common');
   const tSettings = useTranslations('settings');
   const tNav = useTranslations('navigator');
@@ -36,7 +37,7 @@ export function Inspector({ onOpenSettings, onOpenDictionary, scene, script, ext
   const settingsButton = (
     <>
     <Tooltip label={tChars('title')} placement="left">
-      <Button variant="ghost" size="sm" icon="characters" aria-label={tChars('title')} onClick={onOpenDictionary} />
+      <Button variant="ghost" size="sm" icon="characters" aria-label={tChars('title')} onClick={onOpenCast} />
     </Tooltip>
     <Tooltip label={tSettings('title')} shortcut="mod+," placement="left">
       <Button

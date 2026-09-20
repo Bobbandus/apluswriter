@@ -1,0 +1,121 @@
+.body {
+  margin-top: var(--s-4);
+}
+
+.empty {
+  padding: var(--s-6) 0;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--hairline) solid var(--line-faint);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: var(--s-1) var(--s-2) var(--s-1) var(--s-3);
+  border-bottom: var(--hairline) solid var(--line-faint);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.main:hover .name {
+  color: var(--accent-text);
+}
+
+.name {
+  display: block;
+  font-family: var(--font-script);
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.facts {
+  display: block;
+  margin-top: 1px;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+
+.input {
+  flex: 1;
+  min-height: 32px;
+  padding: 0 var(--s-3);
+  border: var(--hairline) solid var(--accent);
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-family: var(--font-script);
+  font-size: var(--t-body);
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------- relationship map */
+
+.map {
+  margin: 0;
+}
+
+.map svg {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.edge {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.node circle {
+  fill: var(--bg-raised);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.node text {
+  font-family: var(--font-script);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text);
+  pointer-events: none;
+}
+
+.node {
+  cursor: default;
+}
+
+.node:hover circle {
+  fill: var(--accent-soft);
+}
+
+.caption {
+  margin-top: var(--s-3);
+  font-size: var(--t-small);
+  line-height: 1.45;
+  text-align: center;
+  color: var(--text-muted);
+}

@@ -19,6 +19,7 @@ import { reorderScenes } from '@aplus/fountain/structure';
 import { removeTodo } from '@aplus/fountain/todos';
 import { TodoPanel, type TodoItem } from '@/components/todos/TodoPanel';
 import type { SceneIndexEntry } from '@aplus/fountain/types';
+import { CastSheet } from '@/components/cast/CastSheet';
 import { IndexCardBoard } from '@/components/cards/IndexCardBoard';
 import { PageCanvas } from '@/components/editor/PageCanvas';
 import { ScriptEditor, type ScriptEditorHandle } from '@/components/editor/ScriptEditor';
@@ -73,6 +74,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
+  const [castOpen, setCastOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
@@ -267,6 +269,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
 
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
+  const openCast = useCallback(() => setCastOpen(true), []);
 
   /* What the open script teaches the stored dictionary.
      Only names the writer has finished and moved on from, and only after a
@@ -389,7 +392,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
             scene={
               <Inspector
                 onOpenSettings={openSettings}
-                onOpenDictionary={openDictionary}
+                onOpenCast={openCast}
                 scene={scene}
                 script={script}
                 extra={(() => {
@@ -489,6 +492,22 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         onCardsChange={setCardsEnabled}
         styleGuide={styleGuide}
         onStyleGuideChange={setStyleGuide}
+      />
+      <CastSheet
+        open={castOpen}
+        onClose={() => setCastOpen(false)}
+        characters={script.characters}
+        locations={script.locations}
+        scenes={script.scenes}
+        onReveal={(offset) => {
+          setCastOpen(false);
+          editorRef.current?.revealOffset(offset);
+        }}
+        onRename={(from, to) => replaceDictionaryValue('character', from, to)}
+        onOpenDictionary={() => {
+          setCastOpen(false);
+          setDictionaryOpen(true);
+        }}
       />
       <DictionarySheet
         open={dictionaryOpen}
