@@ -79,7 +79,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 
 **Fas 5 — M9 Import/export:** [~] FDX ut klar (`packages/export/fdx.ts`, betoning bold/kursiv följer inte med än) · [x] HTML ut (`html.ts`) · [x] rapporter CSV (`reports.ts`: scener, roller, platser) · [x] rollsidor som PDF (`serializeSides(..., {numbered:true})` i exportens "Bara en roll"; manusets egna scennummer, ingen titelsida/ändringsmarkering) · [x] FDX in (`packages/fountain/importFdx.ts`, via Importera fil; ingen förhandsgranskning eftersom det alltid blir ett nytt projekt; rundtur mot exporten testad på Big Fish) · [x] Highland + Word in (`packages/fountain/importZip.ts`, `fflate`; Highland är säker, Word är gissningar från versaler/indrag, ger alltid nytt projekt; verifierat i webbläsaren) · [x] titelsidesformulär (`packages/fountain/titlePage.ts`, `TitlePageSheet`, öppnas från exportarket; okända nycklar som Revision lämnas orörda)
 
-**Fas 6 — M10 Polish:** [ ] kommandopalett · [ ] sök & ersätt · [ ] stavningskontroll · [ ] datasynk · [ ] spegling till filer · [ ] skrivpass + fokus · [ ] delning/kommentarer/roller · [ ] story-dagar + energikurva
+**Fas 6 — M10 Polish:** [x] kommandopalett (`lib/commands.ts`, `CommandPalette`, Ctrl+K: scener, sektioner, ark, vyer) · [ ] **▶ NÄSTA:** sök & ersätt · [ ] stavningskontroll · [ ] datasynk · [ ] spegling till filer · [ ] skrivpass + fokus · [ ] delning/kommentarer/roller · [ ] story-dagar + energikurva
 
 **Fas 7 — Putsning** efter varje fas (skärmdumpar Ljust/Mörkt/Midnatt, desktop + mobil).
 

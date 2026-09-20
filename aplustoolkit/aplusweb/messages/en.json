@@ -316,7 +316,16 @@
     "groupElement": "Element",
     "groupView": "View",
     "groupScript": "Script",
-    "groupProject": "Project"
+    "groupProject": "Project",
+    "export": "Export script",
+    "titlePage": "Edit title page",
+    "versions": "Versions",
+    "cast": "Roles and locations",
+    "dictionary": "Dictionary",
+    "viewScript": "Show script",
+    "viewCards": "Show index cards",
+    "settings": "Settings",
+    "projects": "All projects"
   },
   "settings": {
     "title": "Settings",

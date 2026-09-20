@@ -33,6 +33,8 @@ import type { LineType } from '@aplus/fountain/lineClassify';
 import { SettingsSheet } from '@/components/settings/SettingsSheet';
 import { DictionarySheet } from '@/components/dictionary/DictionarySheet';
 import { TitlePageSheet } from '@/components/export/TitlePageSheet';
+import { CommandPalette } from '@/components/command/CommandPalette';
+import type { Command } from '@/lib/commands';
 import { ExportSheet } from '@/components/export/ExportSheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useHotkeys } from '@/lib/hooks/useHotkeys';
@@ -84,6 +86,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const [versionsOpen, setVersionsOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [titleOpen, setTitleOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   /* The document, kept safe by the sync engine: IndexedDB first, then the
      cloud if the project lives there. See lib/storage/sync.ts. */
   const doc = useProjectDocument(projectId, t('untitled'));
@@ -391,6 +394,40 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, pageCount, sceneCount]);
 
+  const tCommand = useTranslations('command');
+  const commands = useMemo<Command[]>(
+    () => [
+      { id: 'export', label: tCommand('export'), group: tCommand('groupScript'), keywords: 'pdf fdx html csv fountain sidor rapport', shortcut: 'mod+e', run: () => setExportOpen(true) },
+      { id: 'titlePage', label: tCommand('titlePage'), group: tCommand('groupScript'), keywords: 'titel författare kontakt', run: () => setTitleOpen(true) },
+      { id: 'versions', label: tCommand('versions'), group: tCommand('groupScript'), keywords: 'revision utkast ögonblicksbild historik', run: () => setVersionsOpen(true) },
+      { id: 'cast', label: tCommand('cast'), group: tCommand('groupScript'), keywords: 'roller platser relationer karaktärer', run: () => setCastOpen(true) },
+      { id: 'dictionary', label: tCommand('dictionary'), group: tCommand('groupScript'), keywords: 'ordlista autocomplete', run: () => setDictionaryOpen(true) },
+      { id: 'viewScript', label: tCommand('viewScript'), group: tCommand('groupView'), keywords: 'manus editor', run: () => setView('script') },
+      { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
+      { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: 'mod+,', run: () => setSettingsOpen(true) },
+      { id: 'projects', label: tCommand('projects'), group: tCommand('groupProject'), keywords: 'hem alla', run: () => router.push('/plan/write') },
+      ...script.sections.map((section, index) => ({
+        id: `scene:section:${index}`,
+        label: `${'  '.repeat(Math.max(0, section.depth - 1))}§ ${section.title}`,
+        group: tCommand('groupNavigate'),
+        run: () => {
+          setView('script');
+          editorRef.current?.revealOffset(section.from);
+        },
+      })),
+      ...script.scenes.map((target, index) => ({
+        id: `scene:${index}`,
+        label: `${target.sceneNumber ?? index + 1}  ${target.heading}`,
+        group: tCommand('groupNavigate'),
+        run: () => {
+          setView('script');
+          editorRef.current?.revealOffset(target.from);
+        },
+      })),
+    ],
+    [tCommand, script.sections, script.scenes, router],
+  );
+
   useHotkeys({ 'mod+,': openSettings, 'mod+e': () => setExportOpen(true) });
 
   // The scene the caret is in, so the navigator and inspector follow along.
@@ -413,6 +450,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         // than claiming the work is safe.
         saveState={hydrated ? doc.state : null}
         onExport={() => setExportOpen(true)}
+        onOpenCommandPalette={() => setPaletteOpen(true)}
         view={view}
         onViewChange={setView}
         version={
@@ -547,6 +585,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         roles={script.characters.map((character) => character.name)}
         onEditTitlePage={() => setTitleOpen(true)}
       />
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
 
       <TitlePageSheet
         open={titleOpen}

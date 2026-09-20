@@ -316,7 +316,16 @@
     "groupElement": "Element",
     "groupView": "Visa",
     "groupScript": "Manus",
-    "groupProject": "Projekt"
+    "groupProject": "Projekt",
+    "export": "Exportera manus",
+    "titlePage": "Redigera titelsida",
+    "versions": "Versioner",
+    "cast": "Roller och platser",
+    "dictionary": "Ordlista",
+    "viewScript": "Visa manus",
+    "viewCards": "Visa indexkort",
+    "settings": "Inställningar",
+    "projects": "Alla projekt"
   },
   "settings": {
     "title": "Inställningar",
