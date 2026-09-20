@@ -31,12 +31,22 @@ import {
 } from '@/components/editor/fountain/settings';
 import type { PageSize } from '@aplus/paginator/geometry';
 import {
-  completedCharactersFromScript,
+  addLearned,
   dictionaryFromScript,
+  learnFromSource,
+  learnedFrom,
   mergeDictionary,
   type DictionaryData,
   type DictionaryKind,
 } from '@aplus/fountain/autocomplete';
+
+/**
+ * How long the writer must pause before the dictionary learns anything.
+ *
+ * Long enough that a name is not learned between two keystrokes, short enough
+ * that a cue typed a moment ago is offered in the next scene.
+ */
+const LEARN_DELAY = 800;
 
 export interface ProjectWorkspaceProps {
   projectId: string;
@@ -167,30 +177,32 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const openDictionary = useCallback(() => setDictionaryOpen(true), []);
 
-  // The persistent dictionary only remembers characters who have spoken at least
-  // one completed line of dialogue (words > 0) or words added manually.
-  // In-progress or deleted cues stay dynamic via dictionaryFromScript and never pollute storage.
+  /* What the open script teaches the stored dictionary.
+     Only names the writer has finished and moved on from, and only after a
+     pause — typing ERIK passes through E, ER and ERI, and remembering those
+     would leave three ghosts behind that outlive the script they came from.
+     Everything currently in the script is offered by autofinish regardless,
+     through dictionaryFromScript below; this is only about what survives. */
+  const learnable = script.learnable;
   useEffect(() => {
-    const completedCharacters = completedCharactersFromScript(script);
-    if (completedCharacters.length === 0) return;
-    setDictionary((current) => {
-      const added = completedCharacters.filter((name) => !current.characters.includes(name));
-      if (added.length === 0) return current;
-      return {
-        ...current,
-        characters: [...current.characters, ...added],
-      };
-    });
-  }, [script.characters, setDictionary]);
+    if (learnable.length === 0) return;
+    const timer = window.setTimeout(() => {
+      const learned = learnedFrom(learnable, caret);
+      setDictionary((current) => addLearned(current, learned));
+    }, LEARN_DELAY);
+    return () => window.clearTimeout(timer);
+  }, [learnable, caret, setDictionary]);
 
   const addDictionaryValue = useCallback((kind: DictionaryKind, value: string) => {
-    const trimmed = value.trim();
+    // Cues and locations are upper case everywhere else in the dictionary;
+    // a tag is written as the writer typed it.
+    const trimmed = kind === 'tag' ? value.trim() : value.trim().toLocaleUpperCase();
     if (!trimmed) return;
-    const val = kind === 'character' ? trimmed.toUpperCase() : trimmed;
-    setDictionary((current) => ({
-      ...current,
-      [`${kind}s`]: [...new Set([...(current[`${kind}s` as "characters" | "locations" | "tags"] || []), val])],
-    }) as DictionaryData);
+    setDictionary((current) => {
+      const key = `${kind}s` as 'characters' | 'locations' | 'tags';
+      if (current[key].some((item) => item.toLocaleUpperCase() === trimmed.toLocaleUpperCase())) return current;
+      return { ...current, [key]: [...current[key], trimmed] };
+    });
   }, [setDictionary]);
 
   const replaceDictionaryValue = useCallback((kind: DictionaryKind, from: string, to: string) => {
@@ -222,13 +234,12 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
     removeDictionaryValue(kind, from);
   }, [removeDictionaryValue, replaceDictionaryValue]);
 
+  /* "Rebuild from the script" replaces the lists outright, as the sheet says
+     it does. That is the way out of a dictionary that has learned something
+     the writer has since renamed or abandoned. */
   const rebuildDictionary = useCallback(() => {
-    setDictionary((current) => ({
-      characters: [...new Set([...current.characters.filter((c) => !script.characters.some((sc) => sc.name === c)), ...completedCharactersFromScript(script)])],
-      locations: current.locations,
-      tags: current.tags,
-    }));
-  }, [script.characters, setDictionary]);
+    setDictionary(learnFromSource(sourceRef.current));
+  }, [setDictionary]);
   const autocompleteDictionary = useMemo(() => mergeDictionary(dictionary, dictionaryFromScript(script)), [dictionary, script]);
 
   // Page and scene counts for the dashboard, from the same pagination as the PDF.

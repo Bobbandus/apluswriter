@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 
+import { learnCandidates, type LearnCandidate } from './autocomplete';
 import { parse } from './parse';
 import type { Script } from './types';
 import { paginate } from '../paginator/paginate';
@@ -40,6 +41,13 @@ export interface ScriptSummary {
   characters: Script['characters'];
   locations: Script['locations'];
   todos: Script['todos'];
+  /**
+   * Names the script is ready to teach the dictionary, each with the range it
+   * was read from. The caret test happens on the main thread, where the caret
+   * actually is — sending it here on every keystroke would undo the point of
+   * having a worker at all.
+   */
+  learnable: LearnCandidate[];
   elementCount: number;
   /** Milliseconds the parse took, for the performance budget. */
   parseMs: number;
@@ -68,6 +76,7 @@ export function summarize(source: string, layout?: LayoutOptions): ScriptSummary
     characters: script.characters,
     locations: script.locations,
     todos: script.todos,
+    learnable: learnCandidates(script),
     elementCount: script.elements.length,
     parseMs: performance.now() - started,
     layout: pages,

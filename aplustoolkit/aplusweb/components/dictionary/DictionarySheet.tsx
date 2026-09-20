@@ -15,7 +15,8 @@ export interface DictionarySheetProps {
   onRemove: (kind: DictionaryKind, value: string) => void;
   onMerge: (kind: DictionaryKind, from: string, into: string) => void;
   onRebuild: () => void;
-  onAdd?: (kind: DictionaryKind, value: string) => void;
+  /** Teach a word by hand, for one that will never be written in the script. */
+  onAdd: (kind: DictionaryKind, value: string) => void;
 }
 
 const KINDS: DictionaryKind[] = ['character', 'location', 'tag'];
@@ -33,6 +34,14 @@ export function DictionarySheet(props: DictionarySheetProps) {
     character: tChars('title'), location: tLocs('title'), tag: tAuto('tags'),
   };
   const values = (kind: DictionaryKind) => props.dictionary[`${kind}s` as keyof DictionaryData] as string[];
+
+  const submitNew = (kind: DictionaryKind) => {
+    const value = newValues[kind].trim();
+    if (!value) return;
+    props.onAdd(kind, value);
+    setNewValues((prev) => ({ ...prev, [kind]: '' }));
+  };
+
   const options = useMemo(() => (editing ? values(editing.kind).filter((value) => value !== editing.value) : []), [editing, props.dictionary]);
 
   return (
@@ -55,43 +64,24 @@ export function DictionarySheet(props: DictionarySheetProps) {
               ))}
             </ul>
           )}
-          {props.onAdd && (
-            <div style={{ display: 'flex', gap: 'var(--s-2)', marginTop: 'var(--s-2)' }}>
-              <input
-                style={{
-                  flex: 1,
-                  minHeight: 32,
-                  padding: '0 var(--s-3)',
-                  border: 'var(--hairline) solid var(--line-strong)',
-                  borderRadius: 'var(--r-sm)',
-                  background: 'var(--bg-raised)',
-                  color: 'var(--text)',
-                  font: 'inherit',
-                }}
-                placeholder={`${t('addItem')}...`}
-                value={newValues[kind]}
-                onChange={(e) => setNewValues((prev) => ({ ...prev, [kind]: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && newValues[kind].trim()) {
-                    props.onAdd!(kind, newValues[kind].trim());
-                    setNewValues((prev) => ({ ...prev, [kind]: '' }));
-                  }
-                }}
-              />
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  if (newValues[kind].trim()) {
-                    props.onAdd!(kind, newValues[kind].trim());
-                    setNewValues((prev) => ({ ...prev, [kind]: '' }));
-                  }
-                }}
-              >
-                {t('addItem')}
-              </Button>
-            </div>
-          )}
+          <form
+            className={styles.add}
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitNew(kind);
+            }}
+          >
+            <input
+              className={styles.addInput}
+              value={newValues[kind]}
+              aria-label={`${t('addItem')} — ${labels[kind]}`}
+              placeholder={t('addPlaceholder')}
+              onChange={(event) => setNewValues((prev) => ({ ...prev, [kind]: event.target.value }))}
+            />
+            <Button type="submit" size="sm" variant="secondary" disabled={!newValues[kind].trim()}>
+              {t('addItem')}
+            </Button>
+          </form>
         </section>
       ))}
 

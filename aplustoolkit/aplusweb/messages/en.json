@@ -130,6 +130,7 @@
     "renameEverywhere": "Rename everywhere",
     "renameEverywhereHint": "Updates cues, extensions and CAST lines across the script.",
     "addItem": "Add",
+    "addPlaceholder": "Add a word yourself",
     "occurrences": "{count, plural, =1 {# occurrence} other {# occurrences}}"
   },
   "characters": {

@@ -130,6 +130,7 @@
     "renameEverywhere": "Byt namn överallt",
     "renameEverywhereHint": "Uppdaterar repliker, tillägg och CAST-rader i hela manuset.",
     "addItem": "Lägg till",
+    "addPlaceholder": "Lägg till ett ord själv",
     "occurrences": "{count, plural, =1 {# förekomst} other {# förekomster}}"
   },
   "characters": {

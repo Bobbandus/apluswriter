@@ -10,6 +10,7 @@ const EMPTY: ScriptSummary = {
   characters: [],
   locations: [],
   todos: [],
+  learnable: [],
   elementCount: 0,
   parseMs: 0,
   layout: null,

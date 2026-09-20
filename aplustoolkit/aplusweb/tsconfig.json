@@ -5,19 +5,32 @@
     // rather than inherited — `../tsconfig.json` states them relative to the
     // repository root.
     "paths": {
-      "@/*": ["./*"],
-      "@aplus/fountain/*": ["../packages/fountain/*"],
-      "@aplus/paginator/*": ["../packages/paginator/*"],
-      "@aplus/export/*": ["../packages/export/*"],
-      "@aplus/bridge/*": ["../packages/bridge/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@aplus/fountain/*": [
+        "../packages/fountain/*"
+      ],
+      "@aplus/paginator/*": [
+        "../packages/paginator/*"
+      ],
+      "@aplus/export/*": [
+        "../packages/export/*"
+      ],
+      "@aplus/bridge/*": [
+        "../packages/bridge/*"
+      ]
     }
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "../packages/**/*.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    ".next-verify/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
