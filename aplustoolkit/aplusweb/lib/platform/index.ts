@@ -37,3 +37,52 @@ export function capabilities(): PlatformCapabilities {
     nativeMenu: desktop,
   };
 }
+
+/** A script the shell was asked to open, read off disk by the main process. */
+export interface OpenedScript {
+  /** The filename without its extension — the project's name unless the text says otherwise. */
+  name: string;
+  path: string;
+  text: string;
+}
+
+export interface AppInfo {
+  version: string;
+  updateReady: boolean;
+  /** The version waiting to be installed, when one is. */
+  updateVersion: string;
+}
+
+/**
+ * What `aplusdesktop/preload.cjs` puts on the page.
+ *
+ * Every call is optional: an older installed shell will not have the newest
+ * ones, and the web build has none of them. Ask for one, check it is there,
+ * and have an answer for when it is not.
+ */
+export interface DesktopApi {
+  platform?: 'mac' | 'win' | 'linux';
+  bridgeInfo?: () => Promise<{ port: number; token: string } | null>;
+  saveFile?: (name: string, bytes: Uint8Array) => Promise<boolean>;
+  setupClaude?: () => Promise<unknown>;
+  mirrorFolder?: () => Promise<string | null>;
+  mirrorChoose?: () => Promise<string | null>;
+  mirrorClear?: () => Promise<null>;
+  mirrorWrite?: (id: string, title: string, text: string) => Promise<unknown>;
+  appInfo?: () => Promise<AppInfo>;
+  restartToUpdate?: () => Promise<boolean>;
+  onUpdateReady?: (fn: (info: { version: string }) => void) => () => void;
+  takeOpenFiles?: () => Promise<OpenedScript[]>;
+  onOpenFiles?: (fn: (files: OpenedScript[]) => void) => () => void;
+}
+
+/**
+ * The shell's calls, or null in a browser.
+ *
+ * The house rule above says only this module tests for Electron. Four older
+ * call sites still declare their own shape and cast; new code asks here.
+ */
+export function desktopApi(): DesktopApi | null {
+  if (typeof window === 'undefined') return null;
+  return (window as { aplusDesktop?: DesktopApi }).aplusDesktop ?? null;
+}

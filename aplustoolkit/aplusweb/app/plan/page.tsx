@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { ToolCard } from '@/components/toolkit/ToolCard';
 import { ToolkitPage } from '@/components/toolkit/ToolkitPage';
+import { DesktopDownloadBanner } from '@/components/desktop/DesktopDownloadBanner';
 import grid from '@/components/toolkit/ToolGrid.module.css';
 
 /** A+ Plan: what happens before the camera rolls. */
@@ -14,6 +15,7 @@ export default async function PlanHome() {
         <ToolCard href="/plan/shotlist" image="shotlisthero.png" title={t('shotlist.title')} blurb={t('shotlist.blurb')} soonLabel={t('soon')} openLabel={t('open')} />
         <ToolCard href="/plan/casting" image="castinghero.png" title={t('casting.title')} blurb={t('casting.blurb')} soonLabel={t('soon')} openLabel={t('open')} />
       </div>
+      <DesktopDownloadBanner />
     </ToolkitPage>
   );
 }

@@ -2,6 +2,9 @@ name: Release
 
 # Cutting a release is pushing a tag. Nothing else publishes anything:
 # every other push just deploys the site through Vercel.
+#
+# workflow_dispatch builds the same thing and publishes nothing, so the whole
+# chain can be exercised without spending a version number on it.
 on:
   push:
     tags: ['v*']
@@ -13,6 +16,10 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      # The one thing that decides whether this run ships anything.
+      TAGGED: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,20 +27,30 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: aplustoolkit/package-lock.json
+          # Two installs, two lockfiles. The shell's own tree pulls Electron,
+          # which is the biggest download in the job, so it wants caching most.
+          cache-dependency-path: |
+            aplustoolkit/package-lock.json
+            aplustoolkit/aplusdesktop/package-lock.json
 
       # electron-builder publishes to the release matching the version in
       # package.json, not the tag. When they disagree it quietly builds the
-      # wrong one, so they are compared here instead.
+      # wrong one, so they are compared here instead. The lockfile carries the
+      # version too, and forgetting it is the easiest mistake to make.
       - name: The tag and the app version must agree
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: env.TAGGED == 'true'
         shell: bash
         run: |
           tag="${GITHUB_REF_NAME#v}"
           app=$(node -p "require('./aplustoolkit/aplusdesktop/package.json').version")
-          echo "tag=$tag  package.json=$app"
+          lock=$(node -p "require('./aplustoolkit/aplusdesktop/package-lock.json').version")
+          echo "tag=$tag  package.json=$app  package-lock.json=$lock"
           if [ "$tag" != "$app" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match aplusdesktop/package.json ($app). Bump the version, commit, then tag."
+            exit 1
+          fi
+          if [ "$lock" != "$app" ]; then
+            echo "::error::aplusdesktop/package-lock.json says $lock but package.json says $app. Run npm install there and commit the lockfile."
             exit 1
           fi
 
@@ -49,9 +66,19 @@ jobs:
         working-directory: aplustoolkit
         run: npm run check
 
-      # The Supabase keys are baked into the bundle at build time. Without
-      # them the installed app has no sign-in at all, so this must not be
-      # allowed to succeed quietly.
+      # The release notes come out of CHANGELOG.md, so the text on GitHub and
+      # the text in the repository can never drift apart. Done before the long
+      # build, because a missing section should fail in seconds, not minutes.
+      - name: Read the release notes
+        if: env.TAGGED == 'true'
+        working-directory: aplustoolkit
+        shell: bash
+        run: node scripts/release-notes.mjs "${GITHUB_REF_NAME}" > notes.md
+
+      # The Supabase keys are baked into the bundle at build time. Without them
+      # the installed app still works — every project is stored on the machine
+      # it was written on — but there is no sign-in and no cloud sync. That is
+      # a real difference, so it is said out loud rather than failing the build.
       - name: Build the bundle
         working-directory: aplustoolkit
         env:
@@ -60,27 +87,94 @@ jobs:
         shell: bash
         run: |
           if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "::error::Missing repository secrets NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY."
-            exit 1
+            echo "::warning::No NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY secrets. This build has no sign-in and no cloud sync; it stores everything locally."
           fi
           npm run desktop:build
 
-      - name: Build the installer and publish it
+      # Built without publishing, so the smoke test gets to look at the result
+      # before anyone can download it.
+      - name: Build the installer
+        working-directory: aplustoolkit/aplusdesktop
+        run: npx electron-builder --win --publish never
+
+      # Auto-update reads latest.yml off the release. Nothing used to check it
+      # was produced, and a release without it can never offer an update.
+      - name: The updater's files must exist
+        working-directory: aplustoolkit/aplusdesktop/release
+        shell: bash
+        run: |
+          missing=0
+          for f in A-Plus-Toolkit-Setup.exe latest.yml; do
+            if [ ! -f "$f" ]; then echo "::error::electron-builder did not produce $f"; missing=1; fi
+          done
+          ls -1 *.blockmap >/dev/null 2>&1 || echo "::warning::no .blockmap — differential updates will fall back to a full download"
+          [ "$missing" = "0" ] || exit 1
+          echo "--- latest.yml ---"
+          cat latest.yml
+
+      # main.cjs has had a smoke mode all along and nothing ever ran it: start
+      # the packed app, report what the page and the preload actually exposed,
+      # quit. Advisory — a runner without a GPU is not a reason to hold a
+      # release — but the output is in the log when something is wrong.
+      - name: Smoke-test the packed app
+        continue-on-error: true
         working-directory: aplustoolkit/aplusdesktop
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --win --publish always
+          APLUS_SMOKE: '1'
+        shell: bash
+        run: |
+          exe="release/win-unpacked/A+ Toolkit.exe"
+          if [ ! -f "$exe" ]; then
+            echo "::warning::no unpacked build to smoke-test"
+            exit 0
+          fi
+          # It quits itself once the page has loaded; the timeout is only there
+          # so a shell that never starts cannot hold the job open.
+          timeout 240 "$exe" | tee smoke.log || true
+          grep -q '^SMOKE ' smoke.log || { echo "::warning::the app never reported SMOKE"; exit 1; }
 
-      # The Claude Desktop extension goes on the same release, so a web user
-      # who cannot open the desktop app can still install it.
-      - name: Attach the Claude extension to the release
-        working-directory: aplustoolkit
+      - name: Publish the release
+        if: env.TAGGED == 'true'
+        working-directory: aplustoolkit/aplusdesktop/release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          npm run mcpb
-          gh release upload "$GITHUB_REF_NAME" aplusdesktop/release/aplus-toolkit.mcpb --clobber
+          tag="$GITHUB_REF_NAME"
+          notes="../../notes.md"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --title "A+ Toolkit $tag" --notes-file "$notes"
+          else
+            gh release edit "$tag" --title "A+ Toolkit $tag" --notes-file "$notes"
+          fi
+          # The Claude Desktop extension rides along, so someone who cannot open
+          # the desktop app can still install it. desktop:build already made it,
+          # but electron-builder owns this folder, so make sure it survived.
+          if [ ! -f aplus-toolkit.mcpb ]; then
+            (cd ../.. && npm run mcpb)
+          fi
+          gh release upload "$tag" \
+            A-Plus-Toolkit-Setup.exe \
+            latest.yml \
+            aplus-toolkit.mcpb \
+            --clobber
+          for f in *.blockmap; do
+            [ -e "$f" ] && gh release upload "$tag" "$f" --clobber
+          done
+
+      # The download link on the site points at these names. If one is missing
+      # the release looks finished and is not.
+      - name: The release must carry what the site links to
+        if: env.TAGGED == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          names=$(gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name')
+          echo "$names"
+          for want in A-Plus-Toolkit-Setup.exe latest.yml aplus-toolkit.mcpb; do
+            echo "$names" | grep -qx "$want" || { echo "::error::$want is not on the release"; exit 1; }
+          done
 
       - uses: actions/upload-artifact@v4
         with:

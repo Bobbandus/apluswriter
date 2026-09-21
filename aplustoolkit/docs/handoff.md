@@ -70,7 +70,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 - [x] 2.2 Desktop startar inbyggd server
 - [x] 2.3 electron-builder, ikon, NSIS — `npm run desktop:build` sedan `npm run desktop:dist`, ger `aplusdesktop/release/A-Plus-Toolkit-Setup.exe` (107 MB)
 - [x] 2.4 Auto-uppdatering + bevis A (lokalt, 0.1.0 → 0.1.1 bevisat)
-- [~] 2.5 GitHub Actions klar (`.github/workflows/release.yml`). Kvar: bevis B — kräver att du lägger in secrets och taggar. Se "Släppa en version".
+- [x] 2.5 GitHub Actions. **v0.1.0-releasen blev aldrig av**: körningen stoppade på vaktsteget för Supabase-secrets, så det fanns noll releaser och nedladdningslänken i appen pekade på en fil som inte fanns. I 0.2.0 är vakten en varning i stället — saknas nycklar byggs appen ändå och kör lokalt. Flödet kontrollerar nu att `latest.yml` och låsfilens version stämmer, rökprovar den packade appen, tar release-texten ur `CHANGELOG.md`, och `workflow_dispatch` är ett testbygge utan publicering. Kvar: bevis B (auto-uppdatering mot en riktig release) kräver en version till efter 0.2.0.
 - [x] 2.6 MCPB-tillägget (`scripts/build-mcpb.mjs`, validerat och uppackat + kört) och nedladdningsbannern. Ej verifierat: Claude Desktops installationsruta, och flera mappar i mappväljaren.
 
 **Fas 3 — M7 Struktur:** [x] 3.1 sektioner i navigator (`packages/fountain/outline.ts`) · [x] 3.2 `reorderScenes` (`packages/fountain/structure.ts`) · [x] 3.3 indexkort med drag (`components/cards/`) · [x] 3.4 roll-/platspaneler + relationskarta (`components/cast/`, `packages/fountain/relations.ts`) · [x] 3.5 Att göra-panel (`components/todos/`, `packages/fountain/todos.ts`)
@@ -138,6 +138,35 @@ Allt som är planerat för skrivvyn är byggt: import/export (FDX, Highland, Wor
 Medvetet inte gjort (ur "färdigt nu", inte för många features): splittvy, minnesbubblor, Shoot (klappa/logga), Live (OBS-overlay), datasynk och delning/kommentarer/roller, MCP-läsare för revisioner. De ligger kvar i listorna ovan.
 
 **Taggad v0.1.0.** Release-flödet (`.github/workflows/release.yml`) stannar med ett tydligt fel om repo-secrets `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY` saknas, och publicerar Windows-installern om de finns. Det som kräver användaren: lägg in de två secrets (och kör om workflowen), Supabase-stegen, starta om Claude Desktop, provköra installern och punkterna i steg 5 ovan.
+
+## Läge 2026-09-21: v0.2.0, nedladdning
+
+Releasen v0.1.0 fanns bara som tagg — bygget stoppade och ingen fil blev publicerad.
+Det är lagat, och v0.2.0 är den första riktiga releasen.
+
+- **Två fel hittade vid provkörning av den packade appen**, båda lagade:
+  1. Servern tog en slumpmässig ledig port vid varje start. IndexedDB är knutet till
+     origin, så **varje omstart gav en tom app** och gårdagens projekt gick inte att nå.
+     Nu en fast port (43117…) som sparas i `port.json`. Bevisat: samma port över två
+     starter, projektet kvar.
+  2. Fönstret öppnade startsidan, men koden som tar emot en öppnad fil sitter i
+     skrivvyn — en dubbelklickad `.fountain` hade landat på fel sida och inte hänt
+     något. Nu öppnas skrivvyn när en fil följer med.
+- **Nytt i appen:** rad när en uppdatering laddats ner (`components/desktop/UpdatePill.tsx`),
+  version under Inställningar, och `.fountain` som filtyp (`aplusdesktop/openFile.cjs`,
+  testad; `fileAssociations` i electron-builder).
+- **Ny sida `/ladda-ner`** (`app/ladda-ner/`, `lib/release.ts`): version, datum och
+  filstorlek hämtas från GitHubs API, så sidan aldrig lovar en fil som inte finns.
+  SmartScreen-guide, release-anteckningar och Claude-tillägget. Bannern pekar dit och
+  syns nu på `/`, `/plan` och `/plan/write`.
+- **Byggd utan Supabase-nycklar**, alltså ingen inloggning i den här installern. Sagt
+  rakt ut på nedladdningssidan och i release-texten. Lägg in de två repo-secrets så
+  får nästa release inloggning utan att något behöver ändras.
+- Provkört lokalt: `npm run check` (52 filer, 656 tester), webbygge, den packade appen
+  (rökprov, alla tretton preload-anrop), och import av en `.fountain` hela vägen till
+  ett projekt i databasen.
+- **En testrest:** ett projekt som heter *Testscen* ligger i den lokala appen efter
+  provkörningen. Ta bort det i listan.
 
 ## Minecraft-anpassning (2026-09-20)
 

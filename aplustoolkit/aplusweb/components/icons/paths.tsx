@@ -194,6 +194,15 @@ const paths = {
     </>
   ),
 
+  /** An arrow onto a line: bring this down to the machine. */
+  download: (
+    <>
+      <path d="M10 3.5v8.6" />
+      <path d="M6.6 8.9l3.4 3.4 3.4-3.4" />
+      <path d="M4.5 15.8h11" />
+    </>
+  ),
+
   /** An arrow into a cloud: move this project to the cloud. */
   upload: (
     <>

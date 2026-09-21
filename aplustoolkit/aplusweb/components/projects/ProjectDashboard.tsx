@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { AccountButton } from '@/components/auth/AccountButton';
 import { DesktopDownloadBanner } from '@/components/desktop/DesktopDownloadBanner';
+import { UpdatePill } from '@/components/desktop/UpdatePill';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/icons/Icon';
 import { Menu } from '@/components/ui/Menu';
@@ -15,6 +16,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { useRepository } from '@/lib/storage/hooks';
+import { desktopApi, type OpenedScript } from '@/lib/platform';
 import type { ProjectLocation, ProjectMeta } from '@/lib/storage/types';
 import styles from './ProjectDashboard.module.css';
 
@@ -125,6 +127,35 @@ export function ProjectDashboard() {
     await refresh();
   };
 
+  /* A .fountain file double-clicked in Explorer, or dropped on the app icon.
+     The shell reads it and hands over the text; from here it is an import like
+     any other, so the file on disk is never written to by accident. */
+  useEffect(() => {
+    const api = desktopApi();
+    if (!api?.takeOpenFiles) return;
+
+    const open = async (files: OpenedScript[]) => {
+      let last: ProjectMeta | null = null;
+      for (const file of files) {
+        try {
+          last = await repo.importFountain(`${file.name}.fountain`, file.text, signedIn ? 'cloud' : 'local');
+        } catch {
+          setNotice(t('importFailed'));
+        }
+      }
+      await refresh();
+      // One file opens it; several land in the list rather than fighting over
+      // which one wins the window.
+      if (last && files.length === 1) router.push(`/app/${last.id}`);
+    };
+
+    void api.takeOpenFiles().then((files) => {
+      if (files.length > 0) void open(files);
+    });
+    return api.onOpenFiles?.((files) => void open(files));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repo, signedIn]);
+
   const moveToCloud = async (project: ProjectMeta) => {
     await repo.moveToCloud(project.id);
     setNotice(t('movedToCloud'));
@@ -210,6 +241,7 @@ export function ProjectDashboard() {
           </div>
         )}
 
+        <UpdatePill />
         <DesktopDownloadBanner />
 
         {projects && projects.length > 0 && (

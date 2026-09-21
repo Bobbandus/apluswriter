@@ -1,0 +1,136 @@
+/* The download and what you need to know before it, on the left; the facts
+   that are true whatever version is published, on the right. Same two-column
+   shape as the "coming soon" pages, so the site keeps one layout. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+  gap: var(--s-12);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-8);
+  }
+}
+
+.main > :first-child {
+  margin-top: 0;
+}
+
+.meta {
+  margin-top: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.warn {
+  margin-top: var(--s-2);
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}
+
+/* Nothing published yet. Said out loud rather than offered as a dead link. */
+.none {
+  padding: var(--s-5);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: var(--t-body);
+}
+
+.noneTitle {
+  margin-bottom: var(--s-2);
+  color: var(--text);
+  font-size: var(--t-lg);
+  font-weight: 600;
+}
+
+.heading {
+  margin: var(--s-10) 0 var(--s-3);
+  font-size: var(--t-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.body {
+  font-size: var(--t-body);
+  color: var(--text-muted);
+}
+
+.steps {
+  margin-top: var(--s-4);
+  padding-left: var(--s-5);
+  list-style: decimal;
+  border-top: var(--hairline) solid var(--line);
+}
+
+.steps li {
+  padding: var(--s-3) 0;
+  border-bottom: var(--hairline) solid var(--line);
+  font-size: var(--t-body);
+  color: var(--text);
+}
+
+.notes p {
+  margin-bottom: var(--s-4);
+  font-size: var(--t-body);
+  color: var(--text-muted);
+}
+
+.notes strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- the side column ---------- */
+
+.side {
+  padding-top: var(--s-2);
+}
+
+.sideTitle {
+  margin: var(--s-6) 0 var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  font-weight: 700;
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.side > .sideTitle:first-child {
+  margin-top: 0;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--hairline) solid var(--line);
+}
+
+.facts li {
+  padding: var(--s-3) 0;
+  border-bottom: var(--hairline) solid var(--line);
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  color: var(--accent-text);
+  font-size: var(--t-body);
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

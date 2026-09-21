@@ -1,17 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Icon } from '@/components/icons/Icon';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
 import { isDesktop } from '@/lib/platform';
 import styles from './DesktopDownloadBanner.module.css';
-
-/**
- * The installer is published under a name without a version, so this link is
- * the same one forever. See .github/workflows/release.yml.
- */
-const DOWNLOAD = 'https://github.com/Bobbandus/apluswriter/releases/latest/download/A-Plus-Toolkit-Setup.exe';
 
 /**
  * A quiet offer of the desktop app, in the browser only.
@@ -39,9 +34,12 @@ export function DesktopDownloadBanner() {
       <span className={styles.text}>
         <strong>{t('bannerTitle')}</strong> {t('bannerBody')}
       </span>
-      <a className={styles.download} href={DOWNLOAD}>
+      {/* To the page, not straight to the file: the installer is unsigned, and
+          a 107 MB download that trips a SmartScreen warning with no warning of
+          its own is how a useful app comes to look like malware. */}
+      <Link className={styles.download} href="/ladda-ner">
         {t('bannerDownload')}
-      </a>
+      </Link>
       <button type="button" className={styles.dismiss} onClick={() => setDismissed(true)} aria-label={t('bannerDismiss')}>
         <Icon name="close" size={14} />
       </button>

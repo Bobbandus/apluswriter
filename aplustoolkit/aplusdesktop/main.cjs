@@ -24,6 +24,7 @@ const os = require('node:os');
 const path = require('node:path');
 const claude = require('./claudeConfig.cjs');
 const { mirrorScript } = require('./mirror.cjs');
+const { scriptArgs, readScript } = require('./openFile.cjs');
 
 const sv = (app.getLocale() || 'en').toLowerCase().startsWith('sv');
 const say = (swedish, english) => (sv ? swedish : english);
@@ -60,6 +61,15 @@ function bundle() {
   }
 }
 
+/** True when nothing else is holding this port on loopback. */
+function portFree(port) {
+  return new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.once('error', () => resolve(false));
+    probe.listen(port, '127.0.0.1', () => probe.close(() => resolve(true)));
+  });
+}
+
 /** A port the OS says is free right now. */
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -70,6 +80,53 @@ function freePort() {
       probe.close(() => resolve(port));
     });
   });
+}
+
+/* The port has to be the same one tomorrow.
+
+   Everything a writer has not put in the cloud lives in IndexedDB, and the
+   browser keys that store by origin — which for us means the port. Asking the
+   OS for any free port, as this did, gave every launch a new origin and so an
+   empty app: projects written yesterday were still on disk and could never be
+   reached again. So the port is remembered, and only moves when something else
+   has taken it. */
+const PORTS = [43117, 43118, 43119, 43120, 43121];
+
+function portFile() {
+  return path.join(app.getPath('userData'), 'port.json');
+}
+
+function rememberedPort() {
+  try {
+    const port = JSON.parse(fs.readFileSync(portFile(), 'utf8')).port;
+    return Number.isInteger(port) ? port : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The port to serve on: the one used last time if it is still free, otherwise
+ * the first of ours that is, and only then whatever the OS offers.
+ */
+async function stablePort() {
+  const remembered = rememberedPort();
+  for (const port of [remembered, ...PORTS].filter(Boolean)) {
+    if (await portFree(port)) {
+      if (port !== remembered) {
+        try {
+          fs.writeFileSync(portFile(), JSON.stringify({ port }));
+        } catch {
+          /* A port we cannot remember still works today. */
+        }
+      }
+      return port;
+    }
+  }
+  // Every one of ours is taken. Rather than refuse to start, serve anyway and
+  // say so: this run will not see the projects written under another port.
+  console.warn('all of the usual ports are taken; local projects from earlier runs will not be visible');
+  return freePort();
 }
 
 function reachable(url) {
@@ -90,7 +147,7 @@ function reachable(url) {
  * does not need Node installed — the whole point of shipping an installer.
  */
 async function startServer(found) {
-  const port = await freePort();
+  const port = await stablePort();
   const url = `http://127.0.0.1:${port}`;
 
   server = spawn(process.execPath, [found.entry], {
@@ -182,7 +239,13 @@ function createWindow() {
     }
   });
 
-  void win.loadURL(appUrl).catch(() => {
+  /* Opening a script goes straight to the writing view. The toolkit's front
+     door is the right place to land normally, but it is not where a file that
+     was double-clicked can be received, and being dropped on a menu after
+     asking for a script would be its own small betrayal. */
+  const start = waitingFiles.length > 0 ? new URL('/plan/write', appUrl).href : appUrl;
+
+  void win.loadURL(start).catch(() => {
     void win.loadURL(
       'data:text/html;charset=utf-8,' +
         encodeURIComponent(
@@ -445,6 +508,8 @@ async function setupClaude() {
  * release: see docs/electron.md.
  */
 let updateReady = false;
+/** The version waiting to be installed, once one has been downloaded. */
+let updateVersion = '';
 
 function updates() {
   const { autoUpdater } = require('electron-updater');
@@ -465,9 +530,12 @@ function watchForUpdates() {
 
   autoUpdater.on('update-downloaded', (info) => {
     updateReady = true;
-    const version = (info && info.version) || '';
-    process.stdout.write(`APLUS_UPDATE_DOWNLOADED ${version}\n`);
+    updateVersion = (info && info.version) || '';
+    process.stdout.write(`APLUS_UPDATE_DOWNLOADED ${updateVersion}\n`);
     buildMenu();
+    // The page shows a quiet line about it. Still nothing happens on its own —
+    // the restart is a click, and closing the app installs it either way.
+    if (win && !win.isDestroyed()) win.webContents.send('aplus:update', { version: updateVersion });
     // Asked for by a test harness, never in normal use: restart immediately
     // so the update can be verified end to end.
     if (process.env.APLUS_UPDATE_TEST) setImmediate(() => autoUpdater.quitAndInstall(true, true));
@@ -600,20 +668,84 @@ function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+/* --------------------------------------------------------- opening a file */
+
+/**
+ * Files handed to us before the page could take them.
+ *
+ * A double-click starts the app, so the window does not exist yet when the
+ * path arrives. Everything waits here until the page asks for it, which is
+ * also what makes a reload safe: nothing is lost, and nothing is opened twice.
+ */
+let waitingFiles = [];
+
+/** Only these pages know what to do with a script. */
+function canReceiveFiles(url) {
+  try {
+    const { pathname } = new URL(url);
+    return pathname.startsWith('/plan/write') || pathname.startsWith('/app/');
+  } catch {
+    return false;
+  }
+}
+
+/** Hand paths to the page, or park them until it is there to listen. */
+function offerFiles(paths) {
+  const scripts = paths.map((p) => readScript(p)).filter(Boolean);
+  if (scripts.length === 0) return;
+  waitingFiles.push(...scripts);
+  if (!win || win.isDestroyed()) return;
+
+  // Sitting on the front door when a script arrives: go where it can be taken,
+  // and let that page collect the queue as it mounts.
+  if (!canReceiveFiles(win.webContents.getURL())) {
+    void win.loadURL(new URL('/plan/write', appUrl).href);
+    return;
+  }
+
+  // Handed over, so they leave the queue: otherwise a reload would import the
+  // same script a second time.
+  win.webContents.send('aplus:openFile', scripts);
+  waitingFiles = waitingFiles.filter((file) => !scripts.includes(file));
+}
+
+/** What the page collects on start. Taking them empties the queue. */
+function takeFiles() {
+  const files = waitingFiles;
+  waitingFiles = [];
+  return files;
+}
+
 /* -------------------------------------------------------------------- app */
 
 // One window is plenty, and two would fight over the same local files.
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_event, argv) => {
     if (win) {
       if (win.isMinimized()) win.restore();
       win.focus();
     }
+    // Double-clicking a second script while the app is open: this is the only
+    // place that path ever reaches us.
+    offerFiles(scriptArgs(argv));
+  });
+
+  // macOS hands files over this way, before and after the app is ready.
+  app.on('open-file', (event, file) => {
+    event.preventDefault();
+    offerFiles([file]);
   });
 
   ipcMain.handle('aplus:bridgeInfo', () => bridgeInfo());
+  ipcMain.handle('aplus:appInfo', () => ({ version: app.getVersion(), updateReady, updateVersion }));
+  ipcMain.handle('aplus:restartToUpdate', () => {
+    if (!updateReady) return false;
+    setImmediate(() => updates().quitAndInstall(true, true));
+    return true;
+  });
+  ipcMain.handle('aplus:takeOpenFiles', () => takeFiles());
   ipcMain.handle('aplus:saveFile', (_event, name, bytes) => saveFile(String(name), bytes));
   ipcMain.handle('aplus:setupClaude', () => connectClaude());
   ipcMain.handle('aplus:mirrorFolder', () => mirrorFolder());
@@ -644,6 +776,11 @@ if (!app.requestSingleInstanceLock()) {
         }
       }
     }
+
+    // A file the app was started with, read before the window exists: the page
+    // is not listening yet, so it is queued and collected on mount. This also
+    // decides which page the window opens on, so it has to come first.
+    offerFiles(scriptArgs(process.argv));
 
     createWindow();
     watchForUpdates();

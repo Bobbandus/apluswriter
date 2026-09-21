@@ -5,6 +5,8 @@ för det en webbläsarflik inte kan:
 
 - **Appen bär med sig hela webbappen.** Den startar en egen Next-server på en
   loopback-port vid start, så den fungerar utan dev-server och utan internet.
+- **Dubbelklick på en `.fountain`-fil** öppnar den. Installationen registrerar
+  filtypen, avinstallationen tar bort den.
 - **Ett klick kopplar in Claude Desktop** (Inställningar → Skrivande → Claude Desktop,
   eller menyn *Claude*). Appen öppnar ett **tillägg** (`.mcpb`) och Claude Desktop visar
   sin egen installationsruta, där du väljer manusmappen. Se "Claude-tillägget" nedan.
@@ -58,12 +60,26 @@ veta innan du ändrar något:
 Servern startas genom Electrons egen binär med `ELECTRON_RUN_AS_NODE`, så ingen
 behöver ha Node installerat.
 
+**Porten måste vara densamma i morgon.** Allt som inte ligger i molnet bor i
+IndexedDB, och webbläsaren knyter det lagret till origin — alltså till porten.
+Fram till 0.2.0 bad skalet OS:et om vilken ledig port som helst, vilket gav
+varje start ett nytt origin och en tom app: gårdagens projekt låg kvar på disk
+och gick aldrig att nå igen. Nu används 43117 (sedan 43118 …), den som
+fungerade sparas i `port.json` i användarmappen, och porten byts bara om något
+annat har tagit den.
+
 ## Uppdateringar
 
 Appen letar efter uppdateringar vid start och var fjärde timme, laddar ner i
 bakgrunden och lägger in dem när du stänger appen. Den avbryter dig aldrig mitt i en
 scen. Under *Hjälp* finns versionen och **Sök efter uppdateringar …**, som är det enda
 stället där en uppdatering öppnar en dialogruta — för då har du frågat.
+
+När en version är nedladdad dyker en rad upp på projektsidan med en knapp som
+startar om (`components/desktop/UpdatePill.tsx`). Den avbryter ingenting: låter
+du den vara läggs uppdateringen in när du stänger appen ändå. Fram till 0.2.0
+var hela kedjan tyst, vilket gjorde det omöjligt att se att den fungerade.
+Versionen står också under Inställningar.
 
 ### Prova uppdateringen utan att göra en release
 
@@ -82,8 +98,10 @@ Det här är gjort och fungerade: 0.1.0 → 0.1.1, tyst, utan att någon klickad
 
 ## Säkerhet
 
-`contextIsolation` på, `nodeIntegration` av, `sandbox` på. Sidan får fyra anrop och
-inget mer: `bridgeInfo`, `saveFile`, `setupClaude`, `platform`. Länkar till andra
+`contextIsolation` på, `nodeIntegration` av, `sandbox` på. Sidan får tretton anrop och
+inget mer: `platform`, `bridgeInfo`, `saveFile`, `setupClaude`, `mirrorFolder`,
+`mirrorChoose`, `mirrorClear`, `mirrorWrite`, `appInfo`, `restartToUpdate`,
+`onUpdateReady`, `takeOpenFiles`, `onOpenFiles`. Länkar till andra
 sajter öppnas i den vanliga webbläsaren, och navigering bort från appens egen adress
 stoppas.
 

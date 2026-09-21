@@ -27,6 +27,24 @@ contextBridge.exposeInMainWorld('aplusDesktop', {
   mirrorClear: () => ipcRenderer.invoke('aplus:mirrorClear'),
   /** Copies one script. The folder is never named here: only an id, a title and the text. */
   mirrorWrite: (id, title, text) => ipcRenderer.invoke('aplus:mirrorWrite', id, title, text),
+  /** This app's version, and whether an update is already downloaded. */
+  appInfo: () => ipcRenderer.invoke('aplus:appInfo'),
+  /** Restart now and apply the downloaded update. False when there is none. */
+  restartToUpdate: () => ipcRenderer.invoke('aplus:restartToUpdate'),
+  /** Called when an update finishes downloading, so the page can say so. */
+  onUpdateReady: (fn) => {
+    const listener = (_event, info) => fn(info);
+    ipcRenderer.on('aplus:update', listener);
+    return () => ipcRenderer.off('aplus:update', listener);
+  },
+  /** Scripts the app was asked to open. Collecting them empties the queue. */
+  takeOpenFiles: () => ipcRenderer.invoke('aplus:takeOpenFiles'),
+  /** Called when a script is opened while the app is already running. */
+  onOpenFiles: (fn) => {
+    const listener = (_event, files) => fn(files);
+    ipcRenderer.on('aplus:openFile', listener);
+    return () => ipcRenderer.off('aplus:openFile', listener);
+  },
 });
 
 // The stylesheet reads this to leave room for the real window controls.

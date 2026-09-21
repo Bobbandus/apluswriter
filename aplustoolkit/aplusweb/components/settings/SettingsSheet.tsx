@@ -11,11 +11,10 @@ import type { EditorSettings } from '@/components/editor/fountain/settings';
 import { locales, type Locale } from '@/i18n/config';
 import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
 import { applyTheme, persistLocale } from '@/lib/preferences';
+import { MCPB_URL } from '@/lib/release';
+import { desktopApi as shellApi } from '@/lib/platform';
 import type { PageSize } from '@aplus/paginator/geometry';
 import styles from './SettingsSheet.module.css';
-
-/** Published with every release, at an address that never changes. */
-const EXTENSION_URL = 'https://github.com/Bobbandus/apluswriter/releases/latest/download/aplus-toolkit.mcpb';
 
 export interface SettingsSheetProps {
   open: boolean;
@@ -55,10 +54,21 @@ export function SettingsSheet({
 }: SettingsSheetProps) {
   const t = useTranslations('settings');
   const tAssistant = useTranslations('assistant');
+  const tDesktop = useTranslations('desktop');
   const desktopApi =
     typeof window === 'undefined'
       ? undefined
       : (window as unknown as { aplusDesktop?: { setupClaude?: () => Promise<unknown> } }).aplusDesktop;
+
+  // Which build this is. Nowhere in the app used to say, which made "am I on
+  // the version with the fix?" an unanswerable question.
+  const [appVersion, setAppVersion] = useState('');
+  useEffect(() => {
+    if (!open) return;
+    void shellApi()
+      ?.appInfo?.()
+      .then((info) => setAppVersion(info?.version ?? ''));
+  }, [open]);
   const router = useRouter();
   const locale = useLocale() as Locale;
 
@@ -227,9 +237,18 @@ export function SettingsSheet({
               <p className={styles.fieldHint}>{tAssistant('extensionHint')}</p>
             </div>
             <div className={styles.fieldControl}>
-              <a className={styles.link} href={EXTENSION_URL}>
+              <a className={styles.link} href={MCPB_URL}>
                 {tAssistant('extensionDownload')}
               </a>
+            </div>
+          </div>
+        )}
+
+        {appVersion && (
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
+              <p className={styles.fieldLabel}>{tDesktop('version', { version: appVersion })}</p>
+              <p className={styles.fieldHint}>{tDesktop('updateWhen')}</p>
             </div>
           </div>
         )}

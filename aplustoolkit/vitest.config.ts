@@ -18,7 +18,14 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['packages/**/*.test.ts', 'aplusweb/**/*.test.ts', 'mcp/**/*.test.ts', 'supabase/**/*.test.ts', 'aplusdesktop/**/*.test.ts'],
+    include: [
+      'packages/**/*.test.ts',
+      'aplusweb/**/*.test.ts',
+      'mcp/**/*.test.ts',
+      'supabase/**/*.test.ts',
+      'aplusdesktop/**/*.test.ts',
+      'scripts/**/*.test.ts',
+    ],
     // Fixture paths are resolved from the repository root.
     root: at('./'),
   },

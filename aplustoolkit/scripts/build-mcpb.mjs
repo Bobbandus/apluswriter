@@ -58,8 +58,13 @@ const manifest = {
   compatibility: { platforms: ['win32', 'darwin'], runtimes: { node: '>=18.0.0' } },
 };
 
+/* Pinned on purpose. `npx --yes @anthropic-ai/mcpb` fetches whatever is current
+   at build time, which means an upstream change can break a release build that
+   nothing in this repository touched. Raise it deliberately. */
+const MCPB = '@anthropic-ai/mcpb@2.1.2';
+
 const run = (args, cwd = root) =>
-  execFileSync('npx', ['--yes', '@anthropic-ai/mcpb', ...args], { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+  execFileSync('npx', ['--yes', MCPB, ...args], { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
 
 // The server and the icon are built first: this script only packs.
 execFileSync('node', ['mcp/build.mjs'], { cwd: root, stdio: 'inherit' });

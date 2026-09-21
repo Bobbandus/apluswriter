@@ -1,6 +1,6 @@
 {
   "name": "aplusdesktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A+ Toolkit desktop shell (Electron).",
   "main": "main.cjs",
@@ -23,7 +23,17 @@
       "preload.cjs",
       "claudeConfig.cjs",
       "mirror.cjs",
+      "openFile.cjs",
       "package.json"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "fountain",
+        "name": "Fountain-manus",
+        "description": "Fountain screenplay",
+        "icon": "build/icon.ico",
+        "role": "Editor"
+      }
     ],
     "extraResources": [
       {
