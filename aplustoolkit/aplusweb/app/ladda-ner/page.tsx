@@ -91,7 +91,9 @@ export default async function DownloadPage() {
  *
  * Deliberately not a Markdown renderer: this is our own text in a known shape,
  * and pulling in a parser to bold a few words would be a dependency for
- * nothing. Paragraphs and `**lead-ins**`, which is all the changelog uses.
+ * nothing. Paragraphs, `**lead-ins**` and `code`, which is all the changelog
+ * uses — and all three have to be handled, because an unhandled one does not
+ * degrade quietly, it shows the writer the punctuation.
  */
 function Notes({ markdown }: { markdown: string }) {
   const paragraphs = markdown
@@ -102,12 +104,17 @@ function Notes({ markdown }: { markdown: string }) {
   return (
     <div className={styles.notes}>
       {paragraphs.map((paragraph, i) => (
-        <p key={i}>
-          {paragraph.split(/\*\*(.+?)\*\*/g).map((part, j) =>
-            j % 2 === 1 ? <strong key={j}>{part}</strong> : part.replace(/\n/g, ' '),
-          )}
-        </p>
+        <p key={i}>{inline(paragraph.replace(/\n/g, ' '))}</p>
       ))}
     </div>
   );
+}
+
+/** `**bold**` and `` `code` ``, in one pass, in the order they appear. */
+function inline(text: string) {
+  return text.split(/(\*\*.+?\*\*|`[^`]+`)/g).map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 2) return <code key={i}>{part.slice(1, -1)}</code>;
+    return part;
+  });
 }
