@@ -3,6 +3,13 @@
 Texten under varje version blir release-anteckningen på GitHub. Skriv den för
 någon som ska bestämma om de vill uppdatera, inte för den som skrev koden.
 
+## 0.2.1
+
+**Inloggning.** Supabase-nycklarna är nu på plats, både på sajten och i det
+här bygget. Skapa konton genom att bjuda in i Supabase-panelen — logga in med
+en länk på mejlen, inget lösenord. Projekt du flyttar till molnet syns på alla
+enheter du loggar in på.
+
 ## 0.2.0
 
 **A+ Live.** Grafik för livesändning, som en browser source i OBS eller vMix:
