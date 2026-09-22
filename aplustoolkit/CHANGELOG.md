@@ -3,6 +3,14 @@
 Texten under varje version blir release-anteckningen på GitHub. Skriv den för
 någon som ska bestämma om de vill uppdatera, inte för den som skrev koden.
 
+## 0.2.2
+
+**Inloggning och moln i själva appen.** De två Supabase-nycklarna saknades i
+GitHub när 0.2.1 byggdes, så installern gick i rent lokalt läge trots att
+webbsidan redan hade dem — ingen inloggning, inget moln, och A+ Live sa
+"Supabase är inte konfigurerat". Nycklarna finns nu på plats; det här bygget
+har samma inloggning, molnprojekt och delning som webbsidan.
+
 ## 0.2.1
 
 **Inloggning.** Supabase-nycklarna är nu på plats, både på sajten och i det
