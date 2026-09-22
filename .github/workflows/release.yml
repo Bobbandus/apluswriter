@@ -79,15 +79,22 @@ jobs:
       # the installed app still works — every project is stored on the machine
       # it was written on — but there is no sign-in and no cloud sync. That is
       # a real difference, so it is said out loud rather than failing the build.
+      #
+      # aplusweb/lib/supabase/client.ts accepts the key under either name —
+      # Supabase renamed "anon key" to "publishable key" — and this step has to
+      # accept both too: a repo secret named NEXT_PUBLIC_SUPABASE_ANON_KEY only
+      # used the old name and the build silently shipped with no Supabase at
+      # all, warning included, even with a correctly-named secret sitting right
+      # there under the new name.
       - name: Build the bundle
         working-directory: aplustoolkit
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         shell: bash
         run: |
-          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "::warning::No NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY secrets. This build has no sign-in and no cloud sync; it stores everything locally."
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::warning::No NEXT_PUBLIC_SUPABASE_URL, and no NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY, secret. This build has no sign-in and no cloud sync; it stores everything locally."
           fi
           npm run desktop:build
 

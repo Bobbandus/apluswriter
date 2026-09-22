@@ -3,6 +3,14 @@
 Texten under varje version blir release-anteckningen på GitHub. Skriv den för
 någon som ska bestämma om de vill uppdatera, inte för den som skrev koden.
 
+## 0.2.3
+
+**0.2.2 hade fortfarande ingen inloggning i installern.** Bygget letade efter
+en secret vid namn `NEXT_PUBLIC_SUPABASE_ANON_KEY`, men den som faktiskt
+lades in i GitHub hette (rätt, enligt den nyare namngivningen) `..._PUBLISHABLE_KEY`
+— så varningen "inga nycklar" kom igen trots att nyckeln fanns. Bygget läser
+nu båda namnen. Samma funktioner som 0.2.2 skulle ha haft.
+
 ## 0.2.2
 
 **Inloggning och moln i själva appen.** De två Supabase-nycklarna saknades i

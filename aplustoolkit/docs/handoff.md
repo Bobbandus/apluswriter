@@ -111,8 +111,8 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
 ## Det du måste göra själv
 
 - **Supabase** (Authentication): URL Configuration → Site URL `https://toolkit.aplusfilm.se`, Redirect URLs `http://localhost:3000/auth/callback` och `https://toolkit.aplusfilm.se/auth/callback`. Sign In / Providers → stäng av *Allow new users to sign up*. Users → *Invite user* för varje kollega.
-- **Vercel** → Project → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY`, sedan redeploy (värdena bakas in vid bygge).
-- **GitHub** → Settings → Secrets and variables → Actions → *New repository secret*: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_ANON_KEY` (samma värden som i `aplusweb/.env.local`). Behövs för att installern ska ha inloggning.
+- **Vercel** → Project → Settings → Environment Variables: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, sedan redeploy (värdena bakas in vid bygge).
+- **GitHub** → Settings → Secrets and variables → Actions → *New repository secret*: `NEXT_PUBLIC_SUPABASE_URL` och `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (samma värden som i `aplusweb/.env.local`). Behövs för att installern ska ha inloggning. `NEXT_PUBLIC_SUPABASE_ANON_KEY` fungerar också — namnet är det enda som måste matcha exakt det release.yml läser, se `.github/workflows/release.yml`.
 - Starta om Claude Desktop efter att MCP-servern byggts om. Installationsrutan för `.mcpb` bekräftar du själv.
 
 ## Fällor
