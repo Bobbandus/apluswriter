@@ -109,8 +109,17 @@ export function ProjectDashboard() {
   /* ------------------------------------------------------------- actions */
 
   const create = async (title: string, location: ProjectLocation) => {
-    const meta = await repo.create({ title: title.trim() || tCommon('untitled'), location });
-    router.push(`/app/${meta.id}`);
+    try {
+      const meta = await repo.create({ title: title.trim() || tCommon('untitled'), location });
+      router.push(`/app/${meta.id}`);
+    } catch (failure) {
+      // Left unhandled, this vanished into an unhandled promise rejection:
+      // the "Skapa"-knappen went idle again with no project, no navigation,
+      // and nothing on screen to say why. Whatever Supabase actually
+      // refused it for — RLS, a missing table, being signed out after
+      // all — the writer sees it now instead of a dead button.
+      setNotice(failure instanceof Error ? failure.message : String(failure));
+    }
   };
 
   const importFiles = async (files: FileList | File[]) => {
@@ -159,9 +168,13 @@ export function ProjectDashboard() {
   }, [repo, signedIn]);
 
   const moveToCloud = async (project: ProjectMeta) => {
-    await repo.moveToCloud(project.id);
-    setNotice(t('movedToCloud'));
-    await refresh();
+    try {
+      await repo.moveToCloud(project.id);
+      setNotice(t('movedToCloud'));
+      await refresh();
+    } catch (failure) {
+      setNotice(failure instanceof Error ? failure.message : String(failure));
+    }
   };
 
   // Session-only: a writer who still has local projects should see this again
@@ -176,6 +189,8 @@ export function ProjectDashboard() {
       const moved = await repo.moveAllToCloud();
       setNotice(t('movedAllToCloud', { count: moved }));
       await refresh();
+    } catch (failure) {
+      setNotice(failure instanceof Error ? failure.message : String(failure));
     } finally {
       setMigrating(false);
     }
