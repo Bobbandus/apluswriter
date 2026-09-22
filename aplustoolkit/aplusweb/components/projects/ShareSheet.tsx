@@ -6,6 +6,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/icons/Icon';
 import { getSupabase } from '@/lib/supabase/client';
+import { describeError } from '@/lib/errors';
 import {
   createShareLink,
   inviteMember,
@@ -101,7 +102,7 @@ export function ShareSheet({ project, onClose }: ShareSheetProps) {
       setEmail('');
       await load(project.id);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+      setError(describeError(failure));
     } finally {
       setInviting(false);
     }
@@ -113,7 +114,7 @@ export function ShareSheet({ project, onClose }: ShareSheetProps) {
       await removeMember(project.id, userId);
       await load(project.id);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+      setError(describeError(failure));
     }
   };
 
@@ -125,7 +126,7 @@ export function ShareSheet({ project, onClose }: ShareSheetProps) {
       await createShareLink(project.id, linkPermission, expiresAt);
       await load(project.id);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+      setError(describeError(failure));
     } finally {
       setCreatingLink(false);
     }
@@ -137,7 +138,7 @@ export function ShareSheet({ project, onClose }: ShareSheetProps) {
       await revokeShareLink(token);
       await load(project.id);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : String(failure));
+      setError(describeError(failure));
     }
   };
 

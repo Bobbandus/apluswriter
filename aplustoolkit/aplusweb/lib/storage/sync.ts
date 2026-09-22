@@ -1,3 +1,4 @@
+import { describeError } from '../errors';
 import type { LocalStore } from './local';
 import type { CloudAdapter, ProjectLocation, SaveState } from './types';
 
@@ -45,8 +46,7 @@ export interface SyncOptions {
 /** A network failure, as opposed to the server saying no. */
 function isNetworkError(error: unknown): boolean {
   if (error instanceof TypeError) return true; // fetch() failing outright
-  const message = error instanceof Error ? error.message : String(error);
-  return /network|fetch|timeout|offline|failed to fetch/i.test(message);
+  return /network|fetch|timeout|offline|failed to fetch/i.test(describeError(error));
 }
 
 export class DocumentSync {

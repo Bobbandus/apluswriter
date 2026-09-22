@@ -16,6 +16,7 @@ import { SearchField } from '@/components/ui/SearchField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet } from '@/components/ui/Sheet';
 import { usePersistentState } from '@/lib/hooks/usePersistentState';
+import { describeError } from '@/lib/errors';
 import { useRepository } from '@/lib/storage/hooks';
 import { desktopApi, type OpenedScript } from '@/lib/platform';
 import type { ProjectLocation, ProjectMeta } from '@/lib/storage/types';
@@ -118,7 +119,7 @@ export function ProjectDashboard() {
       // and nothing on screen to say why. Whatever Supabase actually
       // refused it for — RLS, a missing table, being signed out after
       // all — the writer sees it now instead of a dead button.
-      setNotice(failure instanceof Error ? failure.message : String(failure));
+      setNotice(describeError(failure));
     }
   };
 
@@ -173,7 +174,7 @@ export function ProjectDashboard() {
       setNotice(t('movedToCloud'));
       await refresh();
     } catch (failure) {
-      setNotice(failure instanceof Error ? failure.message : String(failure));
+      setNotice(describeError(failure));
     }
   };
 
@@ -190,7 +191,7 @@ export function ProjectDashboard() {
       setNotice(t('movedAllToCloud', { count: moved }));
       await refresh();
     } catch (failure) {
-      setNotice(failure instanceof Error ? failure.message : String(failure));
+      setNotice(describeError(failure));
     } finally {
       setMigrating(false);
     }
