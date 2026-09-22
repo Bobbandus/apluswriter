@@ -6,9 +6,20 @@ någon som ska bestämma om de vill uppdatera, inte för den som skrev koden.
 ## 0.2.1
 
 **Inloggning.** Supabase-nycklarna är nu på plats, både på sajten och i det
-här bygget. Skapa konton genom att bjuda in i Supabase-panelen — logga in med
-en länk på mejlen, inget lösenord. Projekt du flyttar till molnet syns på alla
+här bygget. Skapa konton genom att bjuda in i Supabase-panelen. **Lösenord**
+är förstahandsvalet — en länk på mejlen finns kvar för en inbjuden persons
+första inloggning och "Glömt lösenordet?".
+
+**Flera enheter.** Loggar du in på en dator med projekt sparade sedan innan
+flyttar en knapp allt till kontot i ett klick. Projekt i molnet syns på alla
 enheter du loggar in på.
+
+**Namn.** Förnamn och efternamn under Inställningar → Konto, så andra ser vem
+du är i stället för en e-postadress.
+
+**Dela.** Bjud in en medarbetare till ett projekt med en roll — kan läsa, kan
+kommentera, kan skriva — eller skapa en anonym länk som inte kräver
+inloggning alls, med valfritt utgångsdatum.
 
 ## 0.2.0
 
