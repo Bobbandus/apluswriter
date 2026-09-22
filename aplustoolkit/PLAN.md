@@ -239,7 +239,7 @@ GitHub Releases only when the owner says so. The phase checklist lives in
 
 | Idea | Ready? | Already there | Missing | Proposal |
 |---|---|---|---|---|
-| Roles and permissions | Almost | `project_role`, RLS (`02_rls.sql`), `project_members`, `share_links` | invite function (SQL), member UI, read-only editor mode | Built in phase 6 |
+| Roles and permissions | Built (2026-09-22) | `project_role`, RLS, invite/remove functions (`06_collaboration.sql`), member + share-link UI (`components/projects/ShareSheet.tsx`), a public read-only page at `/delad/[token]` | read-only *editor* mode (a viewer can still open `/app/[id]` directly, since nothing there checks role yet — the sheet is the only gate today) | Editor-side enforcement, if it turns out to matter |
 | Produktion (stripboard, callsheet, day-out-of-days, props) | Yes, the data exists | `scheduleGroups`, `sceneDifficulty`, cast per scene, length in eighths | shooting-day data model, UI | After phase 6 |
 | A+ Casting | Partly | character profiles, `casting_call` command, `characters` table, `media` bucket | candidates, notes, audition booking, the page | After Produktion |
 | Real-time co-writing | **No** | the script is a raw text buffer (good for Yjs) | Yjs, a transport (Supabase Realtime or `y-websocket`), persistence of Y-state; `save_script` optimistic concurrency (`P0409`) conflicts with CRDT merging; IndexedDB cache must be reconciled with the Y.Doc | Wait until M7–M10 and roles are done, then a two-day spike |

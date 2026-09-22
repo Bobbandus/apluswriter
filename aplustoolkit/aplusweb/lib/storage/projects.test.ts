@@ -109,6 +109,38 @@ describe('projects', () => {
     expect(await local.getScript(meta.id)).toMatchObject({ baseVersion: 1, dirty: false });
   });
 
+  it('moves every local project at once, and leaves cloud projects alone', async () => {
+    const cloud = new Cloud();
+    const local = store();
+    const offline = new ProjectRepository(local, null, null);
+    const a = await offline.create({ title: 'Ett', content: 'A' });
+    const b = await offline.create({ title: 'Två', content: 'B' });
+
+    const repo = new ProjectRepository(local, cloud, null);
+    const c = await repo.create({ title: 'Redan i molnet', content: 'C', location: 'cloud' });
+
+    const moved = await repo.moveAllToCloud();
+
+    expect(moved).toBe(2);
+    expect((await local.getProject(a.id))?.location).toBe('cloud');
+    expect((await local.getProject(b.id))?.location).toBe('cloud');
+    expect((await local.getProject(c.id))?.location).toBe('cloud');
+    expect(cloud.scripts.get(a.id)?.content).toBe('A');
+    expect(cloud.scripts.get(b.id)?.content).toBe('B');
+  });
+
+  it('does nothing and reports zero when there is nothing local to move', async () => {
+    const cloud = new Cloud();
+    const repo = new ProjectRepository(store(), cloud, null);
+    await repo.create({ title: 'Redan i molnet', location: 'cloud' });
+    expect(await repo.moveAllToCloud()).toBe(0);
+  });
+
+  it('refuses to move anything when signed out', async () => {
+    const repo = new ProjectRepository(store(), null, null);
+    await expect(repo.moveAllToCloud()).rejects.toThrow('Not signed in');
+  });
+
   it('lists a project started on another computer', async () => {
     const cloud = new Cloud();
     await cloud.createProject({ id: 'remote', title: 'Från laptopen', pageSize: 'a4' });

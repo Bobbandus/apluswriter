@@ -314,7 +314,24 @@
     "permission": "Permission",
     "permissionView": "Can read",
     "permissionComment": "Can comment",
-    "revoke": "Revoke"
+    "revoke": "Revoke",
+    "members": "People",
+    "loading": "Loading …",
+    "unnamed": "Unnamed",
+    "remove": "Remove",
+    "emailPlaceholder": "name@example.com",
+    "invite": "Invite",
+    "inviting": "Inviting …",
+    "inviteHint": "The person needs an A+ Toolkit account already. Ask the owner to invite the account in Supabase first.",
+    "links": "Links",
+    "linksHint": "Anyone with the link can reach the script, no account needed.",
+    "linkGone": "That link is invalid, revoked, or has expired.",
+    "role": {
+      "owner": "Owner",
+      "editor": "Can write",
+      "commenter": "Can comment",
+      "viewer": "Can read"
+    }
   },
   "focus": {
     "enter": "Focus mode",
@@ -445,7 +462,11 @@
     "passwordMismatch": "The passwords don't match.",
     "savePassword": "Save password",
     "passwordSaved": "Password saved.",
-    "setPasswordHint": "Optional. A password means you don't wait for an email every time you sign in — useful if you sign in often or your team is more than one person."
+    "setPasswordHint": "Optional. A password means you don't wait for an email every time you sign in — useful if you sign in often or your team is more than one person.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "nameHint": "Shown to anyone you share a project with.",
+    "nameSaved": "Name saved."
   },
   "projects": {
     "title": "Projects",
@@ -470,6 +491,7 @@
     "duplicate": "Duplicate",
     "delete": "Delete",
     "moveToCloud": "Move to the cloud",
+    "share": "Share …",
     "actions": "Actions for {title}",
     "deleteTitle": "Delete {title}?",
     "deleteBodyLocal": "The script is removed from this computer. This cannot be undone.",
@@ -484,6 +506,10 @@
     "dropHint": "Drop a .fountain file to import it",
     "importFailed": "The file could not be read.",
     "movedToCloud": "Moved to the cloud.",
+    "migrateBanner": "{count, plural, =1 {One project} other {# projects}} saved before you signed in only exist on this computer.",
+    "migrateAll": "Move everything to the account",
+    "migrating": "Moving …",
+    "movedAllToCloud": "{count, plural, =1 {One project moved} other {# projects moved}} to the account.",
     "nothingFound": "No projects match.",
     "recent": "Recent",
     "breadcrumbWrite": "Write",

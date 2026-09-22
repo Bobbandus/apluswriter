@@ -314,7 +314,24 @@
     "permission": "Behörighet",
     "permissionView": "Kan läsa",
     "permissionComment": "Kan kommentera",
-    "revoke": "Återkalla"
+    "revoke": "Återkalla",
+    "members": "Personer",
+    "loading": "Laddar …",
+    "unnamed": "Namnlös",
+    "remove": "Ta bort",
+    "emailPlaceholder": "namn@exempel.se",
+    "invite": "Bjud in",
+    "inviting": "Bjuder in …",
+    "inviteHint": "Personen behöver redan ha ett A+ Toolkit-konto. Be ägaren bjuda in kontot i Supabase först.",
+    "links": "Länkar",
+    "linksHint": "Vem som helst med länken kommer åt manuset, utan konto.",
+    "linkGone": "Länken är ogiltig, återkallad eller har upphört.",
+    "role": {
+      "owner": "Ägare",
+      "editor": "Kan skriva",
+      "commenter": "Kan kommentera",
+      "viewer": "Kan läsa"
+    }
   },
   "focus": {
     "enter": "Fokusläge",
@@ -445,7 +462,11 @@
     "passwordMismatch": "Lösenorden matchar inte.",
     "savePassword": "Spara lösenord",
     "passwordSaved": "Lösenordet är sparat.",
-    "setPasswordHint": "Valfritt. Med ett lösenord slipper du vänta på ett mejl varje gång du loggar in — bra om du loggar in ofta eller är flera i teamet."
+    "setPasswordHint": "Valfritt. Med ett lösenord slipper du vänta på ett mejl varje gång du loggar in — bra om du loggar in ofta eller är flera i teamet.",
+    "firstName": "Förnamn",
+    "lastName": "Efternamn",
+    "nameHint": "Visas för andra du delar ett projekt med.",
+    "nameSaved": "Namnet är sparat."
   },
   "projects": {
     "title": "Projekt",
@@ -470,6 +491,7 @@
     "duplicate": "Duplicera",
     "delete": "Ta bort",
     "moveToCloud": "Flytta till molnet",
+    "share": "Dela …",
     "actions": "Åtgärder för {title}",
     "deleteTitle": "Ta bort {title}?",
     "deleteBodyLocal": "Manuset tas bort från den här datorn. Det går inte att ångra.",
@@ -484,6 +506,10 @@
     "dropHint": "Släpp en .fountain-fil för att importera den",
     "importFailed": "Filen kunde inte läsas.",
     "movedToCloud": "Flyttat till molnet.",
+    "migrateBanner": "{count, plural, =1 {Ett projekt} other {# projekt}} sparat innan du loggade in finns bara på den här datorn.",
+    "migrateAll": "Flytta allt till kontot",
+    "migrating": "Flyttar …",
+    "movedAllToCloud": "{count, plural, =1 {Ett projekt flyttat} other {# projekt flyttade}} till kontot.",
     "nothingFound": "Inga projekt matchar.",
     "recent": "Senaste",
     "breadcrumbWrite": "Write",

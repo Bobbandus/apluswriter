@@ -1,0 +1,139 @@
+.page {
+  min-height: 100dvh;
+  overflow-y: auto;
+  background: var(--bg-app);
+  color: var(--text);
+}
+
+.status {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  color: var(--text-muted);
+  font-size: var(--t-body);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-6);
+  border-bottom: var(--hairline) solid var(--line);
+  background: var(--bg-raised);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  font-family: var(--font-black);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--text-faint);
+}
+
+.plus {
+  color: var(--accent);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-lg);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The reader mimics the page, not the editor: Courier, generous width,
+   nothing to click on. */
+.script {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--s-10) var(--s-6) var(--s-16);
+  font-family: var(--font-script);
+  font-size: 12pt;
+  line-height: 1.5;
+}
+
+.sceneHeading {
+  margin-top: var(--s-8);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sceneHeading:first-child {
+  margin-top: 0;
+}
+
+.action {
+  margin-top: var(--s-4);
+  white-space: pre-wrap;
+}
+
+.character {
+  margin-top: var(--s-5);
+  margin-left: 38%;
+  text-transform: uppercase;
+}
+
+.dialogue {
+  margin-left: 20%;
+  max-width: 60%;
+}
+
+.parenthetical {
+  margin-left: 30%;
+  max-width: 40%;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.transition {
+  margin-top: var(--s-5);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.centered {
+  margin-top: var(--s-4);
+  text-align: center;
+}
+
+.lyrics {
+  margin-top: var(--s-4);
+  font-style: italic;
+}
+
+.section {
+  margin-top: var(--s-8);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.section[data-depth='1'] {
+  font-size: var(--t-lg);
+}
+
+@media (max-width: 640px) {
+  .character,
+  .dialogue,
+  .parenthetical {
+    margin-left: 8%;
+    max-width: 92%;
+  }
+}

@@ -27,6 +27,7 @@ Gör så för varje fil, i ordning:
 | 3 | `03_functions.sql` | `save_script`, `create_revision`, `get_shared_script`, `duplicate_project` |
 | 4 | `04_storage.sql` | Två privata buckets: `exports` och `media` |
 | 5 | `05_live.sql` | A+ Live: poängtavlor och overlays (`live_boards`, `get_live_board`, `update_live_state`) |
+| 6 | `06_collaboration.sql` | Förnamn/efternamn på profilen, och att bjuda in en person till ett projekt (`invite_project_member`, `remove_project_member`) |
 
 Alla skript går att köra om. Om något går fel halvvägs kan du rätta och köra
 samma fil igen.
@@ -85,6 +86,24 @@ länken i mejlet, är då inloggad, och sätter ett lösenord under
   - `http://localhost:3000/auth/reset-password`
   - `https://toolkit.aplusfilm.se/auth/callback`
   - `https://toolkit.aplusfilm.se/auth/reset-password`
+
+## 3b. Dela ett projekt
+
+Två skilda sätt, båda i projektets **Dela …**-meny i appen — ingenting att slå på
+i Supabase utöver `06_collaboration.sql`.
+
+- **Bjud in en person.** Kräver att adressen redan har ett A+ Toolkit-konto (se
+  ovan). Ägaren väljer en roll — kan läsa, kan kommentera, kan skriva — och
+  personen ser projektet i sin egen instrumentpanel nästa gång de loggar in.
+  Namnet som visas för andra kommer från **Inställningar → Konto**; ett konto
+  utan förnamn/efternamn visas med sin e-postadress lokala del i stället.
+- **Skapa en länk.** Ingen inloggning behövs alls — vem som helst med länken
+  kan läsa, tills länken återkallas eller går ut. Sidan är `/delad/<token>`,
+  medvetet inte indexerad av sökmotorer. Permissionen `comment` går att välja
+  och sparas, men kommentering via en anonym länk är **inte byggt än** — den
+  kräver ett eget skrivvägs-API (`comments`-tabellen är låst till inloggade
+  medlemmar), så en "kan kommentera"-länk gör idag exakt detsamma som en
+  "kan läsa"-länk.
 
 ## 4. Nycklarna
 

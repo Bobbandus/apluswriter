@@ -58,6 +58,7 @@ export function SettingsSheet({
   const tAssistant = useTranslations('assistant');
   const tDesktop = useTranslations('desktop');
   const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const session = useSession();
   const desktopApi =
     typeof window === 'undefined'
@@ -86,6 +87,50 @@ export function SettingsSheet({
   const [newPassword, setNewPassword] = useState('');
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // The account's first and last name — profiles.first_name/last_name,
+  // 06_collaboration.sql. Loaded fresh each time the sheet opens, since it can
+  // be a while between visits and the value is small enough not to cache.
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [nameStatus, setNameStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [nameError, setNameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const db = getSupabase();
+    if (!db) return;
+    void db
+      .from('profiles')
+      .select('first_name, last_name')
+      .maybeSingle()
+      .then(({ data }) => {
+        setFirstName((data?.first_name as string | null) ?? '');
+        setLastName((data?.last_name as string | null) ?? '');
+      });
+  }, [open]);
+
+  const saveName = useCallback(async () => {
+    const db = getSupabase();
+    if (!db) return;
+    setNameStatus('saving');
+    setNameError(null);
+    const { data } = await db.auth.getUser();
+    if (!data.user) {
+      setNameStatus('error');
+      return;
+    }
+    const { error: failure } = await db
+      .from('profiles')
+      .update({ first_name: firstName.trim() || null, last_name: lastName.trim() || null })
+      .eq('id', data.user.id);
+    if (failure) {
+      setNameError(failure.message);
+      setNameStatus('error');
+      return;
+    }
+    setNameStatus('saved');
+  }, [firstName, lastName]);
 
   const savePassword = useCallback(async () => {
     const db = getSupabase();
@@ -186,6 +231,49 @@ export function SettingsSheet({
           <div className={styles.field}>
             <div className={styles.fieldText}>
               <p className={styles.fieldLabel}>{tAuth('signedInAs', { email: session.email })}</p>
+              <p className={styles.fieldHint}>{tAuth('nameHint')}</p>
+              <div className={styles.passwordRow}>
+                <input
+                  className={styles.passwordInput}
+                  type="text"
+                  autoComplete="given-name"
+                  placeholder={tAuth('firstName')}
+                  value={firstName}
+                  onChange={(event) => {
+                    setFirstName(event.target.value);
+                    setNameStatus('idle');
+                  }}
+                />
+                <input
+                  className={styles.passwordInput}
+                  type="text"
+                  autoComplete="family-name"
+                  placeholder={tAuth('lastName')}
+                  value={lastName}
+                  onChange={(event) => {
+                    setLastName(event.target.value);
+                    setNameStatus('idle');
+                  }}
+                />
+                <Button variant="secondary" size="sm" disabled={nameStatus === 'saving'} onClick={() => void saveName()}>
+                  {nameStatus === 'saving' ? tAuth('sending') : tCommon('save')}
+                </Button>
+              </div>
+              {nameStatus === 'saved' && (
+                <p className={styles.passwordNote} data-tone="success">
+                  {tAuth('nameSaved')}
+                </p>
+              )}
+              {nameStatus === 'error' && (
+                <p className={styles.passwordNote} data-tone="error">
+                  {nameError}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
               <p className={styles.fieldHint}>{tAuth('setPasswordHint')}</p>
               <div className={styles.passwordRow}>
                 <input

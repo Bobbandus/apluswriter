@@ -16,7 +16,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
  * project, a viewer cannot edit, a stale save cannot overwrite.
  */
 
-const SCRIPTS = ['01_schema.sql', '02_rls.sql', '03_functions.sql', '04_storage.sql', '05_live.sql'];
+const SCRIPTS = ['01_schema.sql', '02_rls.sql', '03_functions.sql', '04_storage.sql', '05_live.sql', '06_collaboration.sql'];
 const read = (name: string) => readFileSync(join(process.cwd(), 'supabase', name), 'utf8');
 
 const SUPABASE_STUBS = `
@@ -224,6 +224,80 @@ describe('share links', () => {
     await as(ALICE, 'insert into public.share_links (project_id) values ($1)', [project]);
     expect(await as(null, 'select token from public.share_links')).toEqual([]);
     expect(await as(BOB, 'select token from public.share_links')).toEqual([]);
+  });
+});
+
+describe('profile names', () => {
+  it('lets a writer set their own first and last name', async () => {
+    await as(ALICE, "update public.profiles set first_name = 'Alice', last_name = 'Andersson' where id = $1", [ALICE]);
+    const [row] = await as<{ first_name: string; last_name: string }>(ALICE, 'select first_name, last_name from public.profiles where id = $1', [ALICE]);
+    expect(row).toEqual({ first_name: 'Alice', last_name: 'Andersson' });
+  });
+
+  it('shows a project peer’s name, but hides a stranger’s', async () => {
+    const { project } = await newProject(ALICE, 'Peers');
+    await as(ALICE, "insert into public.project_members (project_id, user_id, role) values ($1, $2, 'viewer')", [project, BOB]);
+
+    expect(await as(BOB, 'select display_name from public.profiles where id = $1', [ALICE])).toEqual([{ display_name: 'Alice' }]);
+
+    // Carol shares nothing with Alice and should not see her profile.
+    const carol = '33333333-3333-3333-3333-333333333333';
+    await db.exec(`insert into auth.users (id, email) values ('${carol}', 'carol@example.com') on conflict do nothing;`);
+    expect(await as(carol, 'select display_name from public.profiles where id = $1', [ALICE])).toEqual([]);
+  });
+});
+
+describe('invite_project_member', () => {
+  it('adds an existing account by email, with the role asked for', async () => {
+    const { project } = await newProject(ALICE, 'Invite');
+    const [row] = await as<{ user_id: string; role: string }>(ALICE, "select * from public.invite_project_member($1, 'bob@example.com', 'editor')", [project]);
+    expect(row).toEqual(expect.objectContaining({ project_id: project, user_id: BOB, role: 'editor' }));
+    expect(await as(BOB, 'select title from public.projects where id = $1', [project])).toEqual([{ title: 'Invite' }]);
+  });
+
+  it('is case-insensitive and re-invites as a role change rather than a duplicate row', async () => {
+    const { project } = await newProject(ALICE, 'Re-invite');
+    await as(ALICE, "select * from public.invite_project_member($1, 'BOB@Example.com', 'viewer')", [project]);
+    await as(ALICE, "select * from public.invite_project_member($1, 'bob@example.com', 'commenter')", [project]);
+    const rows = await as(ALICE, 'select role from public.project_members where project_id = $1 and user_id = $2', [project, BOB]);
+    expect(rows).toEqual([{ role: 'commenter' }]);
+  });
+
+  it('refuses anyone who is not the project’s owner', async () => {
+    const { project } = await newProject(ALICE, 'Not yours');
+    await as(ALICE, "insert into public.project_members (project_id, user_id, role) values ($1, $2, 'editor')", [project, BOB]);
+    expect(await errorCode(BOB, "select * from public.invite_project_member($1, 'bob@example.com', 'viewer')", [project])).toBe('42501');
+  });
+
+  it('refuses an address with no A+ Toolkit account, and adds nobody', async () => {
+    const { project } = await newProject(ALICE, 'No account');
+    expect(await errorCode(ALICE, "select * from public.invite_project_member($1, 'nobody@example.com', 'viewer')", [project])).toBe('P0002');
+    expect(await as(ALICE, 'select user_id from public.project_members where project_id = $1', [project])).toEqual([{ user_id: ALICE }]);
+  });
+
+  it('refuses inviting someone in as owner', async () => {
+    const { project } = await newProject(ALICE, 'No co-owners this way');
+    expect(await errorCode(ALICE, "select * from public.invite_project_member($1, 'bob@example.com', 'owner')", [project])).toBe('22023');
+  });
+});
+
+describe('remove_project_member', () => {
+  it('lets an owner remove a collaborator', async () => {
+    const { project } = await newProject(ALICE, 'Remove');
+    await as(ALICE, "insert into public.project_members (project_id, user_id, role) values ($1, $2, 'viewer')", [project, BOB]);
+    await as(ALICE, 'select public.remove_project_member($1, $2)', [project, BOB]);
+    expect(await as(BOB, 'select id from public.projects where id = $1', [project])).toEqual([]);
+  });
+
+  it('refuses to remove the last owner', async () => {
+    const { project } = await newProject(ALICE, 'Sole owner');
+    expect(await errorCode(ALICE, 'select public.remove_project_member($1, $2)', [project, ALICE])).toBe('22023');
+  });
+
+  it('refuses anyone who is not the project’s owner', async () => {
+    const { project } = await newProject(ALICE, 'Guarded');
+    await as(ALICE, "insert into public.project_members (project_id, user_id, role) values ($1, $2, 'editor')", [project, BOB]);
+    expect(await errorCode(BOB, 'select public.remove_project_member($1, $2)', [project, BOB])).toBe('42501');
   });
 });
 

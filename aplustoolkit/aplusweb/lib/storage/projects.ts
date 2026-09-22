@@ -211,6 +211,21 @@ export class ProjectRepository {
     await this.local.patchProject(id, { location: 'cloud' });
   }
 
+  /**
+   * Moves every project still `local` to the account just signed into.
+   *
+   * Nothing before this call ever crossed that line on its own — a project
+   * made before signing in has no owner to send it to, so it waits here,
+   * unmoved, until the writer says which account it belongs to. Returns how
+   * many moved, so the caller can say so.
+   */
+  async moveAllToCloud(): Promise<number> {
+    if (!this.cloud) throw new Error('Not signed in');
+    const local = (await this.local.listProjects()).filter((p) => p.location === 'local');
+    for (const project of local) await this.moveToCloud(project.id);
+    return local.length;
+  }
+
   /** A `.fountain` or `.txt` file becomes a new project. */
   async importFountain(fileName: string, text: string, location: ProjectLocation): Promise<ProjectMeta> {
     const title = titleFromSource(text) ?? fileName.replace(/\.(fountain|spmd|txt|fdx|highland|docx)$/i, '');

@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { AccountButton } from '@/components/auth/AccountButton';
 import { DesktopDownloadBanner } from '@/components/desktop/DesktopDownloadBanner';
 import { UpdatePill } from '@/components/desktop/UpdatePill';
+import { ShareSheet } from './ShareSheet';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/icons/Icon';
 import { Menu } from '@/components/ui/Menu';
@@ -66,6 +67,7 @@ export function ProjectDashboard() {
   const [creating, setCreating] = useState(false);
   const [renaming, setRenaming] = useState<ProjectMeta | null>(null);
   const [deleting, setDeleting] = useState<ProjectMeta | null>(null);
+  const [sharing, setSharing] = useState<ProjectMeta | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -162,6 +164,23 @@ export function ProjectDashboard() {
     await refresh();
   };
 
+  // Session-only: a writer who still has local projects should see this again
+  // next time, not have it silenced forever by one earlier dismissal.
+  const [migrateDismissed, setMigrateDismissed] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  const localCount = (projects ?? []).filter((p) => p.location === 'local').length;
+
+  const moveAllToCloud = async () => {
+    setMigrating(true);
+    try {
+      const moved = await repo.moveAllToCloud();
+      setNotice(t('movedAllToCloud', { count: moved }));
+      await refresh();
+    } finally {
+      setMigrating(false);
+    }
+  };
+
   /* -------------------------------------------------------------- render */
 
   return (
@@ -236,6 +255,24 @@ export function ProjectDashboard() {
               {tAuth('signIn')}
             </Link>
             <button type="button" className={styles.bannerClose} onClick={() => setBannerDismissed(true)} aria-label={tCommon('close')}>
+              <Icon name="close" size={14} />
+            </button>
+          </div>
+        )}
+
+        {signedIn && localCount > 0 && !migrateDismissed && (
+          <div className={styles.banner}>
+            <Icon name="upload" size={16} />
+            <span>{t('migrateBanner', { count: localCount })}</span>
+            <button type="button" className={styles.bannerLink} disabled={migrating} onClick={() => void moveAllToCloud()}>
+              {migrating ? t('migrating') : t('migrateAll')}
+            </button>
+            <button
+              type="button"
+              className={styles.bannerClose}
+              onClick={() => setMigrateDismissed(true)}
+              aria-label={tCommon('close')}
+            >
               <Icon name="close" size={14} />
             </button>
           </div>
@@ -327,6 +364,9 @@ export function ProjectDashboard() {
                       ...(signedIn && project.location === 'local'
                         ? [{ label: t('moveToCloud'), icon: 'upload' as const, onSelect: () => void moveToCloud(project) }]
                         : []),
+                      ...(signedIn && project.location === 'cloud'
+                        ? [{ label: t('share'), icon: 'share' as const, onSelect: () => setSharing(project) }]
+                        : []),
                       'separator',
                       { label: t('delete'), icon: 'trash', danger: true, onSelect: () => setDeleting(project) },
                     ]}
@@ -357,6 +397,8 @@ export function ProjectDashboard() {
       )}
 
       <NewProjectSheet open={creating} signedIn={signedIn} onClose={() => setCreating(false)} onCreate={create} />
+
+      <ShareSheet project={sharing} onClose={() => setSharing(null)} />
 
       <RenameSheet
         project={renaming}
