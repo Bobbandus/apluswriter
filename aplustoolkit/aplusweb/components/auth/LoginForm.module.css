@@ -117,3 +117,16 @@
 .local:hover {
   color: var(--text);
 }
+
+/* A plain button styled as a text link — "forgot password", switching
+   between password and email-link mode. Never a primary action. */
+.linkButton {
+  align-self: flex-start;
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}
+
+.linkButton:hover {
+  color: var(--text);
+  text-decoration: underline;
+}

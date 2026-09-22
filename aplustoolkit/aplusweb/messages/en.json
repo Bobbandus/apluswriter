@@ -383,6 +383,7 @@
   },
   "settings": {
     "title": "Settings",
+    "account": "Account",
     "general": "General",
     "appearance": "Appearance",
     "editing": "Writing",
@@ -418,11 +419,12 @@
   "auth": {
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "signInWithEmail": "Sign in with email",
+    "signInWithEmail": "Send sign-in link",
     "signInWithGoogle": "Continue with Google",
     "email": "Email",
+    "password": "Password",
     "magicLinkSent": "Check your email. We sent a sign-in link.",
-    "signInHint": "No password needed.",
+    "signInHint": "The link works once and expires shortly.",
     "signInTitle": "Sign in to A+ Toolkit",
     "notInvited": "This address has not been invited yet. Ask the owner to invite you.",
     "notConfigured": "Cloud sync is not set up yet. Follow supabase/README.md to connect a Supabase project. Everything works locally in the meantime.",
@@ -431,7 +433,19 @@
     "signedInAs": "Signed in as {email}",
     "callbackWorking": "Signing in …",
     "callbackFailed": "Sign-in failed. Please try again.",
-    "or": "or"
+    "or": "or",
+    "forgotPassword": "Forgot your password?",
+    "useLinkInstead": "Use an email sign-in link instead",
+    "usePasswordInstead": "Use a password instead",
+    "resetLinkSent": "Check your email. We sent a link to set a new password.",
+    "resetLinkFailed": "That link is invalid or too old. Ask for a new one under \"Forgot your password?\".",
+    "resetPasswordTitle": "Set a new password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "passwordMismatch": "The passwords don't match.",
+    "savePassword": "Save password",
+    "passwordSaved": "Password saved.",
+    "setPasswordHint": "Optional. A password means you don't wait for an email every time you sign in — useful if you sign in often or your team is more than one person."
   },
   "projects": {
     "title": "Projects",

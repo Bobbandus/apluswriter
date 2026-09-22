@@ -38,14 +38,20 @@ samma fil igen.
 
 ## 3. Inloggning
 
-Man loggar in med **magic link**: skriv din e-postadress, klicka på länken i
-mejlet, klart. Knappen **Logga in** sitter uppe till höger på alla sidor, och
-den syns först när nycklarna i steg 4 är inlästa.
+Man loggar in med **lösenord** som förstahandsval, med en **magic link**
+(inloggningslänk på mejl) som reserv — den behövs ändå för en inbjuden
+persons första inloggning (innan de satt ett lösenord under Inställningar)
+och för "Glömt lösenordet?". Knappen **Logga in** sitter uppe till höger på
+alla sidor, och den syns först när nycklarna i steg 4 är inlästa.
+
+Lösenord finns för att Supabases egen mejlutskickare är hårt begränsad —
+några mejl i timmen utan en egen SMTP-koppling. Ett lösenord betyder att de
+flesta inloggningar inte skickar något mejl alls.
 
 **Authentication → Sign In / Providers**
 
-- **Email** — på som standard. Magic link (inloggningslänk på mejl) fungerar
-  direkt, inget lösenord behövs.
+- **Email** — på som standard. Både lösenord och magic link går via den här,
+  ingen extra strömbrytare behövs.
 - **User Signups → stäng av *Allow new users to sign up*.** Sajten är för
   A+ Studios eget bruk. Med den här avstängd kan ingen främling skapa ett
   konto och fylla din databas. Appen ber dessutom aldrig Supabase att skapa
@@ -63,16 +69,22 @@ den syns först när nycklarna i steg 4 är inlästa.
 
 **Authentication → Users → Add user → Send invitation** (heter *Invite user* i
 äldre gränssnitt): bjud in varje kollega med e-postadress. Det är så nya
-personer får ett konto när nyregistrering är avstängd. Den inbjudne loggar sedan
-in med magic link som vanligt.
+personer får ett konto när nyregistrering är avstängd. Den inbjudne klickar
+länken i mejlet, är då inloggad, och sätter ett lösenord under
+**Inställningar → Konto** om de vill slippa mejl-länken nästa gång.
 
 **Authentication → URL Configuration**
 
 - **Site URL**: `https://toolkit.aplusfilm.se`
   (lokalt: `http://localhost:3000`).
-- **Redirect URLs**: lägg till alla ställen appen körs från:
+- **Redirect URLs**: lägg till alla ställen appen körs från, **både** `/auth/callback`
+  (magic link, Google) **och** `/auth/reset-password` (glömt lösenordet) — saknas en
+  adress här faller Supabase tyst tillbaka på Site URL i stället för att neka, vilket
+  ser ut som att länken går till fel sida i stället för ett tydligt fel:
   - `http://localhost:3000/auth/callback`
+  - `http://localhost:3000/auth/reset-password`
   - `https://toolkit.aplusfilm.se/auth/callback`
+  - `https://toolkit.aplusfilm.se/auth/reset-password`
 
 ## 4. Nycklarna
 

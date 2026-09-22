@@ -76,6 +76,43 @@
   color: var(--text-faint);
 }
 
+.passwordRow {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+.passwordInput {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 var(--s-3);
+  border: var(--hairline) solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+}
+
+.passwordInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-app);
+}
+
+.passwordNote {
+  margin-top: var(--s-2);
+  font-size: var(--t-small);
+}
+
+.passwordNote[data-tone='error'] {
+  color: var(--flare);
+}
+
+.passwordNote[data-tone='success'] {
+  color: var(--text-muted);
+}
+
 /* The theme picker shows what each theme looks like, not just its name. */
 .themeRow {
   display: grid;

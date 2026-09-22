@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { getSupabase } from '@/lib/supabase/client';
@@ -14,16 +15,24 @@ import styles from './LoginForm.module.css';
  */
 const GOOGLE_ENABLED = process.env['NEXT_PUBLIC_ENABLE_GOOGLE_LOGIN'] === '1';
 
-/** Supabase refuses a magic link for an address that has no account. */
+/** Supabase refuses a magic link, or a reset link, for an address that has no account. */
 const NOT_INVITED = /signups? not allowed|otp_disabled/i;
 
+type Mode = 'password' | 'link';
+type State = 'idle' | 'sending' | 'sent' | 'error';
+
 /**
- * Signing in: an email link, and Google when it is set up. No passwords to
- * invent or forget.
+ * Signing in: a password by default, with an email link kept as the way in
+ * for someone who has never set one — an invitation's own link, or "forgot
+ * password" below.
  *
- * Accounts are invite-only. `shouldCreateUser: false` keeps the app from
- * creating one by accident; the real lock is the "Allow new users to sign up"
- * switch in Supabase (see supabase/README.md).
+ * Passwords exist because Supabase's own mail sender is rate-limited to a
+ * handful of messages an hour, and a link on every sign-in ran into that on a
+ * team of any size. A password means most sign-ins send no mail at all; the
+ * link is still there for the two moments that need it.
+ *
+ * Accounts are invite-only — the real lock is the "Allow new users to sign
+ * up" switch in Supabase (see supabase/README.md), not anything client-side.
  *
  * If Supabase is not configured yet the page says so plainly and offers the
  * way on without an account — the app is fully usable locally, and a writer
@@ -31,13 +40,31 @@ const NOT_INVITED = /signups? not allowed|otp_disabled/i;
  */
 export function LoginForm() {
   const t = useTranslations('auth');
+  const router = useRouter();
   const db = getSupabase();
 
+  const [mode, setMode] = useState<Mode>('password');
   const [email, setEmail] = useState('');
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [password, setPassword] = useState('');
+  const [state, setState] = useState<State>('idle');
   const [error, setError] = useState<string | null>(null);
 
   const redirectTo = typeof window === 'undefined' ? undefined : `${window.location.origin}/auth/callback`;
+  const resetRedirectTo = typeof window === 'undefined' ? undefined : `${window.location.origin}/auth/reset-password`;
+
+  const fail = (failure: { code?: string; message: string }) => {
+    setError(NOT_INVITED.test(`${failure.code ?? ''} ${failure.message}`) ? t('notInvited') : failure.message);
+    setState('error');
+  };
+
+  const signIn = async () => {
+    if (!db || !email.trim() || !password) return;
+    setState('sending');
+    setError(null);
+    const { error: failure } = await db.auth.signInWithPassword({ email: email.trim(), password });
+    if (failure) fail(failure);
+    else router.replace('/');
+  };
 
   const sendLink = async () => {
     if (!db || !email.trim()) return;
@@ -47,12 +74,19 @@ export function LoginForm() {
       email: email.trim(),
       options: { shouldCreateUser: false, ...(redirectTo ? { emailRedirectTo: redirectTo } : {}) },
     });
-    if (failure) {
-      setError(NOT_INVITED.test(`${failure.code ?? ''} ${failure.message}`) ? t('notInvited') : failure.message);
-      setState('error');
-    } else {
-      setState('sent');
-    }
+    if (failure) fail(failure);
+    else setState('sent');
+  };
+
+  const sendReset = async () => {
+    if (!db || !email.trim()) return;
+    setState('sending');
+    setError(null);
+    const { error: failure } = await db.auth.resetPasswordForEmail(email.trim(), {
+      ...(resetRedirectTo ? { redirectTo: resetRedirectTo } : {}),
+    });
+    if (failure) fail(failure);
+    else setState('sent');
   };
 
   const google = async () => {
@@ -77,8 +111,88 @@ export function LoginForm() {
           </>
         ) : state === 'sent' ? (
           <p className={styles.sent} role="status">
-            {t('magicLinkSent')}
+            {mode === 'link' ? t('magicLinkSent') : t('resetLinkSent')}
           </p>
+        ) : mode === 'password' ? (
+          <>
+            <form
+              className={styles.form}
+              onSubmit={(event) => {
+                event.preventDefault();
+                void signIn();
+              }}
+            >
+              <label className={styles.label}>
+                {t('email')}
+                <input
+                  className={styles.input}
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="namn@exempel.se"
+                />
+              </label>
+              <label className={styles.label}>
+                {t('password')}
+                <input
+                  className={styles.input}
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </label>
+              <Button type="submit" variant="primary" disabled={state === 'sending'}>
+                {state === 'sending' ? t('sending') : t('signIn')}
+              </Button>
+              <button
+                type="button"
+                className={styles.linkButton}
+                onClick={() => {
+                  setError(null);
+                  void sendReset();
+                }}
+              >
+                {t('forgotPassword')}
+              </button>
+            </form>
+
+            {GOOGLE_ENABLED && (
+              <>
+                <div className={styles.or}>
+                  <span>{t('or')}</span>
+                </div>
+                <Button variant="secondary" onClick={() => void google()}>
+                  {t('signInWithGoogle')}
+                </Button>
+              </>
+            )}
+
+            {error && (
+              <p className={styles.error} role="alert">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={() => {
+                setError(null);
+                setState('idle');
+                setMode('link');
+              }}
+            >
+              {t('useLinkInstead')}
+            </button>
+
+            <Link href="/" className={styles.local}>
+              {t('continueLocal')} →
+            </Link>
+          </>
         ) : (
           <>
             <form
@@ -106,23 +220,23 @@ export function LoginForm() {
               <p className={styles.hint}>{t('signInHint')}</p>
             </form>
 
-            {GOOGLE_ENABLED && (
-              <>
-                <div className={styles.or}>
-                  <span>{t('or')}</span>
-                </div>
-
-                <Button variant="secondary" onClick={() => void google()}>
-                  {t('signInWithGoogle')}
-                </Button>
-              </>
-            )}
-
             {error && (
               <p className={styles.error} role="alert">
                 {error}
               </p>
             )}
+
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={() => {
+                setError(null);
+                setState('idle');
+                setMode('password');
+              }}
+            >
+              {t('usePasswordInstead')}
+            </button>
 
             <Link href="/" className={styles.local}>
               {t('continueLocal')} →

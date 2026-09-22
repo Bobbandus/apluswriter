@@ -383,6 +383,7 @@
   },
   "settings": {
     "title": "Inställningar",
+    "account": "Konto",
     "general": "Allmänt",
     "appearance": "Utseende",
     "editing": "Skrivande",
@@ -418,11 +419,12 @@
   "auth": {
     "signIn": "Logga in",
     "signOut": "Logga ut",
-    "signInWithEmail": "Logga in med e-post",
+    "signInWithEmail": "Skicka inloggningslänk",
     "signInWithGoogle": "Fortsätt med Google",
     "email": "E-post",
+    "password": "Lösenord",
     "magicLinkSent": "Kolla mejlen. Vi har skickat en inloggningslänk.",
-    "signInHint": "Inget lösenord behövs.",
+    "signInHint": "Länken fungerar en gång och är giltig en kort stund.",
     "signInTitle": "Logga in på A+ Toolkit",
     "notInvited": "Den här adressen är inte inbjuden än. Be ägaren bjuda in dig.",
     "notConfigured": "Molnsynk är inte uppsatt än. Följ supabase/README.md för att koppla in ett Supabase-projekt. Allt fungerar lokalt under tiden.",
@@ -431,7 +433,19 @@
     "signedInAs": "Inloggad som {email}",
     "callbackWorking": "Loggar in …",
     "callbackFailed": "Inloggningen misslyckades. Försök igen.",
-    "or": "eller"
+    "or": "eller",
+    "forgotPassword": "Glömt lösenordet?",
+    "useLinkInstead": "Använd inloggningslänk på mejl i stället",
+    "usePasswordInstead": "Använd lösenord i stället",
+    "resetLinkSent": "Kolla mejlen. Vi har skickat en länk för att sätta nytt lösenord.",
+    "resetLinkFailed": "Länken är ogiltig eller för gammal. Be om en ny under \"Glömt lösenordet?\".",
+    "resetPasswordTitle": "Sätt nytt lösenord",
+    "newPassword": "Nytt lösenord",
+    "confirmPassword": "Upprepa lösenordet",
+    "passwordMismatch": "Lösenorden matchar inte.",
+    "savePassword": "Spara lösenord",
+    "passwordSaved": "Lösenordet är sparat.",
+    "setPasswordHint": "Valfritt. Med ett lösenord slipper du vänta på ett mejl varje gång du loggar in — bra om du loggar in ofta eller är flera i teamet."
   },
   "projects": {
     "title": "Projekt",

@@ -13,6 +13,8 @@ import { themes, defaultTheme, isTheme, type Theme } from '@/lib/theme';
 import { applyTheme, persistLocale } from '@/lib/preferences';
 import { MCPB_URL } from '@/lib/release';
 import { desktopApi as shellApi } from '@/lib/platform';
+import { getSupabase } from '@/lib/supabase/client';
+import { useSession } from '@/lib/storage/hooks';
 import type { PageSize } from '@aplus/paginator/geometry';
 import styles from './SettingsSheet.module.css';
 
@@ -55,6 +57,8 @@ export function SettingsSheet({
   const t = useTranslations('settings');
   const tAssistant = useTranslations('assistant');
   const tDesktop = useTranslations('desktop');
+  const tAuth = useTranslations('auth');
+  const session = useSession();
   const desktopApi =
     typeof window === 'undefined'
       ? undefined
@@ -74,6 +78,29 @@ export function SettingsSheet({
 
   const [theme, setTheme] = useState<Theme>(defaultTheme);
   const [, startTransition] = useTransition();
+
+  // Setting a password here needs none of the old one: being signed in
+  // already proves who you are. This is also how someone who has only ever
+  // used the emailed link — an invitation, most often — gets one for the
+  // first time.
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const savePassword = useCallback(async () => {
+    const db = getSupabase();
+    if (!db || newPassword.length < 6) return;
+    setPasswordStatus('saving');
+    setPasswordError(null);
+    const { error: failure } = await db.auth.updateUser({ password: newPassword });
+    if (failure) {
+      setPasswordError(failure.message);
+      setPasswordStatus('error');
+      return;
+    }
+    setNewPassword('');
+    setPasswordStatus('saved');
+  }, [newPassword]);
 
   // The server already set `data-theme`; read it back rather than keeping a
   // second copy of the truth in React state.
@@ -151,6 +178,51 @@ export function SettingsSheet({
           </div>
         </div>
       </div>
+
+      {session.configured && session.email && (
+        <div className={styles.group}>
+          <p className={styles.groupTitle}>{t('account')}</p>
+
+          <div className={styles.field}>
+            <div className={styles.fieldText}>
+              <p className={styles.fieldLabel}>{tAuth('signedInAs', { email: session.email })}</p>
+              <p className={styles.fieldHint}>{tAuth('setPasswordHint')}</p>
+              <div className={styles.passwordRow}>
+                <input
+                  className={styles.passwordInput}
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder={tAuth('newPassword')}
+                  minLength={6}
+                  value={newPassword}
+                  onChange={(event) => {
+                    setNewPassword(event.target.value);
+                    setPasswordStatus('idle');
+                  }}
+                />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={newPassword.length < 6 || passwordStatus === 'saving'}
+                  onClick={() => void savePassword()}
+                >
+                  {passwordStatus === 'saving' ? tAuth('sending') : tAuth('savePassword')}
+                </Button>
+              </div>
+              {passwordStatus === 'saved' && (
+                <p className={styles.passwordNote} data-tone="success">
+                  {tAuth('passwordSaved')}
+                </p>
+              )}
+              {passwordStatus === 'error' && (
+                <p className={styles.passwordNote} data-tone="error">
+                  {passwordError}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={styles.group}>
         <p className={styles.groupTitle}>{t('general')}</p>
