@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useLiveBoard } from '@/lib/live/useLiveBoard';
 import type { Position } from '@/lib/live/position';
 import { DEFAULT_THEMES } from '@aplus/live/theme';
@@ -22,6 +23,20 @@ export interface OutputStageProps {
  */
 export function OutputStage({ token, position, scale, themeIndex, debug }: OutputStageProps) {
   const { board, status } = useLiveBoard(token);
+
+  // The app's `body` paints an opaque theme colour everywhere (styles/globals.css),
+  // which is right for every page but this one: OBS needs an actually
+  // transparent surface, or the overlay shows as a solid card instead of
+  // sitting over the picture. Restored on unmount, in case anything else ever
+  // reuses this component outside its own page.
+  useEffect(() => {
+    const { style } = document.body;
+    const previous = style.background;
+    style.background = 'transparent';
+    return () => {
+      style.background = previous;
+    };
+  }, []);
 
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
