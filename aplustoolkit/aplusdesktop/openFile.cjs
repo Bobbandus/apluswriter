@@ -46,7 +46,9 @@ function scriptArgs(argv, exists = (p) => fs.existsSync(p)) {
 function readScript(file, read = (p) => fs.readFileSync(p, 'utf8')) {
   try {
     const text = read(file);
-    return { name: path.basename(file, path.extname(file)), path: file, text };
+    // win32 rules split on both `\` and `/`, so the name is right whichever
+    // platform hands us the path (and whichever one runs the tests).
+    return { name: path.win32.basename(file, path.win32.extname(file)), path: file, text };
   } catch {
     return null;
   }

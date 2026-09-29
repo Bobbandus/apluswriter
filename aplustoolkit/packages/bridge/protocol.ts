@@ -73,6 +73,11 @@ export interface Shot {
 
 export interface Shotlist {
   scene: SceneRef;
+  /**
+   * The scene's `[[id:]]`, when it has one. Set by the app when a shotlist is
+   * edited there; it keeps the list on its scene through a renamed heading.
+   */
+  sceneId?: string;
   shots: Shot[];
   /** How the scene is covered, in one or two sentences. */
   approach?: string;

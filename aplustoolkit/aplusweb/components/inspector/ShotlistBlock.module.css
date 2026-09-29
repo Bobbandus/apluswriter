@@ -9,6 +9,22 @@
   margin-bottom: var(--s-2);
 }
 
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.edit {
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.edit:hover {
+  text-decoration: underline;
+}
+
 .label {
   font-family: var(--font-mono);
   font-size: var(--label-size);

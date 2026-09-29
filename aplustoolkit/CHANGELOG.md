@@ -3,6 +3,22 @@
 Texten under varje version blir release-anteckningen på GitHub. Skriv den för
 någon som ska bestämma om de vill uppdatera, inte för den som skrev koden.
 
+## 0.3.0
+
+**Shotlist och stripboard.** Två nya verktyg under A+ Plan, byggda direkt ur
+manuset.
+
+- **Shotlist:** alla scener i en lista, och för varje scen dess bilder:
+  storlek, beskrivning, vinkel, rörelse, objektiv, vem som är i bild. Claudes
+  förslag från /shotlist hamnar här när du klickar Använd, och går att redigera.
+- **Stripboard:** varje scen som en färgad remsa (inne/ute, dag/natt) som du
+  drar till inspelningsdagar. Dagarna räknar sidor och roller, får datum från
+  första inspelningsdagen, och varnar för för fulla dagar, flyttar mellan
+  platser och natt före dag. "Lägg ut oschemalagda" gör ett första utkast.
+- Båda går att ångra, skriva ut och exportera till Excel.
+- **Molnprojekt synkar nu också shotlists, schema och Claudes sparade texter**,
+  inte bara manuset, så de finns på alla datorer du loggar in på.
+
 ## 0.2.3
 
 **0.2.2 hade fortfarande ingen inloggning i installern.** Bygget letade efter

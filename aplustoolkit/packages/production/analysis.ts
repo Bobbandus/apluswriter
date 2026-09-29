@@ -41,7 +41,8 @@ const FLAGS: { flag: string; weight: number; re: RegExp }[] = [
   { flag: 'children', weight: 1, re: /\b(barn|barnet|child\w*|kid\b|kids\b|flicka|pojke)\b/i },
 ];
 
-const NIGHT = new Set(['NATT', 'NIGHT', 'KVÄLL', 'EVENING', 'SKYMNING', 'DUSK', 'MIDNATT', 'MIDNIGHT', 'NATTETID', 'NIGHTTIME']);
+/** Times of day shot as night: after dark, or so near it that the light is gone. */
+export const NIGHT = new Set(['NATT', 'NIGHT', 'KVÄLL', 'EVENING', 'SKYMNING', 'DUSK', 'MIDNATT', 'MIDNIGHT', 'NATTETID', 'NIGHTTIME']);
 
 export interface SceneDifficulty {
   scene: number;

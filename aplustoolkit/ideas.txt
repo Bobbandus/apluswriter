@@ -140,6 +140,9 @@ A+ PLAN — undersidor att bygga
   sceneDifficulty, roller per scen, längd i åttondelar.
   A+ Shoot behåller det som händer på set (klappa, tagningslogg, dagsrapport)
   och läser samma data.
+  BYGGT 2026-09-29: shotlist (/plan/shotlist) och stripboard (/plan/stripboard).
+  KVAR i Produktion: day-out-of-days, callsheet-PDF, rekvisita/kostym.
+  Sedan Shoot: klappan läser shotlisten (scen, bild) och dagens strips.
 - Casting (rollbeskrivningar från manuset, casting calls, kandidater,
   anteckningar, tidsbokning). Rollbibeln finns redan som Claude-kommando.
 - Fler: Platser, Schema, Budget (fråga först)

@@ -1,7 +1,19 @@
 import { getTranslations } from 'next-intl/server';
-import { ComingSoon } from '@/components/toolkit/ComingSoon';
+import { ProjectPicker } from '@/components/production/ProjectPicker';
+import { ToolkitPage } from '@/components/toolkit/ToolkitPage';
 
-export default async function Page() {
+/** A+ Plan → Shotlist: pick the script to plan the shots of. */
+export default async function ShotlistHome() {
   const t = await getTranslations('toolkit');
-  return <ComingSoon tool="shotlist" image="shotlisthero.png" planned={4} crumbs={[{ label: t('plan.title'), href: '/plan' }, { label: t('shotlist.title'), href: '/plan/shotlist' }]} />;
+  const tp = await getTranslations('production');
+  return (
+    <ToolkitPage
+      crumbs={[{ label: t('plan.title'), href: '/plan' }, { label: t('shotlist.title'), href: '/plan/shotlist' }]}
+      eyebrow={t('plan.title')}
+      title={t('shotlist.title')}
+      lead={tp('pickerShotlistLead')}
+    >
+      <ProjectPicker tool="shotlist" />
+    </ToolkitPage>
+  );
 }

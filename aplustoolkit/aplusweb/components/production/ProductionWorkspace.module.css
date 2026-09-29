@@ -1,0 +1,175 @@
+/* The body never scrolls, so the page does — except where a view gives
+   itself its own scroll regions (the shotlist's scene rail). */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--bg-app);
+}
+
+/* ---------------------------------------------------------------- top bar */
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: grid;
+  flex: none;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-4);
+  height: 52px;
+  padding: 0 var(--s-5);
+  background: color-mix(in srgb, var(--bg-app) 84%, transparent);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: var(--hairline) solid var(--line-faint);
+}
+
+.crumbs {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--t-body);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.brand {
+  font-family: var(--font-black);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.plus {
+  color: var(--accent);
+}
+
+.sep {
+  color: var(--text-faint);
+}
+
+.crumb:hover {
+  color: var(--text);
+}
+
+.project {
+  overflow: hidden;
+  font-weight: 600;
+  color: var(--text);
+  text-overflow: ellipsis;
+}
+
+.project .sep {
+  font-weight: 400;
+}
+
+.switch {
+  justify-self: center;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-1);
+}
+
+.openScript {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  height: 28px;
+  margin: 0 var(--s-2) 0 var(--s-1);
+  padding: 0 var(--s-3);
+  border-radius: var(--r-md);
+  border: var(--hairline) solid var(--line-strong);
+  font-size: var(--t-body);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.openScript:hover {
+  background: var(--bg-raised-hover);
+}
+
+/* ------------------------------------------------------ loading and empty */
+
+.loading {
+  margin: var(--s-16) auto;
+  font-size: var(--t-base);
+  color: var(--text-muted);
+}
+
+.message {
+  max-width: 52ch;
+  margin: var(--s-16) auto;
+  padding: 0 var(--s-6);
+}
+
+.messageTitle {
+  font-family: var(--font-black);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.messageBody {
+  margin-top: var(--s-4);
+  font-size: var(--t-lg);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.messageLink {
+  display: inline-block;
+  margin-top: var(--s-6);
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+/* ------------------------------------------------------------- narrow */
+
+@media (max-width: 900px) {
+  .bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    height: auto;
+    padding: var(--s-2) var(--s-4);
+    row-gap: var(--s-2);
+  }
+
+  .switch {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+  }
+
+  .project {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .hideNarrow {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------- print */
+
+@media print {
+  .page {
+    display: block;
+    height: auto;
+    overflow: visible;
+    background: #fff;
+  }
+
+  .bar {
+    display: none;
+  }
+}

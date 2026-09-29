@@ -1,0 +1,106 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  max-width: 720px;
+  border-top: var(--hairline) solid var(--line);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-2);
+  border-bottom: var(--hairline) solid var(--line);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.row:hover {
+  background: var(--bg-raised-hover);
+}
+
+.row:hover .chevron {
+  color: var(--text);
+  transform: translateX(2px);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  overflow: hidden;
+  font-size: var(--t-lg);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: var(--t-small);
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.badge[data-location='cloud'] {
+  color: var(--accent-text);
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-faint);
+  transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.quiet {
+  font-size: var(--t-base);
+  color: var(--text-muted);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: 46ch;
+}
+
+.emptyTitle {
+  font-size: var(--t-xl);
+  font-weight: 700;
+}
+
+.emptyLink {
+  margin-top: var(--s-2);
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+@media (max-width: 520px) {
+  .badge {
+    display: none;
+  }
+}

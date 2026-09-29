@@ -193,3 +193,21 @@ canvas {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   Print — only the planning pages print on purpose (shotlist, stripboard),
+   but nothing should print as a clipped, one-screen-tall dark rectangle.
+   ========================================================================== */
+@media print {
+  html,
+  body {
+    height: auto;
+    overflow: visible;
+    background: #fff;
+    color: #111;
+  }
+
+  .grain {
+    display: none;
+  }
+}

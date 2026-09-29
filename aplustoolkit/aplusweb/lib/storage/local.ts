@@ -11,10 +11,20 @@ import type { LocalScript, ProjectMeta } from './types';
  * a script and its metadata are written together or not at all.
  */
 
+/** One JSON document kept beside a script (a shotlist set, a stripboard …). */
+export interface DataRow {
+  projectId: string;
+  key: string;
+  value: unknown;
+  updatedAt: number;
+  /** Changed here since the cloud last had it. Absent for local projects. */
+  dirty?: boolean;
+}
+
 interface AplusDB extends DBSchema {
   projects: { key: string; value: ProjectMeta };
   scripts: { key: string; value: LocalScript };
-  data: { key: [string, string]; value: { projectId: string; key: string; value: unknown; updatedAt: number } };
+  data: { key: [string, string]; value: DataRow };
   revisions: { key: string; value: Revision; indexes: { byProject: string } };
 }
 
@@ -134,8 +144,31 @@ export class LocalStore {
     return (row?.value as T | undefined) ?? null;
   }
 
-  async putData(projectId: string, key: string, value: unknown): Promise<void> {
-    await (await this.db()).put('data', { projectId, key, value, updatedAt: Date.now() });
+  async getDataRow(projectId: string, key: string): Promise<DataRow | undefined> {
+    return (await this.db()).get('data', [projectId, key]);
+  }
+
+  async putData(projectId: string, key: string, value: unknown, dirty = false): Promise<void> {
+    const row: DataRow = { projectId, key, value, updatedAt: Date.now() };
+    if (dirty) row.dirty = true;
+    await (await this.db()).put('data', row);
+  }
+
+  /**
+   * Marks a row as in step with the cloud — only if it still holds `value`,
+   * so an edit made while the save was in flight stays marked as unsaved.
+   */
+  async markDataClean(projectId: string, key: string, value: unknown): Promise<void> {
+    const db = await this.db();
+    const tx = db.transaction('data', 'readwrite');
+    const row = await tx.store.get([projectId, key]);
+    // Compared as JSON: what comes back from IndexedDB is a copy, never the same object.
+    if (row && row.dirty && JSON.stringify(row.value) === JSON.stringify(value)) {
+      const { dirty, ...clean } = row;
+      void dirty;
+      await tx.store.put(clean);
+    }
+    await tx.done;
   }
 }
 

@@ -1,0 +1,34 @@
+/*
+ * The stripboard's colour convention, the one every board since paper has
+ * used: interior day white, exterior day yellow, interior night blue,
+ * exterior night green. Shared by the stripboard's strips and the
+ * shotlist's scene chips, so the two views read as one.
+ *
+ * Fixed, light colours in every theme on purpose: a producer reads the
+ * colour, not the theme, and the dark text on them stays legible either way.
+ */
+.colored {
+  --strip-bg: #f7f5f0;
+  --strip-ink: #16150f;
+  --strip-edge: rgba(0, 0, 0, 0.14);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.colored[data-color='extDay'] {
+  --strip-bg: #ffe27a;
+  --strip-ink: #2a2100;
+  --strip-edge: rgba(0, 0, 0, 0.12);
+}
+
+.colored[data-color='intNight'] {
+  --strip-bg: #9cc7f0;
+  --strip-ink: #06213a;
+  --strip-edge: rgba(0, 0, 0, 0.12);
+}
+
+.colored[data-color='extNight'] {
+  --strip-bg: #9ed8a8;
+  --strip-ink: #0b2a12;
+  --strip-edge: rgba(0, 0, 0, 0.12);
+}

@@ -87,7 +87,7 @@ Ta en delfas i taget. Markera `[x]` här när den är pushad.
   - Lock-in (användaren godkände alla förslagen): klart = fokusläget (Ctrl+Skift+F) dämpar allt utom stycket, håller markörraden mitt i bild (typewriter) och tonar ut titelraden tills musen når övre kanten; Ctrl+Skift+↑/↓ flyttar scenen markören står i. Också klart: Ctrl+Skift+N snabbanteckning (`[[todo:]]` sist på raden), "Fortsätt skriva" på dashboarden, och i Ctrl+K: fokusläge, dämpning (stycke/scen/av), typewriter (fokus/alltid/av), öppna alltid i fokusläge (`lib/focusPrefs.ts`). Ren text-läge klart (Ctrl+K "ren text", `data-plain`). Kvar: (ren text-tema klart) utan pappersyta, Claude-fliken utan avbrott (redan bara en prick), Tab mellan elementtyper (kolla att elementFlow gör det).
   - Kvar (användarens val: mellan måttligt och hårt, aldrig för mycket på skärmen): skärmdumpsgenomgång i Ljust/Midnatt och mobil, ark (samma layout i export/titelsida/sök/tidslinje/inställningar), navigatorn, elementraden över sidan (överlappar sidan i smal bredd), Gemini-rester av inline-stilar.
 
-**Därefter:** Plan → Produktion, Casting, Live, realtid. Beredskapsanalysen ("Are we ready?") står i `PLAN.md` §5c.
+**Därefter:** Plan → Produktion (shotlist + stripboard klara 2026-09-29, se nedan), Casting, Live, realtid. Beredskapsanalysen ("Are we ready?") står i `PLAN.md` §5c.
 
 ## Nästa gång, först
 
@@ -168,6 +168,18 @@ Det är lagat, och v0.2.0 är den första riktiga releasen.
   ett projekt i databasen.
 - **En testrest:** ett projekt som heter *Testscen* ligger i den lokala appen efter
   provkörningen. Ta bort det i listan.
+
+## Plan → Produktion: shotlist och stripboard (2026-09-29)
+
+Första delen av Produktion. Båda sidorna läser manuset (ändrar det aldrig) och sparar bara planeringen, som projektdata bredvid manuset.
+
+- **Shotlist** — `/plan/shotlist` (välj manus) → `/plan/shotlist/[projectId]`. Scenerna till vänster med antal bilder och täckning ("4 av 12 scener har shotlist"), vald scens bilder till höger: nummer, storlek, beskrivning, vinkel, rörelse, objektiv, i bild, anteckning (+ spelkamerafälten för Minecraft). Alt+↑/↓ flyttar en bild, Ctrl+Enter lägger till. Samma `Shotlist`-form och samma nyckel (`shotlists`) som Claudes /shotlist-kort, så ett förslag som används i editorn syns här och tvärtom. Shotlists vars scen bytt rubrik hamnar under "Utan scen" och kan kopplas om; "Flytta till scen …" rättar en lista som hamnat fel. Inspektorns shotlist-ruta har en Redigera-länk hit.
+- **Stripboard** — `/plan/stripboard/[projectId]`. Scener som färgade remsor (inne/dag vit, ute/dag gul, inne/natt blå, ute/natt grön), oschemalagda till vänster, inspelningsdagar till höger. Dra mellan dagar, eller Alt+↑/↓ och menyn Flytta till …. Varje dag summerar sidor, scener, roller och säger till vid: över målet, förflyttningar, natt före dag. Startdatum + hoppa över helger ger datum per dag. "Lägg ut oschemalagda" gör ett första utkast (per plats, dag före natt, fyller till målet) utan att röra planerade dagar. Rollnummer som på ett riktigt board (flest scener = 1).
+- **Båda:** Ctrl+Z/Ctrl+Skift+Z (utanför textfält) och knappar i toppraden, CSV-export (semikolon + BOM som övriga rapporter), utskrift (egen utskriftslayout), mobilbredd, Ctrl+K "shotlist"/"stripboard" i editorn, och menyval på varje projekt i Write.
+- **Kod:** logiken i `packages/production/shotlist.ts` och `stripboard.ts` (rena funktioner, testade), vyerna i `aplusweb/components/production/`, ångra i `lib/history.ts` + `lib/hooks/useUndoable.ts`.
+- **Datasynk (delvis klar):** `useProjectData` synkar nu till `project_data` i Supabase för molnprojekt (`lib/storage/dataSync.ts`): lokalt först, moln strax efter, osparat lokalt vinner vid nästa öppning, annars molnets. Gäller shotlists, stripboard, profiler, Claude-texter och Stil & ton. Ingen ny SQL — tabellen och RLS fanns redan i `01_schema.sql`/`02_rls.sql`. Läses också om när fliken kommer tillbaka i fokus, så editorn och shotlist-sidan i två flikar inte skriver över varandra.
+- **Scener pekas ut** med `[[id:]]` om scenen har ett, annars rubrik + närmaste position (samma regel som resten av appen). Två scener med samma rubrik hålls isär. Byter man rubrik på en scen utan id kan listan hoppa till en annan scen med samma rubrik om den saknar egen lista — därav "Flytta till scen …".
+- **Kvar i Produktion:** day-out-of-days, callsheet-PDF per dag, rekvisita/kostym. Därefter Shoot: klappan läser shotlisten och dagens remsor.
 
 ## Minecraft-anpassning (2026-09-20)
 

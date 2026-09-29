@@ -203,6 +203,40 @@ const paths = {
     </>
   ),
 
+  /** A hooked arrow back. */
+  undo: (
+    <>
+      <path d="M7.2 4.8L4 8l3.2 3.2" />
+      <path d="M4 8h7.6a4.4 4.4 0 0 1 0 8.8H9" />
+    </>
+  ),
+
+  /** A hooked arrow forward. */
+  redo: (
+    <>
+      <path d="M12.8 4.8L16 8l-3.2 3.2" />
+      <path d="M16 8H8.4a4.4 4.4 0 0 0 0 8.8H11" />
+    </>
+  ),
+
+  /** A printer with a sheet coming out. */
+  print: (
+    <>
+      <path d="M6 7.5V3.5h8v4" />
+      <rect x="3.5" y="7.5" width="13" height="6.5" rx="1.4" />
+      <path d="M6 12h8v4.5H6z" />
+    </>
+  ),
+
+  /** A month page. The shooting schedule. */
+  calendar: (
+    <>
+      <rect x="3.5" y="4.5" width="13" height="12" rx="1.6" />
+      <path d="M3.5 8.5h13" />
+      <path d="M7 3v3M13 3v3" />
+    </>
+  ),
+
   /** An arrow into a cloud: move this project to the cloud. */
   upload: (
     <>

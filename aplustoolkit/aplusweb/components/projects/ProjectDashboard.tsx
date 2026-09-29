@@ -371,6 +371,9 @@ export function ProjectDashboard() {
                   <Menu
                     items={[
                       { label: t('open'), icon: 'write', onSelect: () => router.push(`/app/${project.id}`) },
+                      { label: t('openShotlist'), icon: 'cards', onSelect: () => router.push(`/plan/shotlist/${project.id}`) },
+                      { label: t('openStripboard'), icon: 'calendar', onSelect: () => router.push(`/plan/stripboard/${project.id}`) },
+                      'separator',
                       { label: t('rename'), icon: 'elCharacter', onSelect: () => setRenaming(project) },
                       {
                         label: t('duplicate'),

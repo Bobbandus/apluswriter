@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import type { Shotlist } from '@aplus/bridge/protocol';
@@ -8,17 +9,26 @@ import styles from './ShotlistBlock.module.css';
 export interface ShotlistBlockProps {
   shotlist: Shotlist;
   onRemove: () => void;
+  /** Where the full shotlist is edited. */
+  editHref?: string;
 }
 
 /** A scene's saved shotlist, compact enough to sit in the inspector. */
-export function ShotlistBlock({ shotlist, onRemove }: ShotlistBlockProps) {
+export function ShotlistBlock({ shotlist, onRemove, editHref }: ShotlistBlockProps) {
   const t = useTranslations('assistant');
 
   return (
     <section className={styles.block}>
       <div className={styles.head}>
         <p className={styles.label}>{t('shotlist')}</p>
-        <Button variant="ghost" size="sm" icon="trash" aria-label={t('remove')} onClick={onRemove} />
+        <span className={styles.actions}>
+          {editHref && (
+            <Link href={editHref} className={styles.edit}>
+              {t('editShotlist')}
+            </Link>
+          )}
+          <Button variant="ghost" size="sm" icon="trash" aria-label={t('remove')} onClick={onRemove} />
+        </span>
       </div>
 
       {shotlist.approach && <p className={styles.approach}>{shotlist.approach}</p>}

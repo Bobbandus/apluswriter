@@ -549,6 +549,8 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
       { id: 'viewCards', label: tCommand('viewCards'), group: tCommand('groupView'), keywords: 'kort indexkort struktur', run: () => setView('cards') },
       { id: 'settings', label: tCommand('settings'), group: tCommand('groupView'), keywords: 'tema språk sidformat', shortcut: shortcuts.binding('settings'), run: () => setSettingsOpen(true) },
       { id: 'projects', label: tCommand('projects'), group: tCommand('groupProject'), keywords: 'hem alla', run: () => router.push('/plan/write') },
+      { id: 'shotlist', label: tCommand('openShotlist'), group: tCommand('groupProject'), keywords: 'shotlist bilder kamera produktion', run: () => router.push(`/plan/shotlist/${projectId}`) },
+      { id: 'stripboard', label: tCommand('openStripboard'), group: tCommand('groupProject'), keywords: 'stripboard schema inspelningsdagar produktion schedule', run: () => router.push(`/plan/stripboard/${projectId}`) },
       ...script.sections.map((section, index) => ({
         id: `scene:section:${index}`,
         label: `${'  '.repeat(Math.max(0, section.depth - 1))}§ ${section.title}`,
@@ -568,7 +570,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         },
       })),
     ],
-    [tCommand, script.sections, script.scenes, router, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts, elementBar, setElementBar, exportVoiceLines],
+    [tCommand, script.sections, script.scenes, router, projectId, writing, togglePass, focusPrefs, setFocusPrefs, toggleDual, shortcuts, elementBar, setElementBar, exportVoiceLines],
   );
 
   useHotkeys({
@@ -661,7 +663,7 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
                   const list = scene ? assistant.shotlistFor(scene.heading, index) : null;
                   return (
                     <>
-                      {list ? <ShotlistBlock shotlist={list} onRemove={() => assistant.removeShotlist(list)} /> : null}
+                      {list ? <ShotlistBlock shotlist={list} onRemove={() => assistant.removeShotlist(list)} editHref={`/plan/shotlist/${projectId}`} /> : null}
                       {scene && (
                         <SceneAlternatives
                           alternatives={alternativesOf(source, index)}
