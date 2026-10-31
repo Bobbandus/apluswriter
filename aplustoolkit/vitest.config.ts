@@ -13,6 +13,7 @@ export default defineConfig({
       '@aplus/bridge': at('./packages/bridge'),
       '@aplus/production': at('./packages/production'),
       '@aplus/live': at('./packages/live'),
+      '@aplus/shoot': at('./packages/shoot'),
       '@': at('./aplusweb'),
     },
   },

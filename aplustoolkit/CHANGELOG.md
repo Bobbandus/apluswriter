@@ -16,6 +16,14 @@ manuset.
   första inspelningsdagen, och varnar för för fulla dagar, flyttar mellan
   platser och natt före dag. "Lägg ut oschemalagda" gör ett första utkast.
 - Båda går att ångra, skriva ut och exportera till Excel.
+- **A+ Shoot: Klappa.** En digital filmklappa för telefonen eller plattan
+  (A+ Shoot → Klappa). Tryck på klappan överst så klappar den och tidskoden
+  fryser på exakt den bildruta klappan slår ihop, med ett ljud att synka mot.
+  Tryck igen så öppnas den, klockan går och tagningen räknas upp. Svep åt
+  vänster (eller tryck på en ruta) för att ändra allt: rulle, scen, tagning,
+  produktion, regi, foto, anteckning, datum, rubriker, bildfrekvens och
+  tidskod (klockan eller egen start). Varje klapp loggas och kan kopieras.
+  Allt sparas i webbläsaren, och skärmen hålls tänd.
 - **Molnprojekt synkar nu också shotlists, schema och Claudes sparade texter**,
   inte bara manuset, så de finns på alla datorer du loggar in på.
 

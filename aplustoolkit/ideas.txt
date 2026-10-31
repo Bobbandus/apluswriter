@@ -58,8 +58,9 @@ KOMMER SENARE
    schemalagd. Ingen Google Kalender behövs. Bot är mer än webhook, välj
    när det blir aktuellt.
 
-9. Filmklappa och tagningslogg som mobil-webbapp (beslut 2026-09-20: inte än)
-   Hör till A+ Shoot. Scen, bild och tagning fylls i från manuset.
+9. Filmklappa och tagningslogg som mobil-webbapp
+   BYGGT 2026-10-31: /shoot/klappa. Klappa fryser tidskoden, svep vänster för
+   inställningar, logg över klappar. KVAR: scen och bild från shotlisten.
 
 10. Realtidsskrivning tillsammans, roller/behörigheter, A+ Casting, A+ Live
     Alla i framtiden. Beredskapsanalys (vad som finns, vad som saknas) står i
@@ -92,7 +93,7 @@ Sajten heter A+ Toolkit. Tre delar, alla nås från startsidan:
 
   A+ Plan   = A+ Write, omdöpt. Undersidor: Write (manus, finns), Shotlist,
               Casting (båda bara "kommer"-sidor än).
-  A+ Shoot  = verktyg för inspelningsdagen. Inget byggt.
+  A+ Shoot  = verktyg för inspelningsdagen. Klappan (/shoot/klappa) är byggd.
   A+ Live   = overlays och grafik för livesändning. Inget byggt.
 
 Endast för eget bruk (A+ Studios). Inga publika användarkonton behövs.

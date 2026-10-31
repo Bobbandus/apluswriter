@@ -25,6 +25,9 @@
       ],
       "@aplus/live/*": [
         "../packages/live/*"
+      ],
+      "@aplus/shoot/*": [
+        "../packages/shoot/*"
       ]
     }
   },

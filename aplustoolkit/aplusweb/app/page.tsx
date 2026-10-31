@@ -12,7 +12,7 @@ export default async function ToolkitHome() {
     <ToolkitPage eyebrow={t('eyebrow')} title={t('name')} lead={t('tagline')}>
       <div className={grid.grid}>
         <ToolCard href="/plan" image="planhero.png" title={t('plan.title')} blurb={t('plan.blurb')} openLabel={t('open')} />
-        <ToolCard href="/shoot" image="shoothero.png" title={t('shoot.title')} blurb={t('shoot.blurb')} soonLabel={t('soon')} openLabel={t('open')} />
+        <ToolCard href="/shoot" image="shoothero.png" title={t('shoot.title')} blurb={t('shoot.blurb')} openLabel={t('open')} />
         <ToolCard href="/live" image="livehero.png" title={t('live.title')} blurb={t('live.blurb')} soonLabel={t('soon')} openLabel={t('open')} />
       </div>
       <DesktopDownloadBanner />

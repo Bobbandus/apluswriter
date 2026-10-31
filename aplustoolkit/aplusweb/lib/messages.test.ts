@@ -18,7 +18,7 @@ const sv = read('sv');
 const en = read('en');
 
 describe('messages', () => {
-  it.each(['production', 'toolkit', 'command', 'projects', 'assistant'])('has the same %s keys in Swedish and English', (namespace) => {
+  it.each(['production', 'toolkit', 'shoot', 'command', 'projects', 'assistant'])('has the same %s keys in Swedish and English', (namespace) => {
     expect(keys(en[namespace]).sort()).toEqual(keys(sv[namespace]).sort());
   });
 

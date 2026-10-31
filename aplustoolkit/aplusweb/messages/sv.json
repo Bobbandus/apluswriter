@@ -681,12 +681,12 @@
       "title": "A+ Shoot",
       "blurb": "Verktyg för inspelningsdagen.",
       "lead": "Det du behöver på set.",
-      "p1": "Detaljerad shotlist på set",
-      "p2": "Blockingtips per scen",
-      "p3": "Filmklappa som kopplas till manuset automatiskt",
+      "plannedNote": "Klappan finns. Resten är planen.",
+      "p1": "Klappan kopplad till manuset: scen och bild från shotlisten",
+      "p2": "Detaljerad shotlist på set",
+      "p3": "Blockingtips per scen",
       "p4": "Gearöversikt",
-      "p5": "Dagens schema och rapporter",
-      "p6": "Logg per tagning"
+      "p5": "Dagens schema och rapport efter dagen"
     },
     "live": {
       "title": "A+ Live",
@@ -725,6 +725,10 @@
     "stripboard": {
       "title": "Stripboard",
       "blurb": "Lägg ut scenerna på inspelningsdagar."
+    },
+    "slate": {
+      "title": "Klappa",
+      "blurb": "Digital filmklappa med tidskod."
     }
   },
   "quickNote": {
@@ -1065,5 +1069,53 @@
       "night": "N"
     },
     "printStripboardTitle": "Inspelningsschema"
+  },
+  "shoot": {
+    "clap": "Klappa",
+    "openSticks": "Öppna klappan",
+    "settings": "Inställningar",
+    "close": "Stäng",
+    "sectionSlate": "Klappan",
+    "sectionTimecode": "Tidskod",
+    "sectionScreen": "Skärm",
+    "sectionLog": "Klappar",
+    "sectionLabels": "Rubriker",
+    "field": {
+      "roll": "Rulle",
+      "scene": "Scen",
+      "take": "Tagning",
+      "prod": "Produktion",
+      "dir": "Regi",
+      "dop": "Foto",
+      "note": "Anteckning",
+      "date": "Datum"
+    },
+    "takeDown": "En tagning bakåt",
+    "takeUp": "En tagning framåt",
+    "today": "Idag",
+    "dateHint": "Tomt betyder dagens datum.",
+    "rate": "Bildfrekvens",
+    "mode": "Källa",
+    "modeTod": "Klockan",
+    "modeJam": "Egen start",
+    "modeTodHint": "Tidskoden är klockan i telefonen.",
+    "modeJamHint": "Tidskoden går fritt från den du satte.",
+    "jamLabel": "Starta tidskoden från",
+    "jamStart": "Starta härifrån",
+    "jamInvalid": "Det är inte en tidskod i den här bildfrekvensen.",
+    "autoTake": "Räkna upp tagningen när klappan öppnas",
+    "sound": "Ljud vid klapp",
+    "fullscreen": "Helskärm",
+    "exitFullscreen": "Lämna helskärm",
+    "wakeOn": "Skärmen hålls tänd medan klappan är öppen.",
+    "wakeOff": "Den här webbläsaren kan inte hålla skärmen tänd. Stäng av automatisk skärmlåsning medan du filmar.",
+    "keys": "Tangentbord: mellanslag klappar, E öppnar inställningarna, Esc stänger.",
+    "logEmpty": "Inga klappar än.",
+    "copyLog": "Kopiera",
+    "copied": "Kopierat",
+    "clearLog": "Rensa",
+    "clearConfirm": "Rensa alla klappar?",
+    "labelsHint": "Vad rutorna heter på klappan.",
+    "resetLabels": "Återställ rubriker"
   }
 }

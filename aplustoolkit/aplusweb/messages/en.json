@@ -681,12 +681,12 @@
       "title": "A+ Shoot",
       "blurb": "Tools for the shooting day.",
       "lead": "What you need on set.",
-      "p1": "Detailed on-set shotlist",
-      "p2": "Blocking tips per scene",
-      "p3": "A slate that connects to the script automatically",
+      "plannedNote": "The slate is here. The rest is the plan.",
+      "p1": "The slate linked to the script: scene and shot from the shotlist",
+      "p2": "Detailed shotlist on set",
+      "p3": "Blocking notes per scene",
       "p4": "Gear overview",
-      "p5": "The day's schedule and reports",
-      "p6": "Take-by-take log"
+      "p5": "Today's schedule and a wrap report"
     },
     "live": {
       "title": "A+ Live",
@@ -725,6 +725,10 @@
     "stripboard": {
       "title": "Stripboard",
       "blurb": "Lay the scenes out on shooting days."
+    },
+    "slate": {
+      "title": "Slate",
+      "blurb": "A digital clapperboard with timecode."
     }
   },
   "quickNote": {
@@ -1065,5 +1069,53 @@
       "night": "N"
     },
     "printStripboardTitle": "Shooting schedule"
+  },
+  "shoot": {
+    "clap": "Clap",
+    "openSticks": "Open the sticks",
+    "settings": "Settings",
+    "close": "Close",
+    "sectionSlate": "Slate",
+    "sectionTimecode": "Timecode",
+    "sectionScreen": "Screen",
+    "sectionLog": "Claps",
+    "sectionLabels": "Labels",
+    "field": {
+      "roll": "Roll",
+      "scene": "Scene",
+      "take": "Take",
+      "prod": "Production",
+      "dir": "Director",
+      "dop": "DOP",
+      "note": "Note",
+      "date": "Date"
+    },
+    "takeDown": "One take back",
+    "takeUp": "One take on",
+    "today": "Today",
+    "dateHint": "Empty means today's date.",
+    "rate": "Frame rate",
+    "mode": "Source",
+    "modeTod": "Clock",
+    "modeJam": "Set start",
+    "modeTodHint": "Timecode is the phone's clock.",
+    "modeJamHint": "Timecode free-runs from the value you set.",
+    "jamLabel": "Start timecode from",
+    "jamStart": "Start from here",
+    "jamInvalid": "That is not a timecode at this frame rate.",
+    "autoTake": "Count the take up when the sticks open",
+    "sound": "Sound on clap",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Leave full screen",
+    "wakeOn": "The screen stays on while the slate is open.",
+    "wakeOff": "This browser cannot keep the screen on. Turn off auto-lock while you shoot.",
+    "keys": "Keyboard: space claps, E opens settings, Esc closes.",
+    "logEmpty": "No claps yet.",
+    "copyLog": "Copy",
+    "copied": "Copied",
+    "clearLog": "Clear",
+    "clearConfirm": "Clear every clap?",
+    "labelsHint": "What the boxes are called on the slate.",
+    "resetLabels": "Reset labels"
   }
 }
