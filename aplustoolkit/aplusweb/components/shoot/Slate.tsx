@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { clap, currentLabel, defaultSlate, edit, normalizeSlate, open, slateDate, type SlateField, type SlateState } from '@aplus/shoot/slate';
 import { formatTimecode } from '@aplus/shoot/timecode';
@@ -28,6 +28,23 @@ function lengthClass(value: string, big: boolean): 'long' | 'longer' | undefined
   return value.length > longer ? 'longer' : value.length > long ? 'long' : undefined;
 }
 
+/** The slate run from a script: A+ Shoot decides scene and take, and is told of every clap. */
+export interface SlateLink {
+  /** What the SCENE box says: "35A". */
+  scene: string;
+  take: number;
+  /** Written as PROD when the slate's own is empty: the script's title. */
+  prod: string;
+  /** The frame the sticks met, and what else was on the slate. */
+  onClap: (clap: { tc: string; at: number; roll: string; note: string }) => void;
+  /** Scene and shot pickers, at the top of the panel. */
+  panel: ReactNode;
+  /** A line under the board: what is up next. */
+  hint?: string;
+  back: string;
+  backLabel: string;
+}
+
 const isSwipe = (dx: number, dy: number, direction: -1 | 1) => dx * direction > SWIPE_PX && Math.abs(dx) > Math.abs(dy) * 1.5;
 
 /**
@@ -36,7 +53,7 @@ const isSwipe = (dx: number, dy: number, direction: -1 | 1) => dx * direction > 
  * lets the clock run. Swipe left (or tap a box) for the panel where everything
  * on it can be changed.
  */
-export function Slate() {
+export function Slate({ link }: { link?: SlateLink } = {}) {
   const t = useTranslations('shoot');
   const [state, setState] = useState<SlateState | null>(null);
   const [falling, setFalling] = useState(false);
@@ -48,6 +65,10 @@ export function Slate() {
   stateRef.current = state;
   const tcRef = useRef<HTMLSpanElement>(null);
   const swipe = useRef<{ x: number; y: number; swiped: boolean }>({ x: 0, y: 0, swiped: false });
+  const linkRef = useRef(link);
+  linkRef.current = link;
+  /** In linked mode: what scene and take were on the slate when it clapped, held while the sticks are shut. */
+  const [frozen, setFrozen] = useState<{ scene: string; take: number } | null>(null);
 
   // Storage is the browser's, so the slate appears once it is read: no flash of defaults over last night's scene.
   useEffect(() => setState(load()), []);
@@ -123,6 +144,7 @@ export function Slate() {
     const s = stateRef.current;
     if (!s || falling) return;
     if (s.closed) {
+      setFrozen(null);
       setState((cur) => (cur ? open(cur) : cur));
       return;
     }
@@ -131,7 +153,19 @@ export function Slate() {
     if (s.sound) playClap(CLAP_MS / 1000);
     window.setTimeout(() => {
       const now = Date.now();
-      setState((cur) => (cur ? clap(cur, formatTimecode(currentLabel(cur, now), cur.rate), now) : cur));
+      const cur = stateRef.current;
+      if (cur) {
+        const tc = formatTimecode(currentLabel(cur, now), cur.rate);
+        const linked = linkRef.current;
+        if (linked) {
+          // The script keeps the takes; the slate's own scene, take and log stay as they were for when it is used alone.
+          setFrozen({ scene: linked.scene, take: linked.take });
+          linked.onClap({ tc, at: now, roll: cur.roll, note: cur.note });
+          setState((c) => (c ? { ...c, closed: true, frozenTc: tc, advancePending: false } : c));
+        } else {
+          setState((c) => (c ? clap(c, tc, now) : c));
+        }
+      }
       setFlash((n) => n + 1);
       setFalling(false);
       navigator.vibrate?.(25);
@@ -185,6 +219,9 @@ export function Slate() {
   if (!state) return <div className={styles.stage} />;
 
   const shut = state.closed || falling;
+  const shownScene = link ? (state.closed && frozen ? frozen.scene : link.scene) : state.scene;
+  const shownTake = link ? (state.closed && frozen ? frozen.take : link.take) : state.take;
+  const shownProd = state.prod || link?.prod || '';
   const L = state.labels;
   /** Long text is written smaller rather than cut off, as far as it can be. */
   const box = (field: SlateField, value: string, className?: string) => (
@@ -239,10 +276,10 @@ export function Slate() {
 
           <div className={styles.row3}>
             {box('roll', state.roll, styles.big)}
-            {box('scene', state.scene, styles.big)}
-            {box('take', String(state.take), styles.big)}
+            {box('scene', shownScene, styles.big)}
+            {box('take', String(shownTake), styles.big)}
           </div>
-          <div className={styles.row1}>{box('prod', state.prod)}</div>
+          <div className={styles.row1}>{box('prod', shownProd)}</div>
           <div className={styles.row2}>
             {box('dir', state.dir)}
             {box('dop', state.dop)}
@@ -252,6 +289,7 @@ export function Slate() {
             {box('date', state.date || today)}
           </div>
         </div>
+        {link?.hint && <p className={styles.hint}>{link.hint}</p>}
       </div>
 
       <button type="button" className={styles.handle} onClick={() => tapped() && openPanel()} aria-label={t('settings')}>
@@ -268,6 +306,7 @@ export function Slate() {
         onReplace={replace}
         onClose={closePanel}
         isSwipeRight={(dx, dy) => isSwipe(dx, dy, 1)}
+        linked={link ? { panel: link.panel, back: link.back, backLabel: link.backLabel } : undefined}
       />
     </div>
   );

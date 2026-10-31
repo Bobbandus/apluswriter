@@ -9,7 +9,7 @@ import type { ProjectMeta } from '@/lib/storage/types';
 import styles from './ProjectPicker.module.css';
 
 export interface ProjectPickerProps {
-  tool: 'shotlist' | 'stripboard';
+  tool: 'shotlist' | 'stripboard' | 'shoot';
 }
 
 /**
@@ -53,7 +53,7 @@ export function ProjectPicker({ tool }: ProjectPickerProps) {
     <ul className={styles.list}>
       {projects.map((project) => (
         <li key={project.id}>
-          <Link href={`/plan/${tool}/${project.id}`} className={styles.row}>
+          <Link href={tool === 'shoot' ? `/shoot/${project.id}` : `/plan/${tool}/${project.id}`} className={styles.row}>
             <span className={styles.icon} aria-hidden="true">
               <Icon name="write" size={16} />
             </span>

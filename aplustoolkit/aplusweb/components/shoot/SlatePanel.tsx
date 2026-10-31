@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_LABELS, SLATE_FIELDS, changeRate, logAsText, type SlateField, type SlateState } from '@aplus/shoot/slate';
 import { FRAME_RATES, formatTimecode, isFrameRate, parseTimecode } from '@aplus/shoot/timecode';
@@ -18,11 +18,31 @@ export interface SlatePanelProps {
   onReplace: (next: SlateState) => void;
   onClose: () => void;
   isSwipeRight: (dx: number, dy: number) => boolean;
+  /** Linked to a script: scene and take come from there, and this goes at the top of the panel instead. */
+  linked?: { panel: ReactNode; back: string; backLabel: string } | undefined;
 }
+
+type FullscreenDoc = Document & { webkitFullscreenEnabled?: boolean; webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
+type FullscreenEl = HTMLElement & { webkitRequestFullscreen?: () => void };
+
+/** Fullscreen, including Safari on iPad, which still only has the prefixed calls on older versions. */
+const fs = {
+  enabled: () => Boolean(document.fullscreenEnabled || (document as FullscreenDoc).webkitFullscreenEnabled),
+  active: () => Boolean(document.fullscreenElement || (document as FullscreenDoc).webkitFullscreenElement),
+  enter: () => {
+    const el = document.documentElement as FullscreenEl;
+    if (el.requestFullscreen) void el.requestFullscreen().catch(() => undefined);
+    else el.webkitRequestFullscreen?.();
+  },
+  exit: () => {
+    if (document.exitFullscreen) void document.exitFullscreen().catch(() => undefined);
+    else (document as FullscreenDoc).webkitExitFullscreen?.();
+  },
+};
 
 
 /** Everything on the slate, changeable. Slides in from the right; swipe right or tap outside to put it away. */
-export function SlatePanel({ open, focus, state, today, wakeSupported, onChange, onReplace, onClose, isSwipeRight }: SlatePanelProps) {
+export function SlatePanel({ open, focus, state, today, wakeSupported, onChange, onReplace, onClose, isSwipeRight, linked }: SlatePanelProps) {
   const t = useTranslations('shoot');
   const inputs = useRef<Partial<Record<SlateField, HTMLInputElement | null>>>({});
   const start = useRef({ x: 0, y: 0, active: false });
@@ -42,11 +62,15 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
   }, [open, focus]);
 
   useEffect(() => {
-    setCanFullscreen(Boolean(document.fullscreenEnabled));
-    const sync = () => setFullscreen(Boolean(document.fullscreenElement));
+    setCanFullscreen(fs.enabled());
+    const sync = () => setFullscreen(fs.active());
     sync();
     document.addEventListener('fullscreenchange', sync);
-    return () => document.removeEventListener('fullscreenchange', sync);
+    document.addEventListener('webkitfullscreenchange', sync);
+    return () => {
+      document.removeEventListener('fullscreenchange', sync);
+      document.removeEventListener('webkitfullscreenchange', sync);
+    };
   }, []);
 
   // The jam field starts from where the free-run clock was last set.
@@ -85,8 +109,8 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
   };
 
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void document.documentElement.requestFullscreen?.().catch(() => undefined);
+    if (fs.active()) fs.exit();
+    else fs.enter();
   };
 
   const copyLog = async () => {
@@ -118,19 +142,21 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
         onPointerUp={onPointerUp}
       >
         <header className={styles.head}>
-          <Link href="/shoot" className={styles.back}>
-            ← A+ Shoot
+          <Link href={linked?.back ?? '/shoot'} className={styles.back}>
+            ← {linked?.backLabel ?? 'A+ Shoot'}
           </Link>
           <button type="button" className={styles.close} onClick={onClose} aria-label={t('close')}>
             ✕
           </button>
         </header>
 
+        {linked?.panel}
+
         <section className={styles.section}>
           <h2 className={styles.heading}>{t('sectionSlate')}</h2>
 
           <div className={styles.grid}>
-            {(['roll', 'scene'] as const).map((name) => (
+            {(linked ? (['roll'] as const) : (['roll', 'scene'] as const)).map((name) => (
               <label key={name} className={styles.field} htmlFor={field(name)}>
                 <span>{t(`field.${name}`)}</span>
                 <input
@@ -148,6 +174,7 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
             ))}
           </div>
 
+          {!linked && (
           <div className={styles.field}>
             <label htmlFor={field('take')}>{t('field.take')}</label>
             <div className={styles.stepper}>
@@ -175,6 +202,7 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
               </button>
             </div>
           </div>
+          )}
 
           {(['prod', 'dir', 'dop'] as const).map((name) => (
             <label key={name} className={styles.field} htmlFor={field(name)}>
@@ -306,10 +334,12 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
             {jamError && <p className={styles.error}>{t('jamInvalid')}</p>}
           </div>
 
+          {!linked && (
           <label className={styles.check}>
             <input type="checkbox" checked={state.autoTake} onChange={(e) => onChange({ autoTake: e.target.checked })} />
             <span>{t('autoTake')}</span>
           </label>
+          )}
           <label className={styles.check}>
             <input type="checkbox" checked={state.sound} onChange={(e) => onChange({ sound: e.target.checked })} />
             <span>{t('sound')}</span>

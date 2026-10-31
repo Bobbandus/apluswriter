@@ -31,8 +31,32 @@
 .slate {
   container-type: inline-size;
   position: relative;
+  /* One hundredth of the slate's width. Container units where the browser has
+     them; on older Safari (an iPad on iPadOS 15) the same width worked out from
+     the viewport, so the board still scales as one piece. */
+  --u: 1cqw;
   /* Wide enough to read across a set, small enough that sticks and board both fit. */
-  width: min(100%, calc((100dvh - 24px) * 1.12), 1100px);
+  width: min(100%, calc((100vh - 44px) * 1.12), 1100px);
+  width: min(100%, calc((100dvh - 44px) * 1.12), 1100px);
+}
+
+@supports not (width: 1cqw) {
+  .slate {
+    --u: calc(min(100vw - 32px, (100vh - 44px) * 1.12, 1100px) / 100);
+  }
+}
+
+.hint {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  pointer-events: none;
 }
 
 /* ---------- Sticks ---------- */
@@ -42,7 +66,7 @@
   display: block;
   width: 100%;
   /* Tall enough for the top stick at its highest, so it is never cut off. */
-  height: 27cqw;
+  height: calc(27 * var(--u));
   margin: 0;
   padding: 0;
   border: 0;
@@ -60,23 +84,23 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 7.8cqw;
-  border-radius: 0.7cqw;
+  height: calc(7.8 * var(--u));
+  border-radius: calc(0.7 * var(--u));
   background: linear-gradient(180deg, #7b7c82 0%, #5e5f65 100%);
   box-shadow:
-    inset 0 0.15cqw 0 rgba(255, 255, 255, 0.18),
-    0 0.3cqw 0.8cqw rgba(0, 0, 0, 0.45);
+    inset 0 calc(0.15 * var(--u)) 0 rgba(255, 255, 255, 0.18),
+    0 calc(0.3 * var(--u)) calc(0.8 * var(--u)) rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 
 .bottom {
-  bottom: 0.4cqw;
+  bottom: calc(0.4 * var(--u));
 }
 
 /* Hinged at the left, where the plate is. Open by default; the clap is the fall. */
 .top {
-  bottom: 8.5cqw;
-  transform-origin: 3.5cqw 100%;
+  bottom: calc(8.5 * var(--u));
+  transform-origin: calc(3.5 * var(--u)) 100%;
   transform: rotate(-7deg);
   transition: transform 260ms cubic-bezier(0.2, 0.9, 0.3, 1.15);
 }
@@ -89,11 +113,11 @@
 
 .stripes {
   position: absolute;
-  top: 1.1cqw;
-  bottom: 1.1cqw;
-  left: 17cqw;
-  right: 3.5cqw;
-  border-radius: 0.2cqw;
+  top: calc(1.1 * var(--u));
+  bottom: calc(1.1 * var(--u));
+  left: calc(17 * var(--u));
+  right: calc(3.5 * var(--u));
+  border-radius: calc(0.2 * var(--u));
   background: linear-gradient(
     116deg,
     #2fbb4c 0 10%,
@@ -112,28 +136,28 @@
 .hinge {
   position: absolute;
   left: 0;
-  bottom: 0.4cqw;
-  width: 15.5cqw;
-  height: 16.4cqw;
+  bottom: calc(0.4 * var(--u));
+  width: calc(15.5 * var(--u));
+  height: calc(16.4 * var(--u));
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr auto 1fr;
   align-items: center;
   justify-items: center;
-  padding: 1.6cqw 2.6cqw 1.6cqw 1.8cqw;
-  border-radius: 0.7cqw 0 0 0.7cqw;
+  padding: calc(1.6 * var(--u)) calc(2.6 * var(--u)) calc(1.6 * var(--u)) calc(1.8 * var(--u));
+  border-radius: calc(0.7 * var(--u)) 0 0 calc(0.7 * var(--u));
   background: linear-gradient(160deg, #a4a5ab 0%, #7d7e84 55%, #6a6b71 100%);
   clip-path: polygon(0 0, 78% 0, 100% 38%, 100% 100%, 0 100%);
-  box-shadow: inset 0 0.15cqw 0 rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 calc(0.15 * var(--u)) 0 rgba(255, 255, 255, 0.35);
   pointer-events: none;
 }
 
 .screw {
-  width: 1.6cqw;
-  height: 1.6cqw;
+  width: calc(1.6 * var(--u));
+  height: calc(1.6 * var(--u));
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #e3e3e6 0%, #9b9ba0 45%, #5b5b60 100%);
-  box-shadow: 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.5);
+  box-shadow: 0 calc(0.1 * var(--u)) calc(0.2 * var(--u)) rgba(0, 0, 0, 0.5);
 }
 
 .screw:first-child {
@@ -155,11 +179,11 @@
   grid-column: 1 / -1;
   grid-row: 2;
   font-family: var(--font-black);
-  font-size: 3cqw;
+  font-size: calc(3 * var(--u));
   line-height: 1;
   color: #f4f4f4;
   letter-spacing: 0.02em;
-  text-shadow: 0 0.1cqw 0.15cqw rgba(0, 0, 0, 0.35);
+  text-shadow: 0 calc(0.1 * var(--u)) calc(0.15 * var(--u)) rgba(0, 0, 0, 0.35);
 }
 
 .plus {
@@ -169,21 +193,21 @@
 /* ---------- Board ---------- */
 
 .board {
-  border: 0.9cqw solid var(--slate-frame);
-  border-top-width: 0.6cqw;
-  border-radius: 0.4cqw 0.4cqw 1.6cqw 1.6cqw;
+  border: calc(0.9 * var(--u)) solid var(--slate-frame);
+  border-top-width: calc(0.6 * var(--u));
+  border-radius: calc(0.4 * var(--u)) calc(0.4 * var(--u)) calc(1.6 * var(--u)) calc(1.6 * var(--u));
   background: var(--slate-board);
   overflow: hidden;
-  box-shadow: 0 1.5cqw 4cqw rgba(0, 0, 0, 0.55);
+  box-shadow: 0 calc(1.5 * var(--u)) calc(4 * var(--u)) rgba(0, 0, 0, 0.55);
 }
 
 .display {
   position: relative;
   display: grid;
   place-items: center;
-  height: 18cqw;
+  height: calc(18 * var(--u));
   background: #080808;
-  border-bottom: 0.35cqw solid var(--slate-line);
+  border-bottom: calc(0.35 * var(--u)) solid var(--slate-line);
   overflow: hidden;
 }
 
@@ -195,16 +219,16 @@
 .tc {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 12.6cqw;
+  font-size: calc(12.6 * var(--u));
   line-height: 1;
   letter-spacing: -0.02em;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   /* Dot-matrix: the glyph shows through a grid of round holes. */
-  -webkit-mask-image: radial-gradient(circle, #000 0.27cqw, transparent 0.33cqw);
-  mask-image: radial-gradient(circle, #000 0.27cqw, transparent 0.33cqw);
-  -webkit-mask-size: 0.72cqw 0.72cqw;
-  mask-size: 0.72cqw 0.72cqw;
+  -webkit-mask-image: radial-gradient(circle, #000 calc(0.27 * var(--u)), transparent calc(0.33 * var(--u)));
+  mask-image: radial-gradient(circle, #000 calc(0.27 * var(--u)), transparent calc(0.33 * var(--u)));
+  -webkit-mask-size: calc(0.72 * var(--u)) calc(0.72 * var(--u));
+  mask-size: calc(0.72 * var(--u)) calc(0.72 * var(--u));
 }
 
 .ghost {
@@ -212,7 +236,7 @@
 }
 
 .glow {
-  filter: drop-shadow(0 0 0.7cqw var(--slate-led-glow));
+  filter: drop-shadow(0 0 calc(0.7 * var(--u)) var(--slate-led-glow));
 }
 
 .tc {
@@ -242,7 +266,7 @@
 .row2,
 .row1 {
   display: grid;
-  border-bottom: 0.35cqw solid var(--slate-line);
+  border-bottom: calc(0.35 * var(--u)) solid var(--slate-line);
 }
 
 .board > :last-child {
@@ -251,22 +275,22 @@
 
 .row3 {
   grid-template-columns: 1fr 1fr 1fr;
-  height: 14cqw;
+  height: calc(14 * var(--u));
 }
 
 .row2 {
   grid-template-columns: 1fr 1fr;
-  height: 9.6cqw;
+  height: calc(9.6 * var(--u));
 }
 
 .row1 {
   grid-template-columns: 1fr;
-  height: 9.6cqw;
+  height: calc(9.6 * var(--u));
 }
 
 .row3 > * + *,
 .row2 > * + * {
-  border-left: 0.35cqw solid var(--slate-line);
+  border-left: calc(0.35 * var(--u)) solid var(--slate-line);
 }
 
 .box {
@@ -275,7 +299,7 @@
   flex-direction: column;
   min-width: 0;
   margin: 0;
-  padding: 0.7cqw 1.6cqw 0.6cqw;
+  padding: calc(0.7 * var(--u)) calc(1.6 * var(--u)) calc(0.6 * var(--u));
   border: 0;
   background: transparent;
   color: var(--slate-ink);
@@ -291,7 +315,7 @@
 
 .label {
   font-family: var(--font-ui);
-  font-size: 2.4cqw;
+  font-size: calc(2.4 * var(--u));
   font-weight: 500;
   letter-spacing: 0.06em;
   line-height: 1.1;
@@ -308,7 +332,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   font-family: var(--font-marker), 'Marker Felt', 'Comic Sans MS', cursive;
-  font-size: 4.6cqw;
+  font-size: calc(4.6 * var(--u));
   line-height: 1;
   color: var(--slate-ink);
 }
@@ -317,27 +341,27 @@
 .row1 .value,
 .row2 > :first-child .value {
   justify-content: flex-start;
-  padding-left: 4cqw;
+  padding-left: calc(4 * var(--u));
 }
 
 .big .value {
-  font-size: 7.4cqw;
+  font-size: calc(7.4 * var(--u));
 }
 
 .box[data-len='long'] .value {
-  font-size: 3.4cqw;
+  font-size: calc(3.4 * var(--u));
 }
 
 .big[data-len='long'] .value {
-  font-size: 5cqw;
+  font-size: calc(5 * var(--u));
 }
 
 .box[data-len='longer'] .value {
-  font-size: 2.6cqw;
+  font-size: calc(2.6 * var(--u));
 }
 
 .big[data-len='longer'] .value {
-  font-size: 3.6cqw;
+  font-size: calc(3.6 * var(--u));
 }
 
 /* ---------- The way into the panel, for those without a swipe ---------- */

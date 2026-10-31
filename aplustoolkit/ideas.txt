@@ -59,8 +59,8 @@ KOMMER SENARE
    när det blir aktuellt.
 
 9. Filmklappa och tagningslogg som mobil-webbapp
-   BYGGT 2026-10-31: /shoot/klappa. Klappa fryser tidskoden, svep vänster för
-   inställningar, logg över klappar. KVAR: scen och bild från shotlisten.
+   BYGGT 2026-10-31: /shoot/klappa (fristående) och /shoot/<projekt>/klappa
+   (kopplad till manuset: scen och bild från shotlisten, tagningar loggas).
 
 10. Realtidsskrivning tillsammans, roller/behörigheter, A+ Casting, A+ Live
     Alla i framtiden. Beredskapsanalys (vad som finns, vad som saknas) står i
@@ -93,7 +93,7 @@ Sajten heter A+ Toolkit. Tre delar, alla nås från startsidan:
 
   A+ Plan   = A+ Write, omdöpt. Undersidor: Write (manus, finns), Shotlist,
               Casting (båda bara "kommer"-sidor än).
-  A+ Shoot  = verktyg för inspelningsdagen. Klappan (/shoot/klappa) är byggd.
+  A+ Shoot  = verktyg för inspelningsdagen. BYGGT 2026-10-31, se nedan.
   A+ Live   = overlays och grafik för livesändning. Inget byggt.
 
 Endast för eget bruk (A+ Studios). Inga publika användarkonton behövs.
@@ -103,7 +103,11 @@ FRÅGA ANVÄNDAREN innan något av det här byggs. Ställ ja/nej-frågor först,
 som vi gjorde för A+ Write.
 
 ------------------------------------------------------------------------
-A+ SHOOT — planerade verktyg
+A+ SHOOT — BYGGT 2026-10-31 (/shoot/<projekt>, anpassat för iPad)
+Allt nedan finns. Data sparas som projektdata 'shoot' (synkas), utom
+kontinuitetsfotona som ligger i IndexedDB på enheten. Logik: packages/shoot.
+KVAR/IDÉER: foton i molnet (Supabase Storage), foto från monitorn,
+blocking-skiss (rita positioner), tidtagning per scen.
 ------------------------------------------------------------------------
 - Detaljerad shotlist på set (mer än planeringens: status per bild, tagningar,
   anteckningar, foto från monitorn)

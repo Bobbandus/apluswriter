@@ -16,6 +16,23 @@ manuset.
   första inspelningsdagen, och varnar för för fulla dagar, flyttar mellan
   platser och natt före dag. "Lägg ut oschemalagda" gör ett första utkast.
 - Båda går att ångra, skriva ut och exportera till Excel.
+- **A+ Shoot, hela.** Välj manuset ni spelar in under A+ Shoot, så får ni
+  det som behövs på set, byggt för en iPad (även iPad 9, stående och liggande):
+  - **Dagen:** callsheet för inspelningsdagen ur stripboarden, med samling,
+    slut, platser, roller och scenerna i ordning. Går att skriva ut.
+  - **Bilder:** shotlisten på set. Markera bilder som klara eller överhoppade,
+    se tagningarna per bild, få blocking-tips och en föreslagen
+    inspelningsordning, skriv blocking-anteckningar och ta kontinuitetsfoton
+    med iPadens kamera (de sparas på enheten).
+  - **Klappan, kopplad till manuset:** scen och bild kommer från shotlisten
+    (35A, 35B …), tagningen räknar sig själv, och varje klapp hamnar i
+    tagningsloggen med sin tidskod. "Nästa bild" och "Nästa scen" i panelen.
+  - **Tagningar:** bra/NG, ljudproblem, anteckning och kontinuitet per
+    tagning. Export till Excel.
+  - **Gear:** vilka objektiv och kamerastöd dagens bilder kräver, jämfört med
+    er utrustningslista, och en packlista att bocka av per dag.
+  - **Rapport:** vad som blev klart och vad som är kvar, att kopiera eller
+    skriva ut.
 - **A+ Shoot: Klappa.** En digital filmklappa för telefonen eller plattan
   (A+ Shoot → Klappa). Tryck på klappan överst så klappar den och tidskoden
   fryser på exakt den bildruta klappan slår ihop, med ett ljud att synka mot.
