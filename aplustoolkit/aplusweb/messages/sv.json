@@ -1302,6 +1302,9 @@
         "gear": "Gear: vad dagens bilder kräver, och en packlista",
         "report": "Rapport efter dagen: vad hann ni, vad är kvar"
       }
-    }
+    },
+    "sectionTakes": "Tagningar i manuset",
+    "allTakes": "Alla tagningar",
+    "takesHint": "Klappar härifrån sparas i manusets tagningslogg. Den fristående klappan har en egen logg som inte syns här."
   }
 }

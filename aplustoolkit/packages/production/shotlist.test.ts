@@ -10,6 +10,7 @@ import {
   readShotlists,
   refreshShotlists,
   renumber,
+  shotLetter,
   resolveShotlists,
   shotlistCsv,
   shotSpecs,
@@ -77,6 +78,23 @@ describe('shots', () => {
     expect(nextShotNumber(list(0, 'x', ['A']).shots)).toBe('1');
   });
 
+  it('keeps counting the slate way after 1A', () => {
+    expect(nextShotNumber(list(0, 'x', ['1A']).shots)).toBe('1B');
+    expect(nextShotNumber(list(0, 'x', ['1A', '1B']).shots)).toBe('1C');
+    expect(nextShotNumber(list(0, 'x', ['35C', '35a']).shots)).toBe('35D');
+    // H is followed by J: I and O are not used on a slate.
+    expect(nextShotNumber(list(0, 'x', ['1H']).shots)).toBe('1J');
+    expect(nextShotNumber(list(0, 'x', ['1N']).shots)).toBe('1P');
+    expect(nextShotNumber(list(0, 'x', ['1Z']).shots)).toBe('1AA');
+    // Two scene numbers, or a plain number among them, is not that style.
+    expect(nextShotNumber(list(0, 'x', ['1A', '2A']).shots)).toBe('3');
+    expect(nextShotNumber(list(0, 'x', ['1', '1A']).shots)).toBe('2');
+  });
+
+  it('letters shots like a slate', () => {
+    expect([1, 2, 8, 9, 13, 14, 24, 25].map(shotLetter)).toEqual(['A', 'B', 'H', 'J', 'N', 'P', 'Z', 'AA']);
+  });
+
   it('opens wide, then goes to medium', () => {
     expect(newShot([]).size).toBe('WS');
     expect(newShot(list(0, 'x').shots)).toEqual({ number: '2', size: 'MS', description: '' });
@@ -87,6 +105,10 @@ describe('shots', () => {
     const next = renumber(shots);
     expect(next.map((s) => s.number)).toEqual(['1', '2', '3']);
     expect(next[0]).toBe(shots[0]);
+  });
+
+  it('renumbers a list written the slate way in that style', () => {
+    expect(renumber(list(0, 'x', ['1A', '1D', '1C']).shots).map((s) => s.number)).toEqual(['1A', '1B', '1C']);
   });
 
   it('moves a shot and clamps at the ends', () => {

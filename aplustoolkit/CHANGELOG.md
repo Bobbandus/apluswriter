@@ -33,6 +33,12 @@ manuset.
     er utrustningslista, och en packlista att bocka av per dag.
   - **Rapport:** vad som blev klart och vad som är kvar, att kopiera eller
     skriva ut.
+  - Bilder numrerade som på klappan (1A, 1B …) visas som de står, inte som
+    "1-1A". Klappans panel visar manusets tagningar, inte den fristående
+    klappans logg.
+- **Shotlist:** en lista numrerad 1A, 1B fortsätter med 1C när du lägger
+  till en bild (Ctrl+Enter), och "Numrera om" håller samma stil. I och O
+  hoppas över, som på en klappa.
 - **A+ Shoot: Klappa.** En digital filmklappa för telefonen eller plattan
   (A+ Shoot → Klappa). Tryck på klappan överst så klappar den och tidskoden
   fryser på exakt den bildruta klappan slår ihop, med ett ljud att synka mot.

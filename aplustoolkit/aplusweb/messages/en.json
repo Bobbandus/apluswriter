@@ -1302,6 +1302,9 @@
         "gear": "Gear: what the day's shots need, and a packing list",
         "report": "Wrap report: what got done, what is left"
       }
-    }
+    },
+    "sectionTakes": "Takes in the script",
+    "allTakes": "All takes",
+    "takesHint": "Claps from here go to the script's take log. The standalone slate keeps its own log, which does not show here."
   }
 }

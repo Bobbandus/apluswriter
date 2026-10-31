@@ -10,6 +10,7 @@ import {
   ensureScene,
   gearNeeds,
   hasLens,
+  mendSlate,
   nextOpenShot,
   nextTake,
   readShoot,
@@ -113,6 +114,10 @@ describe('the slate', () => {
   it('writes scene and shot the slate way', () => {
     expect(slateScene('35', '1')).toBe('35A');
     expect(slateScene('35', '2A')).toBe('35-2A');
+    expect(slateScene('1', '1A')).toBe('1A');
+    expect(slateScene('1', '1b')).toBe('1B');
+    expect(slateScene('35', 'C')).toBe('35C');
+    expect(slateScene('1', '12A')).toBe('1-12A');
     expect(slateScene('35', null)).toBe('35');
   });
 
@@ -180,6 +185,16 @@ describe('dayReport', () => {
     const report = dayReport([0, 1], lists, data, sceneIndex(script.scenes, data), 1);
     expect(report).toMatchObject({ shots: 4, done: 1, skipped: 1, takes: 1, good: 1, complete: 1, otherTakes: 1 });
     expect(report.scenes[1]).toMatchObject({ complete: false, started: false, remaining: ['1', '2'] });
+  });
+});
+
+describe('mending old takes', () => {
+  it('turns "1-1A" into "1A" and leaves the rest alone', () => {
+    expect(mendSlate('1-1A')).toBe('1A');
+    expect(mendSlate('35-35C')).toBe('35C');
+    expect(mendSlate('35-2A')).toBe('35-2A');
+    expect(mendSlate('1A')).toBe('1A');
+    expect(readShoot({ takes: [{ id: 't', at: 1, slate: '1-1A' }] }).takes[0]?.slate).toBe('1A');
   });
 });
 

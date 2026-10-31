@@ -1,6 +1,6 @@
 import type { Shot, Shotlist } from '../bridge/protocol';
 import type { SceneIndexEntry } from '../fountain/types';
-import { SHOT_SIZES } from '../production/shotlist';
+import { SHOT_SIZES, shotLetter } from '../production/shotlist';
 import { refOf, resolveRefs, type StripRef } from '../production/stripboard';
 
 /**
@@ -156,7 +156,7 @@ function readTake(value: unknown): Take | null {
   return {
     id,
     scene: str(value['scene'], 64) ?? null,
-    slate: str(value['slate'], 40) ?? '',
+    slate: mendSlate(str(value['slate'], 40) ?? ''),
     shot: str(value['shot'], 40) ?? null,
     take: finite(value['take']) ? Math.max(1, Math.floor(value['take'])) : 1,
     tc: str(value['tc'], 20) ?? '',
@@ -287,25 +287,35 @@ export const shotState = (scene: SceneShoot | undefined, shot: string): ShotStat
 /* The slate                                                                  */
 /* ========================================================================== */
 
-// I and O are left out, as on every slate: they read as 1 and 0.
-const LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+export { shotLetter };
 
-/** 1 → A, 2 → B … 24 → Z, 25 → AA. */
-export function shotLetter(n: number): string {
-  let i = Math.max(1, Math.floor(n));
-  let out = '';
-  while (i > 0) {
-    i -= 1;
-    out = (LETTERS[i % LETTERS.length] as string) + out;
-    i = Math.floor(i / LETTERS.length);
-  }
-  return out;
+/**
+ * What goes in the SCENE box. Scene 35, shot 1 → "35A". A shot already
+ * written the slate way ("35A", or just "A") is used as it stands, not
+ * prefixed a second time. Anything else keeps both parts apart: "35-2A".
+ */
+export function slateScene(sceneNumber: string, shot: string | null): string {
+  if (!shot?.trim()) return sceneNumber;
+  const s = shot.trim();
+  if (/^\d+$/.test(s)) return `${sceneNumber}${shotLetter(Number(s))}`;
+  if (/^[A-Za-z]+$/.test(s)) return `${sceneNumber}${s.toUpperCase()}`;
+  const scene = sceneNumber.trim().toUpperCase();
+  const upper = s.toUpperCase();
+  if (scene && upper.startsWith(scene) && /^[A-Z]+$/.test(upper.slice(scene.length))) return upper;
+  return `${sceneNumber}-${s}`;
 }
 
-/** What goes in the SCENE box: scene 35, shot 1 → "35A". A shot numbered "2A" by hand stays readable as "35-2A". */
-export function slateScene(sceneNumber: string, shot: string | null): string {
-  if (!shot) return sceneNumber;
-  return /^\d+$/.test(shot) ? `${sceneNumber}${shotLetter(Number(shot))}` : `${sceneNumber}-${shot}`;
+/**
+ * Takes slated before the fix above read "1-1A" for shot 1A of scene 1: the
+ * scene number twice. Mended on read, so the log, the report and the export
+ * all say "1A". Nothing else written by hand is touched.
+ */
+export function mendSlate(slate: string): string {
+  const match = /^(.+)-(.+)$/.exec(slate);
+  if (!match) return slate;
+  const [, scene, shot] = match as unknown as [string, string, string];
+  const mended = slateScene(scene, shot);
+  return mended === `${scene}-${shot}` ? slate : mended;
 }
 
 /** The number a scene goes by: its own, or its place in the script. */

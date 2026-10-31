@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { DEFAULT_LABELS, SLATE_FIELDS, changeRate, logAsText, type SlateField, type SlateState } from '@aplus/shoot/slate';
 import { FRAME_RATES, formatTimecode, isFrameRate, parseTimecode } from '@aplus/shoot/timecode';
 import styles from './SlatePanel.module.css';
@@ -19,7 +19,32 @@ export interface SlatePanelProps {
   onClose: () => void;
   isSwipeRight: (dx: number, dy: number) => boolean;
   /** Linked to a script: scene and take come from there, and this goes at the top of the panel instead. */
-  linked?: { panel: ReactNode; back: string; backLabel: string } | undefined;
+  linked?: LinkedPanel | undefined;
+}
+
+/** One clap in a script's take log, as the panel lists it. */
+export interface LinkedLogEntry {
+  id: string;
+  tc: string;
+  /** "1A / 3" */
+  label: string;
+  roll: string;
+  at: number;
+  note: string;
+}
+
+export interface LinkedPanel {
+  panel: ReactNode;
+  back: string;
+  backLabel: string;
+  /**
+   * The script's own take log, newest first. Linked, the panel lists this and
+   * not the slate's: a slate used on its own keeps its own claps, a script
+   * keeps its takes, and the two never show in each other's list.
+   */
+  log: LinkedLogEntry[];
+  /** Where the whole log is, to grade and edit takes. */
+  logHref: string;
 }
 
 type FullscreenDoc = Document & { webkitFullscreenEnabled?: boolean; webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
@@ -44,6 +69,7 @@ const fs = {
 /** Everything on the slate, changeable. Slides in from the right; swipe right or tap outside to put it away. */
 export function SlatePanel({ open, focus, state, today, wakeSupported, onChange, onReplace, onClose, isSwipeRight, linked }: SlatePanelProps) {
   const t = useTranslations('shoot');
+  const locale = useLocale();
   const inputs = useRef<Partial<Record<SlateField, HTMLInputElement | null>>>({});
   const start = useRef({ x: 0, y: 0, active: false });
   const [takeDraft, setTakeDraft] = useState<string | null>(null);
@@ -113,9 +139,16 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
     else fs.enter();
   };
 
+  const entries: LinkedLogEntry[] = linked
+    ? linked.log
+    : state.log.map((r) => ({ id: `${r.at}-${r.tc}`, tc: r.tc, label: `${r.scene} / ${r.take}`, roll: r.roll, at: r.at, note: r.note }));
+
   const copyLog = async () => {
+    const text = linked
+      ? [['TC', state.labels.roll, `${state.labels.scene} / ${state.labels.take}`, state.labels.note].join('\t'), ...[...entries].reverse().map((e) => [e.tc, e.roll, e.label, e.note].join('\t'))].join('\n')
+      : logAsText(state.log, state.labels);
     try {
-      await navigator.clipboard.writeText(logAsText(state.log, state.labels));
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
@@ -128,7 +161,7 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
   };
 
   const field = (name: SlateField) => `slate-${name}`;
-  const time = (at: number) => new Date(at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const time = (at: number) => new Date(at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   return (
     <>
@@ -360,27 +393,32 @@ export function SlatePanel({ open, focus, state, today, wakeSupported, onChange,
         <section className={styles.section}>
           <div className={styles.headingRow}>
             <h2 className={styles.heading}>
-              {t('sectionLog')} <span className={styles.count}>{state.log.length}</span>
+              {t(linked ? 'sectionTakes' : 'sectionLog')} <span className={styles.count}>{entries.length}</span>
             </h2>
             <div className={styles.inline}>
-              <button type="button" className={styles.small} onClick={copyLog} disabled={!state.log.length}>
+              <button type="button" className={styles.small} onClick={copyLog} disabled={!entries.length}>
                 {t(copied ? 'copied' : 'copyLog')}
               </button>
-              <button type="button" className={styles.small} onClick={clearLog} disabled={!state.log.length}>
-                {t('clearLog')}
-              </button>
+              {linked ? (
+                <Link href={linked.logHref} className={styles.small} style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
+                  {t('allTakes')} →
+                </Link>
+              ) : (
+                <button type="button" className={styles.small} onClick={clearLog} disabled={!state.log.length}>
+                  {t('clearLog')}
+                </button>
+              )}
             </div>
           </div>
-          {state.log.length === 0 ? (
+          {linked && <p className={styles.hint}>{t('takesHint')}</p>}
+          {entries.length === 0 ? (
             <p className={styles.hint}>{t('logEmpty')}</p>
           ) : (
             <ol className={styles.log}>
-              {state.log.slice(0, 100).map((r) => (
-                <li key={`${r.at}-${r.tc}`}>
-                  <span className={styles.mono}>{r.tc}</span>
-                  <span>
-                    {r.scene} / {r.take}
-                  </span>
+              {entries.slice(0, 100).map((r) => (
+                <li key={r.id}>
+                  <span className={styles.mono}>{r.tc || '—'}</span>
+                  <span>{r.label}</span>
                   <span className={styles.faint}>{r.roll}</span>
                   <span className={styles.faint}>{time(r.at)}</span>
                   {r.note && <span className={styles.logNote}>{r.note}</span>}

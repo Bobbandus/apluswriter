@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPoi
 import { useTranslations } from 'next-intl';
 import { clap, currentLabel, defaultSlate, edit, normalizeSlate, open, slateDate, type SlateField, type SlateState } from '@aplus/shoot/slate';
 import { formatTimecode } from '@aplus/shoot/timecode';
-import { SlatePanel } from './SlatePanel';
+import { SlatePanel, type LinkedLogEntry } from './SlatePanel';
 import { playClap } from './clapSound';
 import styles from './Slate.module.css';
 
@@ -43,6 +43,9 @@ export interface SlateLink {
   hint?: string;
   back: string;
   backLabel: string;
+  /** The script's take log, shown in the panel instead of the slate's own. */
+  log: LinkedLogEntry[];
+  logHref: string;
 }
 
 const isSwipe = (dx: number, dy: number, direction: -1 | 1) => dx * direction > SWIPE_PX && Math.abs(dx) > Math.abs(dy) * 1.5;
@@ -71,9 +74,34 @@ export function Slate({ link }: { link?: SlateLink } = {}) {
   const [frozen, setFrozen] = useState<{ scene: string; take: number } | null>(null);
 
   // Storage is the browser's, so the slate appears once it is read: no flash of defaults over last night's scene.
+  const adopted = useRef(false);
   useEffect(() => setState(load()), []);
+
+  // The slate on its own and the slate of a script share these settings and
+  // the standalone log. With both open in two tabs, each must take the other's
+  // writes, or the older one writes its stale copy back (a cleared log returns).
+  // The sticks stay this tab's own: a clap in one tab does not shut the other.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY || !e.newValue) return;
+      try {
+        const theirs = normalizeSlate(JSON.parse(e.newValue));
+        // Taken from the other tab, so not written back: two tabs answering each other's writes would never stop.
+        adopted.current = true;
+        setState((mine) => (mine ? { ...theirs, closed: mine.closed, frozenTc: mine.frozenTc, advancePending: mine.advancePending } : theirs));
+      } catch {
+        // Not ours to read: leave this tab as it is.
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
   useEffect(() => {
     if (!state) return;
+    if (adopted.current) {
+      adopted.current = false;
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
@@ -306,7 +334,7 @@ export function Slate({ link }: { link?: SlateLink } = {}) {
         onReplace={replace}
         onClose={closePanel}
         isSwipeRight={(dx, dy) => isSwipe(dx, dy, 1)}
-        linked={link ? { panel: link.panel, back: link.back, backLabel: link.backLabel } : undefined}
+        linked={link ? { panel: link.panel, back: link.back, backLabel: link.backLabel, log: link.log, logHref: link.logHref } : undefined}
       />
     </div>
   );

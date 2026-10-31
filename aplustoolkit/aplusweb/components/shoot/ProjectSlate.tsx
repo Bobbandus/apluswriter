@@ -160,6 +160,10 @@ export function ProjectSlate({ projectId }: { projectId: string }) {
         ...(hint ? { hint } : {}),
         back: `/shoot/${projectId}`,
         backLabel: p.title || 'A+ Shoot',
+        log: [...p.shoot.takes]
+          .sort((x, y) => y.at - x.at)
+          .map((tk) => ({ id: tk.id, tc: tk.tc, label: `${tk.slate} / ${tk.take}`, roll: tk.roll, at: tk.at, note: tk.note })),
+        logHref: `/shoot/${projectId}#log`,
       }}
     />
   );

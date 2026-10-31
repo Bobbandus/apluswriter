@@ -115,8 +115,55 @@ export function refreshShotlists(scenes: readonly SceneIndexEntry[], lists: read
 /* Shots                                                                      */
 /* ========================================================================== */
 
-/** The number after the highest one in use: after 1, 2, 2A comes 3. */
+// I and O are left out, as on every slate: they read as 1 and 0.
+const SHOT_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+/** 1 → A, 2 → B … 8 → H, 9 → J … 24 → Z, 25 → AA. The letters a slate uses for shots. */
+export function shotLetter(n: number): string {
+  let i = Math.max(1, Math.floor(n));
+  let out = '';
+  while (i > 0) {
+    i -= 1;
+    out = (SHOT_LETTERS[i % SHOT_LETTERS.length] as string) + out;
+    i = Math.floor(i / SHOT_LETTERS.length);
+  }
+  return out;
+}
+
+/** Orders letter suffixes as the alphabet does, longer after shorter: A < H < I < Z < AA. */
+const letterValue = (letters: string) => [...letters.toUpperCase()].reduce((v, c) => v * 27 + (c.charCodeAt(0) - 64), 0);
+
+/**
+ * Shots numbered the slate way, scene number and a letter: 1A, 1B, 1C. The
+ * list counts in that style when every shot is written so with one number;
+ * null otherwise. Returns the number and the highest letter in use.
+ */
+function letterStyle(shots: readonly Shot[]): { prefix: string; highest: string } | null {
+  let prefix: string | null = null;
+  let highest = '';
+  for (const shot of shots) {
+    const match = /^\s*(\d+)([A-Za-z]+)\s*$/.exec(shot.number);
+    if (!match) return null;
+    const [, number, letters] = match as unknown as [string, string, string];
+    if (prefix !== null && prefix !== number) return null;
+    prefix = number;
+    if (letterValue(letters) > letterValue(highest)) highest = letters.toUpperCase();
+  }
+  return prefix === null ? null : { prefix, highest };
+}
+
+/**
+ * The number for a new shot. After 1A, 1B comes 1C, keeping a list written
+ * the slate way in that style (I and O skipped, as on the slate). Otherwise
+ * the number after the highest one in use: after 1, 2, 2A comes 3.
+ */
 export function nextShotNumber(shots: readonly Shot[]): string {
+  const style = letterStyle(shots);
+  if (style) {
+    let n = 1;
+    while (letterValue(shotLetter(n)) <= letterValue(style.highest)) n += 1;
+    return `${style.prefix}${shotLetter(n)}`;
+  }
   let highest = 0;
   for (const shot of shots) {
     const match = /^\s*(\d+)/.exec(shot.number);
@@ -129,9 +176,11 @@ export function newShot(shots: readonly Shot[], size: string = shots.length === 
   return { number: nextShotNumber(shots), size, description: '' };
 }
 
-/** 1, 2, 3 … in the order the shots are listed. */
+/** In the order the shots are listed: 1, 2, 3 … or, for a list written the slate way, 1A, 1B, 1C … */
 export function renumber(shots: readonly Shot[]): Shot[] {
-  return shots.map((shot, i) => (shot.number === String(i + 1) ? shot : { ...shot, number: String(i + 1) }));
+  const style = letterStyle(shots);
+  const numberAt = (i: number) => (style ? `${style.prefix}${shotLetter(i + 1)}` : String(i + 1));
+  return shots.map((shot, i) => (shot.number === numberAt(i) ? shot : { ...shot, number: numberAt(i) }));
 }
 
 export function moveShot(shots: readonly Shot[], from: number, to: number): Shot[] {
